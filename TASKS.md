@@ -370,58 +370,58 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 8.1 Landing Page
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Add hero section with CTA | ⬜ | Clear value proposition |
-| Add features section | ⬜ | Key features grid |
-| Add pricing section | ⬜ | Plan comparison |
-| Add testimonials section | ⬜ | Social proof |
-| Add FAQ section | ⬜ | Common questions |
-| Add footer with links | ⬜ | Legal, social, nav |
-| Make fully responsive | ⬜ | Mobile-first design |
+| Add hero section with CTA | ✅ | Clear value proposition |
+| Add features section | ✅ | Key features grid |
+| Add pricing section | ✅ | Plan comparison |
+| Add testimonials section | ✅ | Social proof |
+| Add FAQ section | ✅ | Common questions |
+| Add footer with links | ✅ | Legal, social, nav |
+| Make fully responsive | ✅ | Mobile-first design |
 
 ### 8.2 Dashboard Page
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Add welcome message | ⬜ | Personalized greeting |
-| Add quick stats cards | ⬜ | Key metrics |
-| Add recent activity feed | ⬜ | From audit logs |
-| Add quick actions | ⬜ | Common tasks |
+| Add welcome message | ✅ | Personalized greeting |
+| Add quick stats cards | ✅ | Key metrics |
+| Add recent activity feed | ✅ | From audit logs |
+| Add quick actions | ✅ | Common tasks |
 
 ### 8.3 Team Page
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| List all team members | ⬜ | With roles |
-| Add invite member modal | ⬜ | Email invite |
-| Add change role dropdown | ⬜ | Admin only |
-| Add remove member button | ⬜ | With confirmation |
-| Show pending invitations | ⬜ | With resend/cancel |
+| List all team members | ✅ | With roles |
+| Add invite member modal | ✅ | Email invite |
+| Add change role dropdown | ✅ | Admin only |
+| Add remove member button | ✅ | With confirmation |
+| Show pending invitations | ⬜ | With resend/cancel (Note: Uses Clerk invitations) |
 
 ### 8.4 Billing Page
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Show current plan | ⬜ | Name, price, features |
-| Show usage metrics | ⬜ | If usage-based |
-| Add upgrade button | ⬜ | Opens checkout |
-| Add manage subscription link | ⬜ | Opens Stripe portal |
-| Show billing history | ⬜ | Past invoices |
+| Show current plan | ✅ | Name, price, features |
+| Show usage metrics | ✅ | If usage-based |
+| Add upgrade button | ✅ | Opens checkout |
+| Add manage subscription link | ✅ | Opens Stripe portal |
+| Show billing history | ✅ | Past invoices |
 
 ### 8.5 Settings Page
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Organization settings section | ⬜ | Name, slug, logo |
-| User profile section | ⬜ | Name, email, avatar |
-| Notification preferences | ⬜ | Email settings |
-| Danger zone (delete org) | ⬜ | With confirmation |
+| Organization settings section | ✅ | Name, slug, timezone |
+| User profile section | ✅ | Name, email, avatar |
+| Notification preferences | ✅ | Email settings |
+| Danger zone (delete org) | ✅ | With confirmation |
 
-### 8.6 API Routes
+### 8.6 API Routes (Server Actions)
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create team invite endpoint | ⬜ | POST /api/team/invite |
-| Create team remove endpoint | ⬜ | DELETE /api/team/[id] |
-| Create team role update endpoint | ⬜ | PATCH /api/team/[id]/role |
-| Create org settings endpoint | ⬜ | PATCH /api/org/settings |
-| Create usage endpoint | ⬜ | GET /api/billing/usage |
-| Add consistent error handling | ⬜ | Standard error format |
-| Add request validation (Zod) | ⬜ | All endpoints validated |
+| Create team invite action | ✅ | Server action with audit log |
+| Create team remove action | ✅ | Server action with auth check |
+| Create team role update action | ✅ | Server action (owner only) |
+| Create org settings action | ✅ | Server action with validation |
+| Create billing actions | ✅ | Checkout, portal, cancel, resume |
+| Add consistent error handling | ✅ | Standard ActionResult format |
+| Add request validation | ✅ | Form validation + auth checks |
 
 ---
 

@@ -1,93 +1,116 @@
 import { requireOrganization } from '@startkit/auth/server'
-import { Button } from '@startkit/ui'
+import {
+  PageHeader,
+  PageHeaderContent,
+  PageHeaderTitle,
+  PageHeaderDescription,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@startkit/ui'
+import { CheckCircle, XCircle } from 'lucide-react'
+import { getBillingData } from './data'
+import { CurrentPlanCard, UsageCard, UpgradePlans } from './components'
+
+interface BillingPageProps {
+  searchParams: Promise<{ success?: string; canceled?: string }>
+}
 
 /**
  * Billing page - subscription management
  */
-export default async function BillingPage() {
+export default async function BillingPage({ searchParams }: BillingPageProps) {
+  const params = await searchParams
   const { organization } = await requireOrganization()
+  const billingData = await getBillingData(organization.organizationId)
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Billing</h1>
-        <p className="text-muted-foreground">
-          Manage your subscription and billing information.
-        </p>
-      </div>
+    <div className="space-y-8">
+      {/* Page header */}
+      <PageHeader>
+        <PageHeaderContent>
+          <PageHeaderTitle>Billing</PageHeaderTitle>
+          <PageHeaderDescription>
+            Manage your subscription and billing information.
+          </PageHeaderDescription>
+        </PageHeaderContent>
+      </PageHeader>
 
-      <div className="grid gap-6">
+      {/* Success/Cancel alerts from Stripe checkout */}
+      {params.success && (
+        <Alert className="border-green-500/50 bg-green-500/10">
+          <CheckCircle className="h-4 w-4 text-green-500" />
+          <AlertTitle>Payment successful!</AlertTitle>
+          <AlertDescription>
+            Thank you for your subscription. Your new plan is now active.
+          </AlertDescription>
+        </Alert>
+      )}
+      {params.canceled && (
+        <Alert className="border-amber-500/50 bg-amber-500/10">
+          <XCircle className="h-4 w-4 text-amber-500" />
+          <AlertTitle>Checkout canceled</AlertTitle>
+          <AlertDescription>
+            Your checkout was canceled. No charges were made.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Current Plan */}
-        <section className="rounded-lg border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold">Current Plan</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold capitalize">{organization.plan}</div>
-              <p className="text-sm text-muted-foreground">
-                {organization.plan === 'free'
-                  ? 'Upgrade to unlock more features'
-                  : 'Your subscription is active'}
-              </p>
-            </div>
-            <Button variant={organization.plan === 'free' ? 'default' : 'outline'}>
-              {organization.plan === 'free' ? 'Upgrade' : 'Manage Subscription'}
-            </Button>
-          </div>
-        </section>
+        <CurrentPlanCard
+          subscription={billingData.subscription}
+          planConfig={billingData.planConfig}
+        />
 
         {/* Usage */}
-        <section className="rounded-lg border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold">Usage This Period</h2>
-          <div className="space-y-4">
-            <UsageBar label="API Calls" current={0} limit={1000} />
-            <UsageBar label="Storage" current={0} limit={5} unit="GB" />
-            <UsageBar label="Team Members" current={1} limit={5} />
+        <UsageCard usage={billingData.usage} />
+      </div>
+
+      {/* Upgrade Plans */}
+      <UpgradePlans currentPlan={billingData.subscription?.plan ?? 'free'} />
+
+      {/* Billing History */}
+      {billingData.invoices.length > 0 && (
+        <div className="rounded-lg border bg-card p-6">
+          <h2 className="text-lg font-semibold mb-4">Billing History</h2>
+          <div className="space-y-2">
+            {billingData.invoices.map((invoice) => (
+              <div
+                key={invoice.id}
+                className="flex items-center justify-between py-3 border-b last:border-0"
+              >
+                <div>
+                  <p className="font-medium">
+                    {new Intl.DateTimeFormat('en-US', {
+                      month: 'long',
+                      year: 'numeric',
+                    }).format(invoice.date)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {invoice.status === 'paid' ? 'Paid' : invoice.status}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="font-medium">
+                    ${(invoice.amount / 100).toFixed(2)}
+                  </span>
+                  {invoice.pdfUrl && (
+                    <a
+                      href={invoice.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Download
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        </section>
-
-        {/* Billing History */}
-        <section className="rounded-lg border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold">Billing History</h2>
-          <p className="text-sm text-muted-foreground">No invoices yet.</p>
-        </section>
-      </div>
-    </div>
-  )
-}
-
-function UsageBar({
-  label,
-  current,
-  limit,
-  unit = '',
-}: {
-  label: string
-  current: number
-  limit: number
-  unit?: string
-}) {
-  const percentage = Math.min((current / limit) * 100, 100)
-  const isWarning = percentage > 80
-  const isDanger = percentage > 95
-
-  return (
-    <div>
-      <div className="mb-1 flex justify-between text-sm">
-        <span>{label}</span>
-        <span className="text-muted-foreground">
-          {current}
-          {unit} / {limit}
-          {unit}
-        </span>
-      </div>
-      <div className="h-2 rounded-full bg-muted">
-        <div
-          className={`h-full rounded-full transition-all ${
-            isDanger ? 'bg-destructive' : isWarning ? 'bg-yellow-500' : 'bg-primary'
-          }`}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+        </div>
+      )}
     </div>
   )
 }
