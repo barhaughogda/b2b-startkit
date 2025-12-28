@@ -498,13 +498,13 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 11.1 create-product CLI
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Accept --name flag | ⬜ | Kebab-case product name |
-| Accept --display-name flag | ⬜ | Human-readable name |
-| Copy web-template to new folder | ⬜ | All files copied |
-| Update package.json in new app | ⬜ | Correct name |
-| Generate product config file | ⬜ | Default configuration |
-| Output setup instructions | ⬜ | Next steps for user |
-| Interactive mode | ⬜ | Prompts if no flags |
+| Accept --name flag | ✅ | Kebab-case product name |
+| Accept --display-name flag | ✅ | Human-readable name |
+| Copy web-template to new folder | ✅ | All files copied |
+| Update package.json in new app | ✅ | Correct name |
+| Generate product config file | ✅ | Default configuration |
+| Output setup instructions | ✅ | Next steps for user |
+| Interactive mode | ✅ | Prompts if no flags |
 
 ---
 

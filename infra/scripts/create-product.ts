@@ -4,14 +4,15 @@
  *
  * Usage:
  *   pnpm create:product --name=my-product --display-name="My Product"
+ *   pnpm create:product  # Interactive mode
  *
  * @ai-no-modify This script scaffolds new products.
  * Changes require careful review to ensure consistency.
  */
 
-import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as readline from 'readline'
 
 interface CreateProductOptions {
   name: string
@@ -21,7 +22,7 @@ interface CreateProductOptions {
   hasAiFeatures?: boolean
 }
 
-function parseArgs(): CreateProductOptions {
+function parseArgs(): Partial<CreateProductOptions> {
   const args = process.argv.slice(2)
   const options: Partial<CreateProductOptions> = {}
 
@@ -46,18 +47,82 @@ function parseArgs(): CreateProductOptions {
     }
   }
 
-  if (!options.name) {
-    console.error('Error: --name is required')
-    console.log('Usage: pnpm create:product --name=my-product --display-name="My Product"')
-    process.exit(1)
+  return options
+}
+
+function prompt(question: string): Promise<string> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close()
+      resolve(answer.trim())
+    })
+  })
+}
+
+async function promptInteractive(options: Partial<CreateProductOptions>): Promise<CreateProductOptions> {
+  console.log('\n📝 Interactive Mode - Answer the following questions:\n')
+
+  // Prompt for name
+  let name = options.name
+  while (!name) {
+    const input = await prompt('Product name (kebab-case, e.g., my-product): ')
+    if (input) {
+      // Validate kebab-case
+      if (!/^[a-z][a-z0-9-]*$/.test(input)) {
+        console.log('❌ Name must be kebab-case (lowercase letters, numbers, hyphens)')
+        continue
+      }
+      // Check if exists
+      const targetPath = path.join(process.cwd(), 'apps', input)
+      if (fs.existsSync(targetPath)) {
+        console.log(`❌ Product "${input}" already exists at ${targetPath}`)
+        continue
+      }
+      name = input
+    }
+  }
+
+  // Prompt for display name
+  const displayName =
+    options.displayName ||
+    (await prompt(`Display name [${name}]: `)) ||
+    name
+
+  // Prompt for description
+  const description =
+    options.description ||
+    (await prompt(`Description [A StartKit product: ${displayName}]: `)) ||
+    `A StartKit product: ${displayName}`
+
+  // Prompt for pricing model
+  let pricingModel = options.pricingModel
+  if (!pricingModel) {
+    const input = await prompt('Pricing model (per_seat/usage_based/flat_rate) [per_seat]: ')
+    pricingModel = (input || 'per_seat') as CreateProductOptions['pricingModel']
+    if (!['per_seat', 'usage_based', 'flat_rate'].includes(pricingModel)) {
+      console.log('⚠️  Invalid pricing model, defaulting to per_seat')
+      pricingModel = 'per_seat'
+    }
+  }
+
+  // Prompt for AI features
+  let hasAiFeatures = options.hasAiFeatures
+  if (hasAiFeatures === undefined) {
+    const input = await prompt('Include AI features? (y/n) [n]: ')
+    hasAiFeatures = input.toLowerCase() === 'y' || input.toLowerCase() === 'yes'
   }
 
   return {
-    name: options.name,
-    displayName: options.displayName ?? options.name,
-    description: options.description ?? `A StartKit product: ${options.displayName ?? options.name}`,
-    pricingModel: options.pricingModel ?? 'per_seat',
-    hasAiFeatures: options.hasAiFeatures ?? false,
+    name,
+    displayName,
+    description,
+    pricingModel,
+    hasAiFeatures: hasAiFeatures ?? false,
   }
 }
 
@@ -224,7 +289,21 @@ function printNextSteps(options: CreateProductOptions): void {
 async function main() {
   console.log('🚀 StartKit Product Creator\n')
 
-  const options = parseArgs()
+  // Parse command-line arguments
+  const parsedOptions = parseArgs()
+
+  // If name is missing, enter interactive mode
+  const options = parsedOptions.name
+    ? {
+        name: parsedOptions.name,
+        displayName: parsedOptions.displayName ?? parsedOptions.name,
+        description:
+          parsedOptions.description ?? `A StartKit product: ${parsedOptions.displayName ?? parsedOptions.name}`,
+        pricingModel: parsedOptions.pricingModel ?? 'per_seat',
+        hasAiFeatures: parsedOptions.hasAiFeatures ?? false,
+      }
+    : await promptInteractive(parsedOptions)
+
   validateName(options.name)
   copyTemplate(options)
   generateEnvFile(options)
