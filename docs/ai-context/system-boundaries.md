@@ -1,6 +1,6 @@
 # System Boundaries for AI Assistants
 
-This document defines the boundaries of the StartKit-Business system to help AI assistants understand what can and cannot be modified.
+This document defines the boundaries of the B2B StartKit system to help AI assistants understand what can and cannot be modified.
 
 ## Architecture Overview
 

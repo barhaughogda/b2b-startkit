@@ -1,4 +1,4 @@
-# StartKit-Business
+# B2B StartKit
 
 A production-grade B2B SaaS/AaaS mono-repo starter kit for building multiple products.
 
@@ -35,8 +35,8 @@ A production-grade B2B SaaS/AaaS mono-repo starter kit for building multiple pro
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/startkit-business.git
-cd startkit-business
+git clone https://github.com/barhaughogda/b2b-startkit.git
+cd b2b-startkit
 
 # Install dependencies
 pnpm install
@@ -60,7 +60,7 @@ Then follow the printed instructions to set up external services.
 ## Project Structure
 
 ```
-startkit-business/
+b2b-startkit/
 ├── apps/
 │   ├── web-template/    # Base template for new products
 │   └── [products]/      # Your SaaS products

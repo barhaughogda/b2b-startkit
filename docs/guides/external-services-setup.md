@@ -99,7 +99,7 @@ This guide walks you through setting up the external services required for Start
 After setting up environment variables:
 
 ```bash
-cd /path/to/startkit-business
+cd /path/to/b2b-startkit
 pnpm --filter @startkit/database db:push
 ```
 

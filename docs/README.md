@@ -1,6 +1,6 @@
-# StartKit-Business Documentation
+# B2B StartKit Documentation
 
-Welcome to the StartKit-Business documentation. This is your guide to building and scaling B2B SaaS products.
+Welcome to the B2B StartKit documentation. This is your guide to building and scaling B2B SaaS products.
 
 ## Quick Links
 
