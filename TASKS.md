@@ -554,9 +554,9 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 13.1 Test Infrastructure (Set up first!)
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Set up Vitest | ⬜ | Test runner configured |
-| Set up Playwright | ⬜ | E2E runner configured |
-| Create test utilities | ⬜ | Mock factories, helpers |
+| Set up Vitest | ✅ | Test runner configured |
+| Set up Playwright | ✅ | E2E runner configured |
+| Create test utilities | ✅ | Mock factories, helpers |
 
 ### 13.2 Unit Tests (write alongside each section)
 | Task | Status | Acceptance Criteria |
