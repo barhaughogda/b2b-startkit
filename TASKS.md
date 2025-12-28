@@ -339,11 +339,11 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 7.2 Layout Components
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create responsive Sidebar | ⬜ | Collapsible on mobile |
-| Create Header component | ⬜ | With user menu |
-| Create PageHeader component | ⬜ | Title + actions |
-| Create EmptyState component | ⬜ | No data placeholder |
-| Create ErrorBoundary component | ⬜ | Error UI |
+| Create responsive Sidebar | ✅ | Collapsible on mobile |
+| Create Header component | ✅ | With user menu |
+| Create PageHeader component | ✅ | Title + actions |
+| Create EmptyState component | ✅ | No data placeholder |
+| Create ErrorBoundary component | ✅ | Error UI |
 
 ### 7.3 Form Components
 | Task | Status | Acceptance Criteria |
