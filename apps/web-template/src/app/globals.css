@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Product-specific styles
+ *
+ * Override @startkit/ui variables here for product-specific theming
+ */
+
+/* Example: Custom primary color
+@layer base {
+  :root {
+    --primary: 220 90% 56%;
+  }
+}
+*/

@@ -1,0 +1,12 @@
+# PNPM Workspace Configuration
+# All packages and apps are managed together for consistent versioning
+
+packages:
+  # Applications - Each SaaS product lives here
+  - "apps/*"
+  
+  # Shared packages - Core infrastructure used by all products
+  - "packages/*"
+  
+  # Infrastructure - Scripts, MCP servers, tooling
+  - "infra/*"
