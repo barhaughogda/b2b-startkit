@@ -7,7 +7,9 @@
  * - Environment variable validation with Zod
  * - Shared TypeScript types used across all packages
  * - Configuration schemas for products
+ * - Product configuration contract and validation
  */
 
 export * from './env'
 export * from './types'
+export * from './product-config'

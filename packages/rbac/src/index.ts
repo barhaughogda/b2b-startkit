@@ -8,6 +8,7 @@
  * - Role definitions with bundled permissions
  * - Feature flag evaluation
  * - Plan-based access control
+ * - Kill switch evaluation
  *
  * CRITICAL: Always check permissions before mutations.
  * Never bypass permission checks.
@@ -31,5 +32,18 @@ export {
   removeOrganizationFeatureFlag,
 } from './feature-flags-db'
 
+// Kill switches
+export {
+  checkKillSwitch,
+  isFeatureBlocked,
+  isOrganizationBlocked,
+  activateKillSwitch,
+  deactivateKillSwitch,
+  getActiveKillSwitches,
+  suspendOrganization,
+  unsuspendOrganization,
+} from './kill-switch'
+
 // Types
 export type { PermissionContext, RoleDefinition, FeatureFlagContext } from './types'
+export type { KillSwitchContext, KillSwitchResult, ActiveKillSwitch } from './kill-switch'

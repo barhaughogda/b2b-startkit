@@ -4,6 +4,7 @@ Welcome to the B2B StartKit documentation. This is your guide to building and sc
 
 ## Quick Links
 
+- [Master Plan](./master-plan.md) - Original vision, architecture, and cross-check
 - [Getting Started](./guides/getting-started.md)
 - [Creating a New Product](./guides/creating-new-product.md)
 - [Architecture Overview](./guides/architecture.md)
