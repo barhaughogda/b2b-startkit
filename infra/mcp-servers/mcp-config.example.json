@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/specification/main/schema/mcp-servers.json",
+  "_comment": "Copy this to ~/.cursor/mcp.json and update paths",
+  "mcpServers": {
+    "startkit-repo": {
+      "command": "node",
+      "args": ["REPLACE_WITH_PATH/infra/mcp-servers/dist/repo-knowledge-server.js"],
+      "cwd": "REPLACE_WITH_PATH"
+    },
+    "startkit-schema": {
+      "command": "node",
+      "args": ["REPLACE_WITH_PATH/infra/mcp-servers/dist/schema-introspection-server.js"],
+      "cwd": "REPLACE_WITH_PATH"
+    },
+    "startkit-billing": {
+      "command": "node",
+      "args": ["REPLACE_WITH_PATH/infra/mcp-servers/dist/billing-rules-server.js"],
+      "cwd": "REPLACE_WITH_PATH"
+    }
+  }
+}

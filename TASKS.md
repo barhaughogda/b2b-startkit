@@ -517,29 +517,29 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 12.1 Repo Knowledge Server
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create MCP server structure | ⬜ | Standard MCP format |
-| Implement `list_packages` tool | ⬜ | Returns all @startkit/* packages |
-| Implement `explain_package` tool | ⬜ | Returns package purpose |
-| Implement `find_files` tool | ⬜ | Search by purpose |
-| Implement `get_imports` tool | ⬜ | Show dependencies |
+| Create MCP server structure | ✅ | Standard MCP format |
+| Implement `list_packages` tool | ✅ | Returns all @startkit/* packages |
+| Implement `explain_package` tool | ✅ | Returns package purpose |
+| Implement `find_files` tool | ✅ | Search by purpose |
+| Implement `get_imports` tool | ✅ | Show dependencies |
 
 ### 12.2 Schema Introspection Server
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create MCP server structure | ⬜ | Standard MCP format |
-| Implement `list_tables` tool | ⬜ | All DB tables |
-| Implement `describe_table` tool | ⬜ | Columns, types, relations |
-| Implement `show_rls_policies` tool | ⬜ | Security policies |
-| Implement `validate_query` tool | ⬜ | Check tenant isolation |
+| Create MCP server structure | ✅ | Standard MCP format |
+| Implement `list_tables` tool | ✅ | All DB tables |
+| Implement `describe_table` tool | ✅ | Columns, types, relations |
+| Implement `show_rls_policies` tool | ✅ | Security policies |
+| Implement `validate_query` tool | ✅ | Check tenant isolation |
 
 ### 12.3 Billing Rules Server
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create MCP server structure | ⬜ | Standard MCP format |
-| Implement `list_plans` tool | ⬜ | All pricing plans |
-| Implement `explain_plan` tool | ⬜ | Plan details, limits |
-| Implement `get_billing_states` tool | ⬜ | State machine |
-| Implement `validate_billing_change` tool | ⬜ | Check if change is valid |
+| Create MCP server structure | ✅ | Standard MCP format |
+| Implement `list_plans` tool | ✅ | All pricing plans |
+| Implement `explain_plan` tool | ✅ | Plan details, limits |
+| Implement `get_billing_states` tool | ✅ | State machine |
+| Implement `validate_billing_change` tool | ✅ | Check if change is valid |
 
 ---
 

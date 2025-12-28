@@ -1,0 +1,24 @@
+{
+  "name": "@startkit/mcp-servers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCP servers for AI-assisted development of B2B StartKit",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start:repo": "node dist/repo-knowledge-server.js",
+    "start:schema": "node dist/schema-introspection-server.js",
+    "start:billing": "node dist/billing-rules-server.js",
+    "dev:repo": "tsx src/repo-knowledge-server.ts",
+    "dev:schema": "tsx src/schema-introspection-server.ts",
+    "dev:billing": "tsx src/billing-rules-server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
