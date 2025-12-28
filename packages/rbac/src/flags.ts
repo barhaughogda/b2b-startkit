@@ -8,7 +8,36 @@ import type { FeatureFlagContext, PermissionContext } from './types'
 const PLAN_HIERARCHY: PlanTier[] = ['free', 'starter', 'pro', 'enterprise']
 
 /**
+ * Plan-based default feature flags
+ * These are automatically enabled based on the organization's plan tier
+ */
+const PLAN_DEFAULT_FLAGS: Record<PlanTier, FeatureFlagKey[]> = {
+  free: [],
+  starter: ['basic_analytics', 'email_support'],
+  pro: ['basic_analytics', 'email_support', 'advanced_analytics', 'priority_support', 'api_access'],
+  enterprise: [
+    'basic_analytics',
+    'email_support',
+    'advanced_analytics',
+    'priority_support',
+    'api_access',
+    'sso',
+    'audit_logs',
+    'custom_integrations',
+    'dedicated_support',
+  ],
+}
+
+/**
+ * Get default feature flags for a plan tier
+ */
+export function getPlanDefaultFlags(plan: PlanTier): FeatureFlagKey[] {
+  return PLAN_DEFAULT_FLAGS[plan] || []
+}
+
+/**
  * Check if a feature flag is enabled for the current context
+ * Checks explicit flags first, then falls back to plan-based defaults
  *
  * @example
  * if (!hasFeature(ctx, 'ai_assistant')) {
@@ -21,14 +50,15 @@ export function hasFeature(ctx: PermissionContext, flagKey: FeatureFlagKey): boo
     return true
   }
 
-  // Check feature flags map
+  // Check explicit feature flags map first
   const flagValue = ctx.featureFlags.get(flagKey)
   if (flagValue !== undefined) {
     return flagValue
   }
 
-  // Default to false if flag not found
-  return false
+  // Fall back to plan-based defaults
+  const planDefaults = getPlanDefaultFlags(ctx.plan)
+  return planDefaults.includes(flagKey)
 }
 
 /**
@@ -76,29 +106,20 @@ export function evaluateFeatureFlag(
     return false
   }
 
-  // Plan check
-  if (flag.minimumPlan) {
-    const planIndex = PLAN_HIERARCHY.indexOf(ctx.plan)
-    const requiredIndex = PLAN_HIERARCHY.indexOf(flag.minimumPlan)
-    if (planIndex < requiredIndex) {
-      return false
-    }
-  }
-
-  // Conditions check
+  // Conditions check (user overrides take precedence)
   if (flag.conditions) {
-    // Time-based
+    // User-specific override - check first as it bypasses plan requirements
+    if (flag.conditions.userIds?.includes(ctx.userId)) {
+      return true
+    }
+
+    // Time-based checks
     const now = new Date()
     if (flag.conditions.enableAfter && now < flag.conditions.enableAfter) {
       return false
     }
     if (flag.conditions.disableAfter && now > flag.conditions.disableAfter) {
       return false
-    }
-
-    // User-specific override
-    if (flag.conditions.userIds?.includes(ctx.userId)) {
-      return true
     }
 
     // Percentage rollout (deterministic based on org ID)
@@ -108,6 +129,15 @@ export function evaluateFeatureFlag(
       if (bucket >= flag.conditions.percentage) {
         return false
       }
+    }
+  }
+
+  // Plan check (after user overrides)
+  if (flag.minimumPlan) {
+    const planIndex = PLAN_HIERARCHY.indexOf(ctx.plan)
+    const requiredIndex = PLAN_HIERARCHY.indexOf(flag.minimumPlan)
+    if (planIndex < requiredIndex) {
+      return false
     }
   }
 

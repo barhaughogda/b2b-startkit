@@ -5,21 +5,31 @@ import type { RoleDefinition } from './types'
  * Role definitions with their bundled permissions
  *
  * @ai-context Roles are hierarchical:
- * owner > admin > member
+ * owner > admin > member > viewer
  *
  * Higher roles inherit all permissions from lower roles.
  */
 export const ROLES: Record<OrganizationRole, RoleDefinition> = {
+  viewer: {
+    name: 'viewer',
+    displayName: 'Viewer',
+    description: 'Read-only access to organization resources',
+    level: 1,
+    permissions: [
+      // Read access only
+      'read:project',
+      'read:team',
+      'read:settings',
+    ],
+  },
+
   member: {
     name: 'member',
     displayName: 'Member',
     description: 'Standard team member with read and limited write access',
     level: 10,
     permissions: [
-      // Read access
-      'read:project',
-      'read:team',
-      'read:settings',
+      // Inherits viewer permissions (handled in getRolePermissions)
       // Limited write
       'create:project',
       'update:project',
@@ -71,9 +81,29 @@ export const ROLES: Record<OrganizationRole, RoleDefinition> = {
 }
 
 /**
+ * Permission cache to avoid recalculating role permissions
+ * Key: role, Value: Permission[]
+ */
+const rolePermissionsCache = new Map<OrganizationRole, Permission[]>()
+
+/**
+ * Clear the role permissions cache (useful for testing or when roles change)
+ */
+export function clearRolePermissionsCache(): void {
+  rolePermissionsCache.clear()
+}
+
+/**
  * Get all permissions for a role (including inherited permissions)
+ * Results are cached for performance.
  */
 export function getRolePermissions(role: OrganizationRole): Permission[] {
+  // Check cache first
+  const cached = rolePermissionsCache.get(role)
+  if (cached) {
+    return cached
+  }
+
   const permissions = new Set<Permission>()
 
   // Add permissions from all roles at or below this level
@@ -86,7 +116,10 @@ export function getRolePermissions(role: OrganizationRole): Permission[] {
     }
   }
 
-  return Array.from(permissions)
+  const result = Array.from(permissions)
+  // Cache the result
+  rolePermissionsCache.set(role, result)
+  return result
 }
 
 /**

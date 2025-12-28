@@ -17,8 +17,9 @@ export type ClerkOrgId = string
 /**
  * Organization membership roles
  * These map to permission bundles in the RBAC system
+ * Hierarchy: owner > admin > member > viewer
  */
-export type OrganizationRole = 'owner' | 'admin' | 'member'
+export type OrganizationRole = 'owner' | 'admin' | 'member' | 'viewer'
 
 /**
  * Global superadmin flag - separate from org roles

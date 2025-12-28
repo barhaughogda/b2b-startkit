@@ -14,13 +14,22 @@
  */
 
 // Permission checking
-export { can, canAll, canAny, requirePermission } from './permissions'
+export { can, canAll, canAny, requirePermission, clearPermissionCache, PermissionDeniedError } from './permissions'
 
 // Role definitions
-export { ROLES, getRolePermissions, isRoleAtLeast } from './roles'
+export { ROLES, getRolePermissions, isRoleAtLeast, clearRolePermissionsCache } from './roles'
 
 // Feature flags
-export { hasFeature, getFeatureFlags, evaluateFeatureFlag } from './flags'
+export { hasFeature, getFeatureFlags, evaluateFeatureFlag, getPlanDefaultFlags, planMeetsMinimum } from './flags'
+
+// Feature flags database helpers
+export {
+  loadOrganizationFeatureFlags,
+  getAllFeatureFlagDefinitions,
+  getFeatureFlagDefinition,
+  setOrganizationFeatureFlag,
+  removeOrganizationFeatureFlag,
+} from './feature-flags-db'
 
 // Types
 export type { PermissionContext, RoleDefinition, FeatureFlagContext } from './types'

@@ -3,6 +3,19 @@ import type { PermissionContext } from './types'
 import { getRolePermissions } from './roles'
 
 /**
+ * Permission cache to avoid recalculating role permissions
+ * Key: role, Value: Permission[]
+ */
+const rolePermissionsCache = new Map<string, Permission[]>()
+
+/**
+ * Clear the permission cache (useful for testing or when roles change)
+ */
+export function clearPermissionCache(): void {
+  rolePermissionsCache.clear()
+}
+
+/**
  * Check if user has a specific permission
  *
  * @example
@@ -24,7 +37,7 @@ export function can(ctx: PermissionContext, permission: Permission): boolean {
     return true
   }
 
-  // Check role permissions
+  // Check role permissions (with caching)
   const rolePermissions = getRolePermissions(ctx.role)
   return rolePermissions.includes(permission)
 }

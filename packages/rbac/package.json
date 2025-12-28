@@ -9,7 +9,8 @@
     ".": "./src/index.ts",
     "./permissions": "./src/permissions.ts",
     "./roles": "./src/roles.ts",
-    "./flags": "./src/flags.ts"
+    "./flags": "./src/flags.ts",
+    "./feature-flags-db": "./src/feature-flags-db.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
