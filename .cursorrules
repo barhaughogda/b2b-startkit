@@ -91,18 +91,36 @@ await createProject(data)
 ## DO NOT TOUCH Zones
 
 These areas require human review before changes:
-- `packages/auth/src/clerk/` - Auth core
-- `packages/database/src/rls/` - RLS policies
-- `packages/billing/src/webhooks/` - Payment handlers
-- `infra/scripts/` - Automation scripts
+- `packages/config/src/env.ts` - Environment validation (foundation)
+- `packages/database/src/migrations/sql/0001_enable_rls.sql` - RLS policies
+- `packages/database/src/tenant.ts` - Tenant isolation
+- `packages/auth/src/server.ts` - Auth utilities
+- `packages/auth/src/webhooks.ts` - Clerk webhooks
+- `packages/rbac/src/permissions.ts` - Permission logic
+- `packages/rbac/src/roles.ts` - Role definitions
+- `packages/billing/src/webhooks.ts` - Stripe webhooks
+- `packages/billing/src/subscriptions.ts` - Subscription management
+- `infra/scripts/` - Automation scripts (marked with `@ai-no-modify`)
 - Any file with `@ai-no-modify` comment
+
+See `docs/ai-context/do-not-touch.md` for detailed list.
 
 ## Testing Requirements
 
-- Unit tests for business logic
+- Unit tests for business logic (Vitest)
 - Integration tests for API routes
 - RLS isolation tests for database queries
-- E2E tests for critical user flows (auth, billing)
+- E2E tests for critical user flows (Playwright)
+- Write tests alongside code (TDD approach)
+
+## Documentation
+
+- Guides: `docs/guides/` - User-facing documentation
+- ADRs: `docs/adr/` - Architecture Decision Records
+- AI Context: `docs/ai-context/` - AI assistant context
+  - `system-boundaries.md` - What can be modified
+  - `do-not-touch.md` - Protected areas
+  - `conventions.md` - Coding standards
 
 ## Git Conventions
 

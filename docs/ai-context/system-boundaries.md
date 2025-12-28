@@ -7,25 +7,43 @@ This document defines the boundaries of the B2B StartKit system to help AI assis
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Mono-repo                            │
+│                    (Turborepo + pnpm)                      │
 ├─────────────────────────────────────────────────────────────┤
 │  apps/                                                      │
 │  ├── web-template/  (Base template for new products)        │
-│  ├── product-*/     (Individual SaaS products)              │
-│  └── superadmin/    (Internal admin dashboard)              │
+│  ├── superadmin/    (Internal admin dashboard)              │
+│  └── [product-*]/   (Individual SaaS products)              │
 ├─────────────────────────────────────────────────────────────┤
 │  packages/                                                  │
+│  ├── config/        (Env validation, types - FOUNDATION)    │
+│  ├── database/      (Drizzle + Supabase + RLS - CRITICAL)  │
 │  ├── auth/          (Clerk integration - CRITICAL)          │
-│  ├── billing/       (Stripe integration - CRITICAL)         │
-│  ├── database/      (Drizzle + Supabase - CRITICAL)         │
-│  ├── rbac/          (Permissions - CRITICAL)                │
-│  ├── ui/            (shadcn components - SAFE)              │
-│  ├── config/        (Shared types - SAFE)                   │
-│  └── analytics/     (PostHog - SAFE)                        │
+│  ├── rbac/          (Permissions, roles - CRITICAL)         │
+│  ├── billing/       (Stripe integration - CRITICAL)          │
+│  ├── ui/            (shadcn components - SAFE)             │
+│  └── analytics/     (PostHog integration - SAFE)            │
 ├─────────────────────────────────────────────────────────────┤
 │  infra/                                                     │
-│  ├── scripts/       (Automation - CRITICAL)                 │
+│  ├── scripts/       (create-product, setup-stripe)          │
 │  └── mcp-servers/   (AI integration - SAFE)                 │
+├─────────────────────────────────────────────────────────────┤
+│  docs/                                                       │
+│  ├── guides/        (User documentation)                    │
+│  ├── adr/           (Architecture Decision Records)          │
+│  └── ai-context/    (AI assistant context)                 │
 └─────────────────────────────────────────────────────────────┘
+```
+
+### Package Dependencies
+
+```
+@startkit/config (foundation)
+  ├─ @startkit/database
+  │   ├─ @startkit/auth
+  │   ├─ @startkit/rbac
+  │   └─ @startkit/billing
+  └─ @startkit/ui
+      └─ @startkit/analytics
 ```
 
 ## Safety Levels
@@ -34,48 +52,68 @@ This document defines the boundaries of the B2B StartKit system to help AI assis
 
 These areas affect security, billing, or data isolation. Changes here must be reviewed carefully:
 
-1. **Authentication** (`packages/auth/src/`)
-   - Clerk integration
-   - Session handling
+1. **Configuration** (`packages/config/src/env.ts`)
+   - Environment variable validation
+   - Type definitions
+   - Foundation for all packages
+
+2. **Database Security** (`packages/database/src/`)
+   - RLS policies (`src/migrations/sql/0001_enable_rls.sql`)
+   - Tenant isolation (`src/tenant.ts`)
+   - Schema migrations (`src/schema/`)
+   - Never bypass RLS without explicit reason
+
+3. **Authentication** (`packages/auth/src/`)
+   - Clerk integration (`src/server.ts`)
+   - Webhook handlers (`src/webhooks.ts`)
    - Superadmin detection
-
-2. **Billing** (`packages/billing/src/webhooks/`)
-   - Stripe webhook handlers
-   - Subscription lifecycle
-   - Payment processing
-
-3. **Database Security** (`packages/database/src/`)
-   - RLS policies
-   - Tenant isolation
-   - Schema migrations
+   - Session handling
 
 4. **Permissions** (`packages/rbac/src/`)
-   - Permission definitions
-   - Role hierarchies
-   - Feature flag logic
+   - Permission definitions (`src/permissions.ts`)
+   - Role hierarchies (`src/roles.ts`)
+   - Feature flag logic (`src/flags.ts`)
 
-5. **Infrastructure Scripts** (`infra/scripts/`)
-   - Product scaffolding
-   - Deployment automation
+5. **Billing** (`packages/billing/src/`)
+   - Stripe webhook handlers (`src/webhooks.ts`)
+   - Subscription lifecycle (`src/subscriptions.ts`)
+   - Payment processing
+   - Usage tracking (`src/usage.ts`)
+
+6. **Infrastructure Scripts** (`infra/scripts/`)
+   - Product scaffolding (`create-product.ts`)
+   - Stripe setup (`setup-stripe.ts`)
+   - Marked with `@ai-no-modify` comment
 
 ### SAFE - Can Be Modified Freely
 
 These areas can be modified without special review:
 
 1. **UI Components** (`packages/ui/src/components/`)
-   - Visual components
-   - Layouts
-   - Styling
+   - Visual components (shadcn-based)
+   - Layouts (`src/layouts/`)
+   - Styling and themes
 
-2. **Product-Specific Code** (`apps/*/src/components/`)
-   - Product features
-   - Custom pages
+2. **Analytics** (`packages/analytics/src/`)
+   - PostHog integration
+   - Event tracking
+   - Analytics hooks
+
+3. **Product-Specific Code** (`apps/*/src/`)
+   - Product features (`src/app/`)
+   - Custom components (`src/components/`)
    - Business logic
+   - API routes (except webhooks)
 
-3. **Documentation** (`docs/`)
-   - Guides
-   - ADRs
-   - AI context
+4. **Documentation** (`docs/`)
+   - Guides (`docs/guides/`)
+   - ADRs (`docs/adr/`)
+   - AI context (`docs/ai-context/`)
+
+5. **MCP Servers** (`infra/mcp-servers/src/`)
+   - AI integration tools
+   - Schema introspection
+   - Repo knowledge server
 
 ## Multi-Tenancy Rules
 

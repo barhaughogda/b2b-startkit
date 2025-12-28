@@ -10,31 +10,49 @@ Any file containing the comment `@ai-no-modify` should not be changed without hu
 - Security policies
 - Database migrations
 
-## Specific Directories
+## Specific Directories and Files
 
-### packages/auth/src/clerk/
-**Why:** Core authentication logic. Changes could break user sessions or security.
+### packages/config/src/env.ts
+**Why:** Environment variable validation. All packages depend on this. Changes could break the entire system.
 
-### packages/auth/src/middleware.ts
-**Why:** Route protection. Incorrect changes could expose protected routes.
+### packages/database/src/migrations/sql/0001_enable_rls.sql
+**Why:** RLS policy definitions. Changes could break tenant isolation or cause security vulnerabilities.
 
-### packages/database/src/rls/
-**Why:** Row-Level Security policies. Changes could leak data across tenants.
+### packages/database/src/tenant.ts
+**Why:** Tenant context management. Changes could break multi-tenancy isolation.
 
 ### packages/database/src/schema/
-**Why:** Database schema. Changes require migrations and could cause data loss.
+**Why:** Database schema definitions. Changes require migrations and could cause data loss. Always use migrations, never modify schema directly in production.
 
-### packages/billing/src/webhooks/
-**Why:** Payment webhooks. Incorrect handling could cause billing issues.
+### packages/auth/src/server.ts
+**Why:** Server-side authentication utilities. Changes could break session handling or security.
 
-### packages/billing/src/stripe.ts
-**Why:** Stripe client configuration. Changes could affect payment processing.
+### packages/auth/src/webhooks.ts
+**Why:** Clerk webhook handlers. Changes could break user/org sync or cause data inconsistencies.
+
+### packages/auth/src/middleware.ts
+**Why:** Route protection middleware. Incorrect changes could expose protected routes.
 
 ### packages/rbac/src/permissions.ts
-**Why:** Permission checking logic. Changes could allow unauthorized access.
+**Why:** Permission checking logic. Changes could allow unauthorized access or break access control.
 
-### infra/scripts/
-**Why:** Automation scripts. Changes could affect product scaffolding.
+### packages/rbac/src/roles.ts
+**Why:** Role definitions and hierarchies. Changes could break permission inheritance or access control.
+
+### packages/billing/src/webhooks.ts
+**Why:** Stripe webhook handlers. Changes could cause billing issues, subscription sync problems, or revenue loss.
+
+### packages/billing/src/subscriptions.ts
+**Why:** Subscription management logic. Changes could affect payment processing or subscription lifecycle.
+
+### packages/billing/src/stripe.ts
+**Why:** Stripe client configuration. Changes could affect payment processing or API calls.
+
+### infra/scripts/create-product.ts
+**Why:** Product scaffolding script. Changes could break product creation or introduce inconsistencies. Marked with `@ai-no-modify`.
+
+### infra/scripts/setup-stripe.ts
+**Why:** Stripe setup automation. Changes could break Stripe product/price creation. Marked with `@ai-no-modify`.
 
 ## Never Do These Things
 
@@ -82,6 +100,30 @@ const event = JSON.parse(body)
 // NEVER DO THIS
 const supabase = createClient(url, SERVICE_ROLE_KEY)
 // This bypasses RLS!
+// Exception: Only use superadminDb for webhooks and system operations
+```
+
+### 8. Modify Applied Migrations
+```sql
+-- NEVER DO THIS
+-- Modifying an already-applied migration can cause inconsistencies
+ALTER TABLE users ADD COLUMN new_field TEXT;
+-- Instead, create a new migration
+```
+
+### 9. Skip Webhook Signature Verification
+```typescript
+// NEVER DO THIS
+// Always verify webhook signatures from Clerk and Stripe
+const event = JSON.parse(body) // No signature check!
+```
+
+### 10. Hardcode Price IDs or Customer IDs
+```typescript
+// NEVER DO THIS
+const priceId = 'price_12345' // Hardcoded!
+// Always use environment variables
+const priceId = process.env.STRIPE_PRICE_ID_PRO!
 ```
 
 ## When Changes Are Needed

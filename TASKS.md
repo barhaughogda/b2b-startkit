@@ -602,28 +602,28 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 14.1 Guides
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Getting Started guide | ⬜ | Clone → running in 10 min |
-| Creating New Product guide | ⬜ | Step-by-step with CLI |
-| Billing Integration guide | ⬜ | Stripe setup |
-| RBAC guide | ⬜ | Adding roles, permissions |
-| Database guide | ⬜ | Schema, migrations, RLS |
+| Getting Started guide | ✅ | Clone → running in 10 min |
+| Creating New Product guide | ✅ | Step-by-step with CLI |
+| Billing Integration guide | ✅ | Stripe setup |
+| RBAC guide | ✅ | Adding roles, permissions |
+| Database guide | ✅ | Schema, migrations, RLS |
 
 ### 14.2 ADRs
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | ADR-001: Database (Supabase) | ✅ | Already created |
-| ADR-002: Auth (Clerk) | ⬜ | Document decision |
-| ADR-003: Billing (Stripe) | ⬜ | Document decision |
-| ADR-004: Mono-repo (Turborepo) | ⬜ | Document decision |
-| ADR-005: ORM (Drizzle) | ⬜ | Document decision |
+| ADR-002: Auth (Clerk) | ✅ | Document decision |
+| ADR-003: Billing (Stripe) | ✅ | Document decision |
+| ADR-004: Mono-repo (Turborepo) | ✅ | Document decision |
+| ADR-005: ORM (Drizzle) | ✅ | Document decision |
 
 ### 14.3 AI Context
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Update system-boundaries.md | ⬜ | Current state |
-| Update do-not-touch.md | ⬜ | All protected areas |
-| Create conventions.md | ⬜ | Coding standards |
-| Update .cursorrules | ⬜ | AI coding rules |
+| Update system-boundaries.md | ✅ | Current state |
+| Update do-not-touch.md | ✅ | All protected areas |
+| Create conventions.md | ✅ | Coding standards |
+| Update .cursorrules | ✅ | AI coding rules |
 
 ---
 
