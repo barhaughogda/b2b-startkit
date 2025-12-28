@@ -348,9 +348,9 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 7.3 Form Components
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Integrate React Hook Form | ⬜ | Form state management |
-| Create FormField wrapper | ⬜ | Label + input + error |
-| Create form validation patterns | ⬜ | Zod integration |
+| Integrate React Hook Form | ✅ | Form state management |
+| Create FormField wrapper | ✅ | Label + input + error |
+| Create form validation patterns | ✅ | Zod integration |
 
 ### 7.4 Data Display
 | Task | Status | Acceptance Criteria |

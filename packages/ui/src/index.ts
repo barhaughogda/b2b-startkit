@@ -20,6 +20,7 @@
 
 // Utilities
 export { cn } from './lib/utils'
+export * as formValidation from './lib/form-validation'
 
 // Layout components
 export {
@@ -106,6 +107,21 @@ export {
   SelectScrollDownButton,
 } from './components/select'
 
+// Form components with React Hook Form integration
+export {
+  Form,
+  FormFieldController,
+  useFormContext,
+} from './components/form'
+export {
+  FormField,
+  FormFieldInput,
+  FormFieldTextarea,
+  FormFieldSelect,
+  FormFieldCheckbox,
+  FormFieldSwitch,
+} from './components/form-field'
+
 // Dialog/Modal components
 export {
   Dialog,
@@ -187,6 +203,15 @@ export type { InputProps } from './components/input'
 export type { LabelProps } from './components/label'
 export type { TextareaProps } from './components/textarea'
 export type { BadgeProps } from './components/badge'
+export type { FormProps, FormFieldControllerProps } from './components/form'
+export type {
+  FormFieldProps,
+  FormFieldInputProps,
+  FormFieldTextareaProps,
+  FormFieldSelectProps,
+  FormFieldCheckboxProps,
+  FormFieldSwitchProps,
+} from './components/form-field'
 
 // Re-export types - Layout components
 export type {
