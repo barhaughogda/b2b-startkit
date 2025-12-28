@@ -1,3 +1,5 @@
+// Server-only module - async_hooks is a Node.js built-in
+// This file should never be imported in client components
 import { AsyncLocalStorage } from 'async_hooks'
 import type { TenantContext } from '@startkit/config'
 import { getPostgresClient } from './client'

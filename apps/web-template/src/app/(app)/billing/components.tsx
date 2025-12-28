@@ -21,8 +21,8 @@ import {
 } from '@startkit/ui'
 import { Check, CreditCard, AlertCircle, ExternalLink } from 'lucide-react'
 import { openBillingPortal, cancelSubscription, resumeSubscription, createCheckout } from './actions'
-import type { BillingData } from './data'
-import { getAvailablePlans } from './data'
+import type { BillingData } from './types'
+import { getAvailablePlans } from './plans'
 
 interface CurrentPlanCardProps {
   subscription: BillingData['subscription']

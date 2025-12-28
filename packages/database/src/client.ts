@@ -1,7 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres, { type Sql } from 'postgres'
 import * as schema from './schema'
-import { env } from '@startkit/config'
 
 /**
  * Database client wrapper that includes both Drizzle ORM and raw postgres client
@@ -32,42 +31,26 @@ export function createDbClient(connectionString: string): DbClient {
 }
 
 /**
- * Create a Supabase service role client that bypasses RLS
+ * Create a superadmin database client
  * This should ONLY be used for:
  * - Webhook handlers (Clerk, Stripe)
  * - Superadmin operations
  * - System migrations
  *
- * @ai-context This bypasses RLS - use with extreme caution.
+ * @ai-context Use with caution - this has full database access.
  * Never use this for regular user requests.
  *
- * For Supabase, the service role key is used as the password when connecting.
- * The connection string should be in format:
- * postgresql://postgres.[project-ref]:[service-role-key]@[host]:[port]/postgres
+ * Note: For Supabase connection poolers, we use the regular DATABASE_URL.
+ * The service role key is for the Supabase REST API, not postgres connections.
+ * RLS bypass on pooled connections requires setting role via SQL, not connection string.
  */
 export function createSuperadminClient(): DbClient {
-  const baseUrl = process.env.DATABASE_URL
-  if (!baseUrl) {
+  const connectionString = process.env.DATABASE_URL
+  if (!connectionString) {
     throw new Error('DATABASE_URL is required for superadmin client')
   }
 
-  const serviceRoleKey = env.server.SUPABASE_SERVICE_ROLE_KEY
-
-  // Parse the base connection string and replace password with service role key
-  // This works for both direct connections and connection poolers
-  const urlObj = new URL(baseUrl)
-
-  // Extract project ref from URL if it's a Supabase URL
-  // Format: postgresql://postgres.[ref]:[password]@[host]:[port]/postgres
-  const username = urlObj.username || 'postgres'
-  const projectRef = username.includes('.') ? username.split('.')[1] : username
-
-  // Construct service role connection string
-  // Use service role key as password to bypass RLS
-  urlObj.username = `postgres.${projectRef}`
-  urlObj.password = serviceRoleKey
-
-  const pgClient = postgres(urlObj.toString(), {
+  const pgClient = postgres(connectionString, {
     max: 5, // Smaller pool for admin operations
     idle_timeout: 20,
     connect_timeout: 10,

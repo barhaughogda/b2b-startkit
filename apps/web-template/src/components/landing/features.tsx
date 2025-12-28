@@ -145,7 +145,7 @@ export function Features() {
                   {'\n'}
                   <span className="text-violet-400">import</span> {'{'} can {'}'} <span className="text-violet-400">from</span> <span className="text-amber-400">&apos;@startkit/rbac&apos;</span>
                   {'\n'}
-                  <span className="text-violet-400">import</span> {'{'} withTenant {'}'} <span className="text-violet-400">from</span> <span className="text-amber-400">&apos;@startkit/database&apos;</span>
+                  <span className="text-violet-400">import</span> {'{'} withTenant {'}'} <span className="text-violet-400">from</span> <span className="text-amber-400">&apos;@startkit/database/server&apos;</span>
                   {'\n\n'}
                   <span className="text-violet-400">export async function</span> <span className="text-blue-400">POST</span>(req: Request) {'{'}
                   {'\n'}  <span className="text-slate-500">// Auth + org context in one line</span>

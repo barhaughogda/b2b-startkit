@@ -10,7 +10,8 @@
     "./stripe": "./src/stripe.ts",
     "./subscriptions": "./src/subscriptions.ts",
     "./usage": "./src/usage.ts",
-    "./webhooks": "./src/webhooks.ts"
+    "./webhooks": "./src/webhooks.ts",
+    "./pricing": "./src/pricing.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

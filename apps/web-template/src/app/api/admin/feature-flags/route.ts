@@ -6,7 +6,7 @@ import {
   loadOrganizationFeatureFlags,
   setOrganizationFeatureFlag,
   removeOrganizationFeatureFlag,
-} from '@startkit/rbac/feature-flags-db'
+} from '@startkit/rbac/server'
 import { z } from 'zod'
 import { requireOrganization } from '@startkit/auth/server'
 import { db } from '@startkit/database'

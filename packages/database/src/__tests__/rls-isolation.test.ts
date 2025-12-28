@@ -8,7 +8,8 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { getSuperadminDb, db, withTenant } from '../index'
+import { getSuperadminDb, db } from '../index'
+import { withTenant } from '../server'
 import { users, organizations, organizationMembers } from '../schema'
 import { eq } from 'drizzle-orm'
 

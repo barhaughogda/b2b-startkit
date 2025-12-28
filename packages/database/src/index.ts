@@ -16,6 +16,6 @@
  */
 
 export { db, superadminDb, createDbClient, getDb, getSuperadminDb, getPostgresClient } from './client'
-export { withTenant, getTenantContext, setTenantContext, requireTenantContext } from './tenant'
-export { withTenantMiddleware, createTenantHandler } from './middleware'
+// Server-only exports moved to './server' to prevent client bundling issues
+// Import tenant functions from '@startkit/database/server' in server code
 export * from './schema'

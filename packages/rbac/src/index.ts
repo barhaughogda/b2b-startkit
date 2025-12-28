@@ -20,30 +20,11 @@ export { can, canAll, canAny, requirePermission, clearPermissionCache, Permissio
 // Role definitions
 export { ROLES, getRolePermissions, isRoleAtLeast, clearRolePermissionsCache } from './roles'
 
-// Feature flags
+// Feature flags (client-safe - no database dependencies)
 export { hasFeature, getFeatureFlags, evaluateFeatureFlag, getPlanDefaultFlags, planMeetsMinimum } from './flags'
 
-// Feature flags database helpers
-export {
-  loadOrganizationFeatureFlags,
-  getAllFeatureFlagDefinitions,
-  getFeatureFlagDefinition,
-  setOrganizationFeatureFlag,
-  removeOrganizationFeatureFlag,
-} from './feature-flags-db'
-
-// Kill switches
-export {
-  checkKillSwitch,
-  isFeatureBlocked,
-  isOrganizationBlocked,
-  activateKillSwitch,
-  deactivateKillSwitch,
-  getActiveKillSwitches,
-  suspendOrganization,
-  unsuspendOrganization,
-} from './kill-switch'
+// Server-only exports moved to './server' to prevent client bundling issues
+// Import database-related functions from '@startkit/rbac/server' in server code
 
 // Types
 export type { PermissionContext, RoleDefinition, FeatureFlagContext } from './types'
-export type { KillSwitchContext, KillSwitchResult, ActiveKillSwitch } from './kill-switch'

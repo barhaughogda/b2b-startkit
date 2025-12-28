@@ -1,4 +1,5 @@
-import { requireOrganization } from '@startkit/auth/server'
+import { redirect } from 'next/navigation'
+import { getServerAuth } from '@startkit/auth/server'
 import {
   Card,
   CardContent,
@@ -25,7 +26,17 @@ import { TeamTable, InviteMemberDialog } from './components'
  * Shows organization members and allows inviting new members.
  */
 export default async function TeamPage() {
-  const { user, organization } = await requireOrganization()
+  const authContext = await getServerAuth()
+  
+  if (!authContext) {
+    redirect('/sign-in')
+  }
+  
+  if (!authContext.organization) {
+    redirect('/dashboard')
+  }
+  
+  const { user, organization } = authContext
   const members = await getTeamMembers(organization.organizationId)
 
   const canInvite = organization.role === 'owner' || organization.role === 'admin'

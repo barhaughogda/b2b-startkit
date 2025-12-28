@@ -1,3 +1,4 @@
+import 'server-only'
 import { superadminDb } from '@startkit/database'
 import { organizationMembers, users } from '@startkit/database/schema'
 import { eq } from 'drizzle-orm'

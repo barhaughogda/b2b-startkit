@@ -37,8 +37,12 @@ export const clientEnvSchema = z.object({
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().startsWith('pk_', 'Must start with pk_'),
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default('/sign-in'),
   NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default('/sign-up'),
-  NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: z.string().default('/dashboard'),
-  NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: z.string().default('/dashboard'),
+  // @deprecated These env vars cause Clerk to use deprecated afterSignInUrl prop.
+  // Redirect URLs are now set at component level (SignIn/SignUp fallbackRedirectUrl).
+  // These are optional and kept for backwards compatibility only.
+  // Remove them from .env.local to eliminate deprecation warnings.
+  NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: z.string().default('/dashboard').optional(),
+  NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: z.string().default('/dashboard').optional(),
 
   // Supabase (Database)
   NEXT_PUBLIC_SUPABASE_URL: z.string().url('Must be a valid URL'),

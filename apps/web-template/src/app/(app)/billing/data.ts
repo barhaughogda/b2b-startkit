@@ -1,43 +1,10 @@
+import 'server-only'
 import { getSubscription, getUsageSummary } from '@startkit/billing'
 import { defaultPlans } from '@startkit/billing'
-import type { PlanTier } from '@startkit/config'
+import type { BillingData } from './types'
 
-export interface BillingData {
-  subscription: {
-    id: string | null
-    stripeCustomerId: string | null
-    plan: PlanTier
-    status: string
-    currentPeriodEnd: Date | null
-    cancelAtPeriodEnd: boolean
-    seatCount: number
-    maxSeats: number | null
-  } | null
-  planConfig: {
-    name: string
-    description: string
-    monthlyPrice: number
-    yearlyPrice: number
-    features: { name: string; included: boolean }[]
-    limits: {
-      seats?: number
-      apiCallsPerMonth?: number
-      storageGb?: number
-    }
-  }
-  usage: {
-    apiCalls: { current: number; limit: number }
-    storage: { current: number; limit: number }
-    seats: { current: number; limit: number }
-  }
-  invoices: Array<{
-    id: string
-    date: Date
-    amount: number
-    status: string
-    pdfUrl?: string
-  }>
-}
+// Re-export the type for backwards compatibility
+export type { BillingData } from './types'
 
 /**
  * Fetch billing data for an organization
@@ -111,20 +78,4 @@ export async function getBillingData(organizationId: string): Promise<BillingDat
     usage: usageData,
     invoices,
   }
-}
-
-/**
- * Get all available plans for upgrade/downgrade
- */
-export function getAvailablePlans() {
-  return Object.entries(defaultPlans)
-    .filter(([_, plan]) => plan.available)
-    .map(([tier, plan]) => ({
-      tier: tier as PlanTier,
-      name: plan.name,
-      description: plan.description,
-      monthlyPrice: plan.pricing.monthly ?? 0,
-      yearlyPrice: plan.pricing.yearly ?? 0,
-      features: plan.features.filter(f => f.included).map(f => f.name),
-    }))
 }

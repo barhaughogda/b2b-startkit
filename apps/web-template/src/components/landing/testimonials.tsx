@@ -73,7 +73,6 @@ export function Testimonials() {
               {/* Author */}
               <div className="flex items-center gap-4">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={testimonial.avatar} alt={testimonial.author} />
                   <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-500 text-white font-semibold">
                     {testimonial.initials}
                   </AvatarFallback>

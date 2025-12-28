@@ -1,4 +1,5 @@
-import { requireOrganization } from '@startkit/auth/server'
+import { redirect } from 'next/navigation'
+import { getServerAuth } from '@startkit/auth/server'
 import {
   PageHeader,
   PageHeaderContent,
@@ -21,7 +22,17 @@ interface BillingPageProps {
  */
 export default async function BillingPage({ searchParams }: BillingPageProps) {
   const params = await searchParams
-  const { organization } = await requireOrganization()
+  const authContext = await getServerAuth()
+  
+  if (!authContext) {
+    redirect('/sign-in')
+  }
+  
+  if (!authContext.organization) {
+    redirect('/dashboard')
+  }
+  
+  const { organization } = authContext
   const billingData = await getBillingData(organization.organizationId)
 
   return (

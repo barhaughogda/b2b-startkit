@@ -33,6 +33,33 @@ const nextConfig: NextConfig = {
     // Add build-time env vars here if needed
   },
 
+  // Webpack configuration to handle server-only modules
+  webpack: (config, { isServer }) => {
+    // Mark Node.js built-ins as external for client bundles
+    // These modules are server-only and cannot be bundled for the browser
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        // Node.js built-in modules
+        async_hooks: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        url: false,
+        querystring: false,
+        path: false,
+        os: false,
+        fs: false,
+        child_process: false,
+        // Postgres package uses these Node.js modules
+        'pg-native': false,
+      }
+    }
+    return config
+  },
+
   // Experimental features
   experimental: {
     // Enable Turbopack for faster development

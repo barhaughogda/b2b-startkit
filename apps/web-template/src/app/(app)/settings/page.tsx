@@ -1,4 +1,5 @@
-import { requireAuth } from '@startkit/auth/server'
+import { redirect } from 'next/navigation'
+import { getServerAuth } from '@startkit/auth/server'
 import { UserButton, OrganizationProfile } from '@startkit/auth'
 import {
   PageHeader,
@@ -24,7 +25,13 @@ import { OrganizationSettingsForm, DangerZone } from './components'
  * Settings page - user and organization settings
  */
 export default async function SettingsPage() {
-  const { user, organization } = await requireAuth()
+  const authContext = await getServerAuth()
+  
+  if (!authContext) {
+    redirect('/sign-in')
+  }
+  
+  const { user, organization } = authContext
 
   // Fetch organization data if in an org
   let orgData = null
