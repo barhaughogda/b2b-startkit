@@ -578,17 +578,17 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 13.4 Integration Tests
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Test Clerk webhook handlers | ⬜ | Mock webhooks |
-| Test Stripe webhook handlers | ⬜ | Mock webhooks |
-| Test API routes | ⬜ | Happy + error paths |
+| Test Clerk webhook handlers | ✅ | Mock webhooks |
+| Test Stripe webhook handlers | ✅ | Mock webhooks |
+| Test API routes | ✅ | Happy + error paths (feature flags API tested) |
 
 ### 13.5 E2E Tests
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Test signup flow | ⬜ | New user can sign up |
-| Test signin flow | ⬜ | Existing user can sign in |
-| Test billing flow | ⬜ | Can subscribe to plan |
-| Test team invite flow | ⬜ | Can invite member |
+| Test signup flow | ✅ | New user can sign up |
+| Test signin flow | ✅ | Existing user can sign in |
+| Test billing flow | ✅ | Can subscribe to plan |
+| Test team invite flow | ✅ | Can invite member |
 
 ---
 
