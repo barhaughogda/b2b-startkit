@@ -173,37 +173,37 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 3.1 Server Utilities
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Complete `getServerAuth()` implementation | ⬜ | Returns user + org context |
-| Implement `requireAuth()` guard | ⬜ | Throws/redirects if not authed |
-| Implement `requireOrganization()` guard | ⬜ | Throws if no org selected |
-| Implement `requireRole()` guard | ⬜ | Check role before proceeding |
+| Complete `getServerAuth()` implementation | ✅ | Returns user + org context |
+| Implement `requireAuth()` guard | ✅ | Throws/redirects if not authed |
+| Implement `requireOrganization()` guard | ✅ | Throws if no org selected |
+| Implement `requireRole()` guard | ✅ | Check role before proceeding |
 
 ### 3.2 Superadmin System 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Define superadmin detection logic | ⬜ | Check `isSuperadmin` in DB |
-| Implement impersonation session | ⬜ | 1-hour max, audit logged |
-| Create impersonation API routes | ⬜ | Start/end impersonation |
-| Add impersonation indicator UI | ⬜ | Visible banner when impersonating |
-| Block superadmin-to-superadmin impersonation | ⬜ | Security requirement |
+| Define superadmin detection logic | ✅ | Check `isSuperadmin` in DB |
+| Implement impersonation session | ✅ | 1-hour max, audit logged |
+| Create impersonation API routes | ✅ | Start/end impersonation |
+| Add impersonation indicator UI | ✅ | Visible banner when impersonating |
+| Block superadmin-to-superadmin impersonation | ✅ | Security requirement |
 
 ### 3.3 Organization Switching
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Implement org switch in `useOrganization` | ⬜ | Updates context immediately |
-| Persist last org to localStorage | ⬜ | Returns to same org on reload |
-| Handle org deletion gracefully | ⬜ | Redirect to org selector |
+| Implement org switch in `useOrganization` | ✅ | Updates context immediately |
+| Persist last org to localStorage | ✅ | Returns to same org on reload |
+| Handle org deletion gracefully | ✅ | Redirect to org selector |
 
 ### 3.4 Webhook Handlers 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Handle `user.created` webhook | ⬜ | Creates user in DB |
-| Handle `user.updated` webhook | ⬜ | Syncs user data |
-| Handle `user.deleted` webhook | ⬜ | Soft deletes, audit log |
-| Handle `organization.created` webhook | ⬜ | Creates org in DB |
-| Handle `organizationMembership.created` | ⬜ | Adds member to DB |
-| Handle `organizationMembership.deleted` | ⬜ | Removes member |
-| Add idempotency to all handlers | ⬜ | Safe to replay |
+| Handle `user.created` webhook | ✅ | Creates user in DB |
+| Handle `user.updated` webhook | ✅ | Syncs user data |
+| Handle `user.deleted` webhook | ✅ | Soft deletes, audit log |
+| Handle `organization.created` webhook | ✅ | Creates org in DB |
+| Handle `organizationMembership.created` | ✅ | Adds member to DB |
+| Handle `organizationMembership.deleted` | ✅ | Removes member |
+| Add idempotency to all handlers | ✅ | Safe to replay |
 
 ---
 

@@ -12,6 +12,7 @@ export const serverEnvSchema = z.object({
 
   // Clerk (Auth)
   CLERK_SECRET_KEY: z.string().min(1, 'CLERK_SECRET_KEY is required'),
+  CLERK_WEBHOOK_SECRET: z.string().min(1, 'CLERK_WEBHOOK_SECRET is required'),
 
   // Supabase (Database)
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY is required'),

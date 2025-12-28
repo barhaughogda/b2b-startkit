@@ -29,6 +29,9 @@ export {
 export { useAuth } from './hooks/use-auth'
 export { useOrganization } from './hooks/use-organization'
 
+// Components (client-safe)
+export { ImpersonationBanner } from './components/impersonation-banner'
+
 // Types (client-safe)
 export type { AuthContext, OrganizationContext } from './types'
 

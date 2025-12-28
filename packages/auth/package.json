@@ -9,7 +9,8 @@
     ".": "./src/index.ts",
     "./middleware": "./src/middleware.ts",
     "./server": "./src/server.ts",
-    "./client": "./src/client.ts"
+    "./client": "./src/client.ts",
+    "./webhooks": "./src/webhooks.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -21,7 +22,8 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.6",
-    "@startkit/config": "workspace:*"
+    "@startkit/config": "workspace:*",
+    "@startkit/database": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.3.17",
