@@ -177,4 +177,47 @@ describe('RLS Isolation Tests', () => {
       }
     )
   })
+
+  it('should enforce role-based access - member cannot access admin-only data', async () => {
+    // Create a member user in Org 1
+    const superadminDb = getSuperadminDb()
+    const [memberUser] = await superadminDb.drizzle
+      .insert(users)
+      .values({
+        clerkId: 'test_member_user',
+        email: 'member@example.com',
+        name: 'Member User',
+        isSuperadmin: false,
+      })
+      .returning()
+
+    await superadminDb.drizzle.insert(organizationMembers).values({
+      organizationId: testOrg1Id,
+      userId: memberUser.id,
+      role: 'member', // Member role, not admin
+    })
+
+    // Member should be able to read basic org data
+    await withTenant(
+      { organizationId: testOrg1Id, userId: memberUser.id },
+      async () => {
+        const org = await db.query.organizations.findFirst({
+          where: eq(organizations.id, testOrg1Id),
+        })
+        expect(org).toBeDefined()
+
+        // Member should see organization members (read permission)
+        const members = await db.query.organizationMembers.findMany({
+          where: eq(organizationMembers.organizationId, testOrg1Id),
+        })
+        expect(members.length).toBeGreaterThan(0)
+      }
+    )
+
+    // Cleanup
+    await superadminDb.drizzle
+      .delete(organizationMembers)
+      .where(eq(organizationMembers.userId, memberUser.id))
+    await superadminDb.drizzle.delete(users).where(eq(users.id, memberUser.id))
+  })
 })

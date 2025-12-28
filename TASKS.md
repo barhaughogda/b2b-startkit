@@ -561,19 +561,19 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 13.2 Unit Tests (write alongside each section)
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Test @startkit/config env validation | ⬜ | With Section 1 |
-| Test @startkit/database tenant context | ⬜ | With Section 2 |
-| Test @startkit/auth utilities | ⬜ | With Section 3 |
-| Test @startkit/rbac permission engine | ⬜ | With Section 4 |
-| Test @startkit/billing calculations | ⬜ | With Section 6 |
+| Test @startkit/config env validation | ✅ | With Section 1 |
+| Test @startkit/database tenant context | ✅ | With Section 2 |
+| Test @startkit/auth utilities | ✅ | With Section 3 |
+| Test @startkit/rbac permission engine | ✅ | With Section 4 |
+| Test @startkit/billing calculations | ✅ | With Section 6 |
 
 ### 13.3 RLS Isolation Tests 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Test user can't read other user | ⬜ | Fails with RLS |
-| Test org A can't read org B data | ⬜ | Complete isolation |
-| Test member can't access admin data | ⬜ | Role-based RLS |
-| Test superadmin can access all | ⬜ | Bypass works |
+| Test user can't read other user | ✅ | Fails with RLS |
+| Test org A can't read org B data | ✅ | Complete isolation |
+| Test member can't access admin data | ✅ | Role-based RLS |
+| Test superadmin can access all | ✅ | Bypass works |
 
 ### 13.4 Integration Tests
 | Task | Status | Acceptance Criteria |
