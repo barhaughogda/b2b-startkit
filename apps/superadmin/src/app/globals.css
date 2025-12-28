@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Superadmin Dashboard Theme
+ * 
+ * Dark-first design with crimson/red accent for admin authority
+ * Distinct from customer-facing apps
+ */
+
+/* Custom font imports */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@layer base {
+  :root {
+    --font-sans: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    /* Admin accent - crimson red for authority */
+    --admin: 0 72% 51%;
+    --admin-foreground: 0 0% 100%;
+  }
+  
+  /* Dark theme only for superadmin */
+  .dark {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 95%;
+    
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 95%;
+    
+    --primary: 0 72% 51%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 95%;
+    
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 55%;
+    
+    --accent: 0 72% 51%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 240 5% 18%;
+    --input: 240 5% 18%;
+    --ring: 0 72% 51%;
+    
+    /* Sidebar - slightly elevated */
+    --sidebar-background: 240 10% 7%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 72% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 240 5% 15%;
+    --sidebar-ring: 0 72% 51%;
+    
+    --radius: 0.5rem;
+  }
+  
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Status indicator colors */
+@layer base {
+  .status-active {
+    @apply text-emerald-400;
+  }
+  
+  .status-trialing {
+    @apply text-amber-400;
+  }
+  
+  .status-canceled {
+    @apply text-red-400;
+  }
+  
+  .status-past-due {
+    @apply text-orange-400;
+  }
+}
+
+/* Chart colors */
+@layer base {
+  :root {
+    --chart-1: 0 72% 51%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 45 93% 47%;
+    --chart-4: 221 83% 53%;
+    --chart-5: 262 83% 58%;
+  }
+}
+
+/* Subtle grid background */
+@layer utilities {
+  .bg-grid {
+    background-image: 
+      linear-gradient(to right, hsl(240 5% 15% / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(240 5% 15% / 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  
+  .bg-grid-small {
+    background-image: 
+      linear-gradient(to right, hsl(240 5% 15% / 0.3) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(240 5% 15% / 0.3) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
+
+/* Glow effects for important elements */
+@layer utilities {
+  .glow-admin {
+    box-shadow: 0 0 20px -5px hsl(0 72% 51% / 0.4);
+  }
+  
+  .glow-success {
+    box-shadow: 0 0 20px -5px hsl(142 76% 36% / 0.4);
+  }
+}
+
+/* Custom scrollbar */
+@layer base {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(240 10% 6%);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(240 5% 25%);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(240 5% 35%);
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}

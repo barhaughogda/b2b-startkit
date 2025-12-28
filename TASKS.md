@@ -463,26 +463,26 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 10.1 Setup
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Scaffold superadmin app | ⬜ | Copy from web-template |
-| Add superadmin-only middleware | ⬜ | Blocks non-superadmins |
-| Create separate Clerk app | ⬜ | Or use same with role check |
+| Scaffold superadmin app | ✅ | Copy from web-template |
+| Add superadmin-only middleware | ✅ | Blocks non-superadmins |
+| Create separate Clerk app | ✅ | Or use same with role check |
 
 ### 10.2 Dashboard Views
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| All organizations list | ⬜ | Search, filter, sort |
-| Organization detail view | ⬜ | Members, subscription, usage |
-| All users list | ⬜ | Search, filter |
-| User detail view | ⬜ | Orgs, activity |
-| Subscription overview | ⬜ | MRR, churn, growth |
+| All organizations list | ✅ | Search, filter, sort |
+| Organization detail view | ✅ | Members, subscription, usage |
+| All users list | ✅ | Search, filter |
+| User detail view | ✅ | Orgs, activity |
+| Subscription overview | ✅ | MRR, churn, growth |
 
 ### 10.3 Admin Actions
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Impersonate user button | ⬜ | Opens user session |
-| Toggle feature flags | ⬜ | Per org |
-| Force password reset | ⬜ | Security action |
-| Deactivate user | ⬜ | With audit log |
+| Impersonate user button | ✅ | Opens user session |
+| Toggle feature flags | ✅ | Per org |
+| Force password reset | ✅ | Security action |
+| Deactivate user | ✅ | With audit log |
 | Extend trial | ⬜ | Manual override |
 
 ---
