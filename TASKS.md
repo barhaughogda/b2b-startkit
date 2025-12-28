@@ -253,10 +253,10 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 5.1 setup-stripe Script
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create products in Stripe | ⬜ | Free, Pro, Enterprise |
-| Create prices for products | ⬜ | Monthly/yearly |
-| Output price IDs | ⬜ | For .env.local |
-| Idempotent (safe to re-run) | ⬜ | Skips existing |
+| Create products in Stripe | ✅ | Free, Pro, Enterprise |
+| Create prices for products | ✅ | Monthly/yearly |
+| Output price IDs | ✅ | For .env.local |
+| Idempotent (safe to re-run) | ✅ | Skips existing |
 
 ---
 

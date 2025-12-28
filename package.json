@@ -18,7 +18,8 @@
     "typecheck": "turbo typecheck",
     "clean": "turbo clean && rm -rf node_modules",
     "test": "turbo test",
-    "create:product": "tsx infra/scripts/create-product.ts"
+    "create:product": "tsx infra/scripts/create-product.ts",
+    "setup:stripe": "tsx infra/scripts/setup-stripe.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
