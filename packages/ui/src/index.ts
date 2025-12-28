@@ -196,6 +196,23 @@ export {
 // Toast/Notification components
 export { Toaster, toast } from './components/sonner'
 
+// Data Display components
+export {
+  DataTable,
+  dataTableVariants,
+} from './components/data-table'
+export {
+  StatCard,
+  StatCardGrid,
+  statCardVariants,
+  TrendIndicator,
+} from './components/stat-card'
+export {
+  ActivityFeed,
+  activityFeedVariants,
+  activityTypeIcons,
+} from './components/activity-feed'
+
 // Re-export types - Primitive components
 export type { ButtonProps } from './components/button'
 export type { FeatureFlagProps, FeatureFlagGateProps } from './components/feature-flag'
@@ -212,6 +229,22 @@ export type {
   FormFieldCheckboxProps,
   FormFieldSwitchProps,
 } from './components/form-field'
+
+// Re-export types - Data Display components
+export type {
+  DataTableProps,
+  Column,
+  SortDirection,
+} from './components/data-table'
+export type {
+  StatCardProps,
+  StatCardGridProps,
+} from './components/stat-card'
+export type {
+  ActivityFeedProps,
+  ActivityItem,
+  ActivityType,
+} from './components/activity-feed'
 
 // Re-export types - Layout components
 export type {

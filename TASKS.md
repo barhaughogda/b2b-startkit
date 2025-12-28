@@ -355,9 +355,9 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 7.4 Data Display
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create DataTable component | ⬜ | Sorting, filtering |
-| Create StatCard component | ⬜ | Dashboard metrics |
-| Create ActivityFeed component | ⬜ | Audit log display |
+| Create DataTable component | ✅ | Sorting, filtering |
+| Create StatCard component | ✅ | Dashboard metrics |
+| Create ActivityFeed component | ✅ | Audit log display |
 
 ---
 
