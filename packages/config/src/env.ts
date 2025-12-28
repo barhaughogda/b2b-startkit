@@ -93,3 +93,43 @@ export function getServerEnv(): ServerEnv {
 export function getClientEnv(): ClientEnv {
   return clientEnvSchema.parse(process.env)
 }
+
+/**
+ * Unified environment object that validates on first access
+ * This is the primary export - use `import { env } from '@startkit/config'`
+ *
+ * Validation happens lazily on first access to fail fast without
+ * blocking module loading in test environments.
+ */
+let validatedEnv: { server: ServerEnv; client: ClientEnv } | null = null
+
+function getValidatedEnv() {
+  if (!validatedEnv) {
+    validatedEnv = validateEnv()
+  }
+  return validatedEnv
+}
+
+/**
+ * Type-safe environment access
+ * Validates on first access and caches the result
+ *
+ * @example
+ * ```ts
+ * import { env } from '@startkit/config'
+ *
+ * // Server-side
+ * const secretKey = env.server.CLERK_SECRET_KEY
+ *
+ * // Client-side (in components)
+ * const publishableKey = env.client.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ * ```
+ */
+export const env = {
+  get server(): ServerEnv {
+    return getValidatedEnv().server
+  },
+  get client(): ClientEnv {
+    return getValidatedEnv().client
+  },
+} as const

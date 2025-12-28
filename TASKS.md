@@ -3,6 +3,7 @@
 > **Purpose**: Comprehensive task list for completing the SaaS Factory implementation.
 > Each section can be worked on independently by different agents.
 > Tasks are organized by package/area with clear acceptance criteria.
+> **Sections are ordered by dependency** - complete earlier sections before later ones.
 
 ---
 
@@ -38,12 +39,101 @@
 
 ---
 
-## 1. @startkit/database - Database & Multi-Tenancy
+## Dependency Graph
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  1. @startkit/config (env validation, shared types)                 │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  2. @startkit/database (schema, RLS, tenant context)                │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  3. @startkit/auth (server utils, webhooks, org switching)          │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  4. @startkit/rbac (permissions, roles, feature flags)              │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  5. Stripe Setup (create products/prices in Stripe dashboard)       │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  6. @startkit/billing (subscriptions, usage, webhooks)              │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌───────────────────────────────┬─────────────────────────────────────┐
+│  7. @startkit/ui (components) │  ← Can parallelize with 6           │
+└───────────────────────────────┴─────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  8. web-template (pages, API routes)                                │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  9. @startkit/analytics (tracking - needs pages to track)           │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  10. Superadmin Dashboard (depends on all packages)                 │
+└─────────────────────────┬───────────────────────────────────────────┘
+                          ▼
+┌───────────────────────────────┬─────────────────────────────────────┐
+│  11. Infrastructure & CLI     │  12. MCP Servers                    │
+└───────────────────────────────┴─────────────────────────────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  13. Documentation (ongoing, finalize at end)                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+Note: Testing follows TDD - write tests alongside each section, not at the end.
+```
+
+---
+
+## 1. @startkit/config - Shared Configuration
+
+**Location**: `packages/config/`
+**Priority**: 🔴 Critical (all packages depend on this)
+**Dependencies**: None - this is the foundation
+
+> ⚠️ Complete this first! All other packages will `import { env } from '@startkit/config'`
+
+### 1.1 Environment Validation
+| Task | Status | Acceptance Criteria |
+|------|--------|---------------------|
+| Create Zod schema for env vars | ✅ | Type-safe env access |
+| Validate env on app startup | ✅ | Fail fast if missing |
+| Create `env` export | ✅ | `import { env } from '@startkit/config'` |
+| Separate client/server env vars | ✅ | Never expose secrets |
+
+### 1.2 Shared Types
+| Task | Status | Acceptance Criteria |
+|------|--------|---------------------|
+| Define Product configuration type | ✅ | Name, features, limits |
+| Define Plan configuration type | ✅ | Pricing, features |
+| Define common API response types | ✅ | Success, error formats |
+
+### 1.3 Environment Templates
+| Task | Status | Acceptance Criteria |
+|------|--------|---------------------|
+| Update env.template | ✅ | All required vars |
+| Add comments explaining each var | ✅ | Clear documentation |
+| Create .env.example | ✅ | Safe to commit |
+
+---
+
+## 2. @startkit/database - Database & Multi-Tenancy
 
 **Location**: `packages/database/`
-**Priority**: 🔴 Critical (foundation for everything)
+**Priority**: 🔴 Critical (security foundation)
+**Dependencies**: @startkit/config
 
-### 1.1 RLS Policies 🔒
+### 2.1 RLS Policies 🔒
 > ⚠️ Security-critical - requires careful review
 
 | Task | Status | Acceptance Criteria |
@@ -57,7 +147,7 @@
 | Create superadmin bypass connection | ⬜ | Service role key for superadmin |
 | Write isolation tests | ⬜ | Prove tenants can't see each other |
 
-### 1.2 Tenant Context
+### 2.2 Tenant Context
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Implement `withTenant()` query wrapper | ⬜ | All queries automatically scoped |
@@ -65,7 +155,7 @@
 | Create tenant middleware for API routes | ⬜ | Injects org context from Clerk |
 | Add tenant context to tRPC (if using) | ⬜ | Context available in all procedures |
 
-### 1.3 Migrations
+### 2.3 Migrations
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Set up Drizzle migration workflow | ⬜ | `pnpm db:generate` creates migrations |
@@ -74,12 +164,13 @@
 
 ---
 
-## 2. @startkit/auth - Authentication
+## 3. @startkit/auth - Authentication
 
 **Location**: `packages/auth/`
 **Priority**: 🔴 Critical
+**Dependencies**: @startkit/config, @startkit/database
 
-### 2.1 Server Utilities
+### 3.1 Server Utilities
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Complete `getServerAuth()` implementation | ⬜ | Returns user + org context |
@@ -87,7 +178,7 @@
 | Implement `requireOrganization()` guard | ⬜ | Throws if no org selected |
 | Implement `requireRole()` guard | ⬜ | Check role before proceeding |
 
-### 2.2 Superadmin System 🔒
+### 3.2 Superadmin System 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Define superadmin detection logic | ⬜ | Check `isSuperadmin` in DB |
@@ -96,14 +187,14 @@
 | Add impersonation indicator UI | ⬜ | Visible banner when impersonating |
 | Block superadmin-to-superadmin impersonation | ⬜ | Security requirement |
 
-### 2.3 Organization Switching
+### 3.3 Organization Switching
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Implement org switch in `useOrganization` | ⬜ | Updates context immediately |
 | Persist last org to localStorage | ⬜ | Returns to same org on reload |
 | Handle org deletion gracefully | ⬜ | Redirect to org selector |
 
-### 2.4 Webhook Handlers 🔒
+### 3.4 Webhook Handlers 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Handle `user.created` webhook | ⬜ | Creates user in DB |
@@ -116,12 +207,13 @@
 
 ---
 
-## 3. @startkit/rbac - Permissions
+## 4. @startkit/rbac - Permissions
 
 **Location**: `packages/rbac/`
 **Priority**: 🔴 Critical
+**Dependencies**: @startkit/config, @startkit/database, @startkit/auth
 
-### 3.1 Permission Engine
+### 4.1 Permission Engine
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Define base permission types | ⬜ | CRUD + custom actions |
@@ -130,7 +222,7 @@
 | Implement `authorize()` that throws | ⬜ | Throws ForbiddenError |
 | Add permission caching | ⬜ | Don't recalculate every call |
 
-### 3.2 Role System
+### 4.2 Role System
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Define `owner` role permissions | ⬜ | Full access to org |
@@ -140,7 +232,7 @@
 | Implement role hierarchy | ⬜ | Owner > Admin > Member > Viewer |
 | Allow custom permission overrides | ⬜ | Add/remove per user |
 
-### 3.3 Feature Flags
+### 4.3 Feature Flags
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Implement `hasFeature(org, flag)` | ⬜ | Checks org's flags |
@@ -150,12 +242,31 @@
 
 ---
 
-## 4. @startkit/billing - Stripe Integration
+## 5. Stripe Setup (Infrastructure Prerequisite)
+
+**Location**: `infra/scripts/`
+**Priority**: 🔴 Critical (must complete before Section 6)
+**Dependencies**: None (external service setup)
+
+> ⚠️ Complete this BEFORE implementing @startkit/billing. You need price IDs to implement checkout.
+
+### 5.1 setup-stripe Script
+| Task | Status | Acceptance Criteria |
+|------|--------|---------------------|
+| Create products in Stripe | ⬜ | Free, Pro, Enterprise |
+| Create prices for products | ⬜ | Monthly/yearly |
+| Output price IDs | ⬜ | For .env.local |
+| Idempotent (safe to re-run) | ⬜ | Skips existing |
+
+---
+
+## 6. @startkit/billing - Stripe Integration
 
 **Location**: `packages/billing/`
-**Priority**: 🟡 High
+**Priority**: 🟡 High (revenue critical)
+**Dependencies**: @startkit/config, @startkit/database, @startkit/auth, @startkit/rbac, Section 5 (Stripe Setup)
 
-### 4.1 Subscription Management
+### 6.1 Subscription Management
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Implement `createCheckoutSession()` | ⬜ | Redirects to Stripe Checkout |
@@ -165,7 +276,7 @@
 | Implement `resumeSubscription()` | ⬜ | Resumes canceled sub |
 | Implement `changeSubscription()` | ⬜ | Upgrade/downgrade |
 
-### 4.2 Usage Tracking
+### 6.2 Usage Tracking
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Set up Upstash Redis connection | ⬜ | Real-time usage storage |
@@ -175,7 +286,7 @@
 | Implement Stripe usage reporting | ⬜ | Report at billing cycle |
 | Add usage limit enforcement | ⬜ | Block when over limit |
 
-### 4.3 Webhook Handlers 🔒
+### 6.3 Webhook Handlers 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Handle `checkout.session.completed` | ⬜ | Create subscription in DB |
@@ -186,7 +297,7 @@
 | Add idempotency keys | ⬜ | Safe to replay |
 | Add webhook signature verification | ⬜ | Security requirement |
 
-### 4.4 Pricing Configuration
+### 6.4 Pricing Configuration
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Create pricing plan config type | ⬜ | Define plan structure |
@@ -196,12 +307,15 @@
 
 ---
 
-## 5. @startkit/ui - Component Library
+## 7. @startkit/ui - Component Library
 
 **Location**: `packages/ui/`
 **Priority**: 🟡 High
+**Dependencies**: @startkit/config (minimal - can parallelize with Sections 5-6)
 
-### 5.1 Core Components (shadcn)
+> 💡 This section can be worked on in parallel with Sections 5-6
+
+### 7.1 Core Components (shadcn)
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Add Card component | ⬜ | For dashboard widgets |
@@ -222,7 +336,7 @@
 | Add Table component | ⬜ | Data tables |
 | Add Pagination component | ⬜ | For tables |
 
-### 5.2 Layout Components
+### 7.2 Layout Components
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Create responsive Sidebar | ⬜ | Collapsible on mobile |
@@ -231,14 +345,14 @@
 | Create EmptyState component | ⬜ | No data placeholder |
 | Create ErrorBoundary component | ⬜ | Error UI |
 
-### 5.3 Form Components
+### 7.3 Form Components
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Integrate React Hook Form | ⬜ | Form state management |
 | Create FormField wrapper | ⬜ | Label + input + error |
 | Create form validation patterns | ⬜ | Zod integration |
 
-### 5.4 Data Display
+### 7.4 Data Display
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Create DataTable component | ⬜ | Sorting, filtering |
@@ -247,58 +361,11 @@
 
 ---
 
-## 6. @startkit/analytics - Analytics (NEW)
-
-**Location**: `packages/analytics/` (create new)
-**Priority**: 🟢 Medium
-
-### 6.1 PostHog Integration
-| Task | Status | Acceptance Criteria |
-|------|--------|---------------------|
-| Create package structure | ⬜ | package.json, tsconfig |
-| Add PostHog client setup | ⬜ | Initialize on app load |
-| Create `track()` helper | ⬜ | Track custom events |
-| Create `identify()` helper | ⬜ | Identify users |
-| Create `setOrganization()` helper | ⬜ | Group by org |
-| Add React provider | ⬜ | Context for hooks |
-| Create `useAnalytics` hook | ⬜ | Client-side tracking |
-
-### 6.2 Event Tracking
-| Task | Status | Acceptance Criteria |
-|------|--------|---------------------|
-| Define core event schema | ⬜ | Consistent event structure |
-| Track auth events | ⬜ | Sign in, sign out, sign up |
-| Track billing events | ⬜ | Subscribe, cancel, upgrade |
-| Track feature usage events | ⬜ | Key feature interactions |
-
----
-
-## 7. @startkit/config - Shared Configuration
-
-**Location**: `packages/config/`
-**Priority**: 🟢 Medium
-
-### 7.1 Environment Validation
-| Task | Status | Acceptance Criteria |
-|------|--------|---------------------|
-| Create Zod schema for env vars | ⬜ | Type-safe env access |
-| Validate env on app startup | ⬜ | Fail fast if missing |
-| Create `env` export | ⬜ | `import { env } from '@startkit/config'` |
-| Separate client/server env vars | ⬜ | Never expose secrets |
-
-### 7.2 Shared Types
-| Task | Status | Acceptance Criteria |
-|------|--------|---------------------|
-| Define Product configuration type | ⬜ | Name, features, limits |
-| Define Plan configuration type | ⬜ | Pricing, features |
-| Define common API response types | ⬜ | Success, error formats |
-
----
-
 ## 8. web-template App Improvements
 
 **Location**: `apps/web-template/`
 **Priority**: 🟡 High
+**Dependencies**: All @startkit/* packages (Sections 1-7)
 
 ### 8.1 Landing Page
 | Task | Status | Acceptance Criteria |
@@ -358,19 +425,49 @@
 
 ---
 
-## 9. Superadmin Dashboard (NEW APP)
+## 9. @startkit/analytics - Analytics
+
+**Location**: `packages/analytics/` (create new)
+**Priority**: 🟢 Medium
+**Dependencies**: @startkit/config, web-template pages (Section 8)
+
+> 💡 Analytics tracks UI events, so it's most useful after pages exist
+
+### 9.1 PostHog Integration
+| Task | Status | Acceptance Criteria |
+|------|--------|---------------------|
+| Create package structure | ⬜ | package.json, tsconfig |
+| Add PostHog client setup | ⬜ | Initialize on app load |
+| Create `track()` helper | ⬜ | Track custom events |
+| Create `identify()` helper | ⬜ | Identify users |
+| Create `setOrganization()` helper | ⬜ | Group by org |
+| Add React provider | ⬜ | Context for hooks |
+| Create `useAnalytics` hook | ⬜ | Client-side tracking |
+
+### 9.2 Event Tracking
+| Task | Status | Acceptance Criteria |
+|------|--------|---------------------|
+| Define core event schema | ⬜ | Consistent event structure |
+| Track auth events | ⬜ | Sign in, sign out, sign up |
+| Track billing events | ⬜ | Subscribe, cancel, upgrade |
+| Track feature usage events | ⬜ | Key feature interactions |
+
+---
+
+## 10. Superadmin Dashboard (NEW APP)
 
 **Location**: `apps/superadmin/` (create new)
 **Priority**: 🟢 Medium
+**Dependencies**: All packages working (Sections 1-9)
 
-### 9.1 Setup
+### 10.1 Setup
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Scaffold superadmin app | ⬜ | Copy from web-template |
 | Add superadmin-only middleware | ⬜ | Blocks non-superadmins |
 | Create separate Clerk app | ⬜ | Or use same with role check |
 
-### 9.2 Dashboard Views
+### 10.2 Dashboard Views
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | All organizations list | ⬜ | Search, filter, sort |
@@ -379,7 +476,7 @@
 | User detail view | ⬜ | Orgs, activity |
 | Subscription overview | ⬜ | MRR, churn, growth |
 
-### 9.3 Admin Actions
+### 10.3 Admin Actions
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Impersonate user button | ⬜ | Opens user session |
@@ -390,12 +487,15 @@
 
 ---
 
-## 10. Infrastructure & Automation
+## 11. Infrastructure & Automation
 
 **Location**: `infra/`
 **Priority**: 🟢 Medium
+**Dependencies**: web-template working (for create-product to copy from)
 
-### 10.1 create-product CLI
+> Note: setup-stripe moved to Section 5 as it's a prerequisite for billing
+
+### 11.1 create-product CLI
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Accept --name flag | ⬜ | Kebab-case product name |
@@ -406,29 +506,15 @@
 | Output setup instructions | ⬜ | Next steps for user |
 | Interactive mode | ⬜ | Prompts if no flags |
 
-### 10.2 setup-stripe Script
-| Task | Status | Acceptance Criteria |
-|------|--------|---------------------|
-| Create products in Stripe | ⬜ | Free, Pro, Enterprise |
-| Create prices for products | ⬜ | Monthly/yearly |
-| Output price IDs | ⬜ | For .env.local |
-| Idempotent (safe to re-run) | ⬜ | Skips existing |
-
-### 10.3 Environment Templates
-| Task | Status | Acceptance Criteria |
-|------|--------|---------------------|
-| Update env.template | ⬜ | All required vars |
-| Add comments explaining each var | ⬜ | Clear documentation |
-| Create .env.example | ⬜ | Safe to commit |
-
 ---
 
-## 11. MCP Servers (AI Integration)
+## 12. MCP Servers (AI Integration)
 
 **Location**: `infra/mcp-servers/` (create new)
 **Priority**: 🟢 Medium (but valuable for AI workflow)
+**Dependencies**: Schema and packages defined (Sections 1-6)
 
-### 11.1 Repo Knowledge Server
+### 12.1 Repo Knowledge Server
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Create MCP server structure | ⬜ | Standard MCP format |
@@ -437,7 +523,7 @@
 | Implement `find_files` tool | ⬜ | Search by purpose |
 | Implement `get_imports` tool | ⬜ | Show dependencies |
 
-### 11.2 Schema Introspection Server
+### 12.2 Schema Introspection Server
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Create MCP server structure | ⬜ | Standard MCP format |
@@ -446,7 +532,7 @@
 | Implement `show_rls_policies` tool | ⬜ | Security policies |
 | Implement `validate_query` tool | ⬜ | Check tenant isolation |
 
-### 11.3 Billing Rules Server
+### 12.3 Billing Rules Server
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Create MCP server structure | ⬜ | Standard MCP format |
@@ -457,27 +543,31 @@
 
 ---
 
-## 12. Testing
+## 13. Testing (TDD - Ongoing)
 
 **Location**: Throughout repo
-**Priority**: 🟡 High (before production use)
+**Priority**: 🟡 High
 
-### 12.1 Unit Tests
+> ⚠️ **TDD Approach**: Write tests ALONGSIDE each section, not at the end.
+> When implementing Section N, write tests for Section N at the same time.
+
+### 13.1 Test Infrastructure (Set up first!)
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Set up Vitest | ⬜ | Test runner configured |
-| Test RBAC permission engine | ⬜ | All permission combinations |
-| Test billing calculations | ⬜ | Usage, limits, prorations |
-| Test auth utilities | ⬜ | Guards, context |
+| Set up Playwright | ⬜ | E2E runner configured |
+| Create test utilities | ⬜ | Mock factories, helpers |
 
-### 12.2 Integration Tests
+### 13.2 Unit Tests (write alongside each section)
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Test Clerk webhook handlers | ⬜ | Mock webhooks |
-| Test Stripe webhook handlers | ⬜ | Mock webhooks |
-| Test API routes | ⬜ | Happy + error paths |
+| Test @startkit/config env validation | ⬜ | With Section 1 |
+| Test @startkit/database tenant context | ⬜ | With Section 2 |
+| Test @startkit/auth utilities | ⬜ | With Section 3 |
+| Test @startkit/rbac permission engine | ⬜ | With Section 4 |
+| Test @startkit/billing calculations | ⬜ | With Section 6 |
 
-### 12.3 RLS Isolation Tests 🔒
+### 13.3 RLS Isolation Tests 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Test user can't read other user | ⬜ | Fails with RLS |
@@ -485,10 +575,16 @@
 | Test member can't access admin data | ⬜ | Role-based RLS |
 | Test superadmin can access all | ⬜ | Bypass works |
 
-### 12.4 E2E Tests
+### 13.4 Integration Tests
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Set up Playwright | ⬜ | E2E runner configured |
+| Test Clerk webhook handlers | ⬜ | Mock webhooks |
+| Test Stripe webhook handlers | ⬜ | Mock webhooks |
+| Test API routes | ⬜ | Happy + error paths |
+
+### 13.5 E2E Tests
+| Task | Status | Acceptance Criteria |
+|------|--------|---------------------|
 | Test signup flow | ⬜ | New user can sign up |
 | Test signin flow | ⬜ | Existing user can sign in |
 | Test billing flow | ⬜ | Can subscribe to plan |
@@ -496,12 +592,14 @@
 
 ---
 
-## 13. Documentation
+## 14. Documentation
 
 **Location**: `docs/`
-**Priority**: 🟢 Medium
+**Priority**: 🟢 Medium (ongoing throughout development)
 
-### 13.1 Guides
+> 💡 Update documentation as you complete each section
+
+### 14.1 Guides
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Getting Started guide | ⬜ | Clone → running in 10 min |
@@ -510,7 +608,7 @@
 | RBAC guide | ⬜ | Adding roles, permissions |
 | Database guide | ⬜ | Schema, migrations, RLS |
 
-### 13.2 ADRs
+### 14.2 ADRs
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | ADR-001: Database (Supabase) | ✅ | Already created |
@@ -519,7 +617,7 @@
 | ADR-004: Mono-repo (Turborepo) | ⬜ | Document decision |
 | ADR-005: ORM (Drizzle) | ⬜ | Document decision |
 
-### 13.3 AI Context
+### 14.3 AI Context
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
 | Update system-boundaries.md | ⬜ | Current state |
@@ -538,18 +636,18 @@
 - [x] One product can be created from template (manual)
 
 ### v1.0 - Production Ready
-- [ ] Authentication flow complete (Clerk)
-- [ ] Organization management complete
-- [ ] Role-based access control working
-- [ ] Stripe billing integration complete
-- [ ] Basic superadmin dashboard
-- [ ] Landing page template
+- [ ] @startkit/config complete (Section 1)
+- [ ] @startkit/database with RLS (Section 2)
+- [ ] Authentication flow complete (Section 3)
+- [ ] Role-based access control working (Section 4)
+- [ ] Stripe billing integration complete (Sections 5-6)
+- [ ] UI components and web-template (Sections 7-8)
 - [ ] One real product launched and accepting payments
 
 ### v1.5 - Factory Ready
-- [ ] `create-product` CLI automated
-- [ ] MCP servers operational
-- [ ] Documentation complete
+- [ ] `create-product` CLI automated (Section 11)
+- [ ] MCP servers operational (Section 12)
+- [ ] Documentation complete (Section 14)
 - [ ] Three or more products running
 - [ ] Shared packages stable
 
@@ -565,26 +663,33 @@
 ## How to Use This File
 
 ### For Solo Development
-1. Pick a section to work on
-2. Complete all tasks in that section
-3. Mark tasks as ✅ when done
-4. Commit with section reference: `feat(auth): complete webhook handlers`
+1. **Follow section order** - complete earlier sections before later ones
+2. Start with Section 1 (@startkit/config)
+3. Write tests alongside each section (TDD)
+4. Mark tasks as ✅ when done
+5. Commit with section reference: `feat(config): complete env validation`
 
 ### For Multi-Agent Development
-1. Assign sections to different agents
-2. Each agent works independently on their section
-3. Avoid conflicts by not touching other sections
-4. Merge frequently to main
+1. Sections 1-4 must be sequential (dependencies)
+2. Sections 5-7 can be parallelized (after 1-4 complete)
+3. Section 8 requires Sections 1-7
+4. Sections 9-14 can be parallelized (after 8 complete)
 
-### Recommended Order
-1. **@startkit/database** (RLS) - Security foundation
-2. **@startkit/auth** (webhooks) - User/org sync
-3. **@startkit/rbac** - Permission engine
-4. **@startkit/billing** - Revenue critical
-5. **@startkit/ui** - Can parallelize
-6. **web-template pages** - Can parallelize
-7. **Testing** - After features complete
-8. **Documentation** - Ongoing
+### Recommended Order (Updated)
+1. **@startkit/config** - Foundation, all packages import from here
+2. **@startkit/database** - RLS security foundation
+3. **@startkit/auth** - User/org sync
+4. **@startkit/rbac** - Permission engine
+5. **Stripe Setup** - Create products/prices before coding billing
+6. **@startkit/billing** - Revenue critical
+7. **@startkit/ui** - Components (can parallelize with 5-6)
+8. **web-template** - App pages
+9. **@startkit/analytics** - Tracking (needs pages)
+10. **Superadmin** - Admin dashboard
+11. **Infrastructure** - CLI tools
+12. **MCP Servers** - AI integration
+13. **Testing** - TDD throughout, consolidate at end
+14. **Documentation** - Ongoing, finalize at end
 
 ---
 

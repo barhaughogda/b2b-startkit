@@ -152,3 +152,206 @@ export interface TenantContext {
   organizationId: OrganizationId
   userId: UserId
 }
+
+// ============================================
+// Product Configuration Types
+// ============================================
+
+/**
+ * Product configuration
+ * Defines a SaaS product built from StartKit
+ * Each product has its own app in apps/[product-name]/
+ */
+export interface ProductConfig {
+  /**
+   * Product identifier (kebab-case)
+   * Used in URLs, package names, and file paths
+   * Example: "my-saas-product"
+   */
+  id: string
+
+  /**
+   * Human-readable product name
+   * Example: "My SaaS Product"
+   */
+  name: string
+
+  /**
+   * Product description
+   */
+  description?: string
+
+  /**
+   * Product-specific features
+   * These are in addition to base StartKit features
+   */
+  features: string[]
+
+  /**
+   * Product-specific limits
+   * Overrides or extends plan limits
+   */
+  limits?: {
+    /**
+     * Maximum number of organizations (for multi-tenant products)
+     * undefined = unlimited
+     */
+    maxOrganizations?: number
+
+    /**
+     * Maximum number of users per organization
+     * undefined = unlimited
+     */
+    maxUsersPerOrg?: number
+
+    /**
+     * Custom limits keyed by metric name
+     */
+    [key: string]: number | undefined
+  }
+
+  /**
+   * Stripe product configuration
+   */
+  stripe?: {
+    /**
+     * Stripe product ID (created via setup-stripe script)
+     */
+    productId: string
+
+    /**
+     * Stripe price IDs for each plan tier
+     */
+    priceIds: {
+      free?: string
+      starter?: string
+      pro?: string
+      enterprise?: string
+      [tier: string]: string | undefined
+    }
+  }
+}
+
+// ============================================
+// Plan Configuration Types
+// ============================================
+
+/**
+ * Plan feature definition
+ * Describes what a plan includes
+ */
+export interface PlanFeature {
+  /**
+   * Feature name/description
+   */
+  name: string
+
+  /**
+   * Whether this feature is included (true) or not (false)
+   * For usage-based features, use limits instead
+   */
+  included: boolean
+
+  /**
+   * Optional limit for this feature
+   * Example: { apiCalls: 10000 } means 10k API calls included
+   */
+  limit?: number | Record<string, number>
+}
+
+/**
+ * Plan configuration
+ * Defines pricing, features, and limits for a subscription plan
+ */
+export interface PlanConfig {
+  /**
+   * Plan tier identifier
+   */
+  tier: PlanTier
+
+  /**
+   * Plan name
+   * Example: "Pro", "Enterprise"
+   */
+  name: string
+
+  /**
+   * Plan description
+   */
+  description?: string
+
+  /**
+   * Pricing configuration
+   */
+  pricing: {
+    /**
+     * Monthly price in cents (USD)
+     * Example: 2900 = $29.00/month
+     */
+    monthly?: number
+
+    /**
+     * Yearly price in cents (USD)
+     * Example: 29000 = $290.00/year (equivalent to ~$24.17/month)
+     */
+    yearly?: number
+
+    /**
+     * Currency code (ISO 4217)
+     * Default: "usd"
+     */
+    currency?: string
+
+    /**
+     * Whether this plan is usage-based
+     * If true, base price is $0 and charges are per usage metric
+     */
+    usageBased?: boolean
+  }
+
+  /**
+   * Features included in this plan
+   */
+  features: PlanFeature[]
+
+  /**
+   * Plan limits
+   * These override product defaults
+   */
+  limits?: {
+    /**
+     * Maximum number of seats/users
+     * undefined = unlimited
+     */
+    seats?: number
+
+    /**
+     * Maximum storage in GB
+     * undefined = unlimited
+     */
+    storageGb?: number
+
+    /**
+     * Maximum API calls per month
+     * undefined = unlimited
+     */
+    apiCallsPerMonth?: number
+
+    /**
+     * Custom limits keyed by metric name
+     */
+    [key: string]: number | undefined
+  }
+
+  /**
+   * Stripe price ID for this plan
+   * Created via setup-stripe script
+   */
+  stripePriceId?: string
+
+  /**
+   * Whether this plan is currently available for purchase
+   * Set to false to hide from pricing page
+   */
+  available?: boolean
+}
