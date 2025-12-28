@@ -138,29 +138,29 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create RLS policy for `users` table | ⬜ | Users can only read their own record |
-| Create RLS policy for `organizations` table | ⬜ | Members can read their org |
-| Create RLS policy for `organization_members` | ⬜ | Members can read their org's members |
-| Create RLS policy for `subscriptions` | ⬜ | Only org admins can read |
-| Create RLS policy for `audit_logs` | ⬜ | Admins can read org logs |
-| Create RLS policy for `feature_flags` | ⬜ | Members can read org flags |
-| Create superadmin bypass connection | ⬜ | Service role key for superadmin |
-| Write isolation tests | ⬜ | Prove tenants can't see each other |
+| Create RLS policy for `users` table | ✅ | Users can only read their own record |
+| Create RLS policy for `organizations` table | ✅ | Members can read their org |
+| Create RLS policy for `organization_members` | ✅ | Members can read their org's members |
+| Create RLS policy for `subscriptions` | ✅ | Only org admins can read |
+| Create RLS policy for `audit_logs` | ✅ | Admins can read org logs |
+| Create RLS policy for `feature_flags` | ✅ | Members can read org flags |
+| Create superadmin bypass connection | ✅ | Service role key for superadmin |
+| Write isolation tests | ✅ | Prove tenants can't see each other |
 
 ### 2.2 Tenant Context
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Implement `withTenant()` query wrapper | ⬜ | All queries automatically scoped |
-| Implement `setTenantContext()` for RLS | ⬜ | Sets `app.current_org_id` in Postgres |
-| Create tenant middleware for API routes | ⬜ | Injects org context from Clerk |
-| Add tenant context to tRPC (if using) | ⬜ | Context available in all procedures |
+| Implement `withTenant()` query wrapper | ✅ | All queries automatically scoped |
+| Implement `setTenantContext()` for RLS | ✅ | Sets `app.current_org_id` in Postgres |
+| Create tenant middleware for API routes | ✅ | Injects org context from Clerk |
+| Add tenant context to tRPC (if using) | ⬜ | Context available in all procedures (N/A - not using tRPC) |
 
 ### 2.3 Migrations
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Set up Drizzle migration workflow | ⬜ | `pnpm db:generate` creates migrations |
-| Document migration process | ⬜ | Clear guide in docs |
-| Create seed script for development | ⬜ | Realistic test data |
+| Set up Drizzle migration workflow | ✅ | `pnpm db:generate` creates migrations |
+| Document migration process | ✅ | Clear guide in docs |
+| Create seed script for development | ✅ | Realistic test data |
 
 ---
 

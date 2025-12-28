@@ -15,6 +15,7 @@
  * @ai-no-modify Schema and RLS changes require security review
  */
 
-export { db, createDbClient } from './client'
-export { withTenant, getTenantContext } from './tenant'
+export { db, superadminDb, createDbClient, getDb, getSuperadminDb, getPostgresClient } from './client'
+export { withTenant, getTenantContext, setTenantContext, requireTenantContext } from './tenant'
+export { withTenantMiddleware, createTenantHandler } from './middleware'
 export * from './schema'

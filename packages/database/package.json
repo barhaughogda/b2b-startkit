@@ -17,7 +17,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:apply-rls": "tsx src/migrations/apply-rls.ts",
+    "db:seed": "tsx src/seed.ts"
   },
   "dependencies": {
     "@startkit/config": "workspace:*",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "drizzle-kit": "^0.30.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }
