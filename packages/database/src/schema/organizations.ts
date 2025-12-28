@@ -8,6 +8,16 @@ import { users } from './users'
 export const organizationRoleEnum = pgEnum('organization_role', ['owner', 'admin', 'member'])
 
 /**
+ * Organization status enum
+ * Used for kill switch / suspension functionality
+ */
+export const organizationStatusEnum = pgEnum('organization_status', [
+  'active',     // Normal operation
+  'suspended',  // Temporarily suspended (can be reactivated)
+  'locked',     // Locked by superadmin (read-only access)
+])
+
+/**
  * Organizations table
  *
  * Synced from Clerk via webhooks.
@@ -24,6 +34,29 @@ export const organizations = pgTable(
     name: text('name').notNull(),
     slug: text('slug').notNull().unique(),
 
+    /**
+     * Organization status for kill switch / suspension
+     * - active: Normal operation
+     * - suspended: Temporarily suspended, can be reactivated
+     * - locked: Read-only, locked by superadmin
+     */
+    status: organizationStatusEnum('status').notNull().default('active'),
+
+    /**
+     * When the organization was suspended (if status != active)
+     */
+    suspendedAt: timestamp('suspended_at', { withTimezone: true }),
+
+    /**
+     * Reason for suspension (displayed to users)
+     */
+    suspendedReason: text('suspended_reason'),
+
+    /**
+     * Who suspended the organization (superadmin user ID)
+     */
+    suspendedBy: uuid('suspended_by').references(() => users.id),
+
     // Settings stored as JSON for flexibility
     settings: jsonb('settings').$type<OrganizationSettings>().default({}),
 
@@ -34,6 +67,7 @@ export const organizations = pgTable(
   (table) => [
     index('organizations_clerk_org_id_idx').on(table.clerkOrgId),
     index('organizations_slug_idx').on(table.slug),
+    index('organizations_status_idx').on(table.status),
   ]
 )
 
@@ -99,3 +133,4 @@ export type Organization = typeof organizations.$inferSelect
 export type NewOrganization = typeof organizations.$inferInsert
 export type OrganizationMember = typeof organizationMembers.$inferSelect
 export type NewOrganizationMember = typeof organizationMembers.$inferInsert
+export type OrganizationStatus = 'active' | 'suspended' | 'locked'

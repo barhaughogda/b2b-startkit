@@ -159,14 +159,115 @@ export interface TenantContext {
 // ============================================
 
 /**
- * Product configuration
- * Defines a SaaS product built from StartKit
- * Each product has its own app in apps/[product-name]/
+ * Feature category for organizing features
  */
-export interface ProductConfig {
+export type FeatureCategory = 'core' | 'premium' | 'beta' | 'enterprise'
+
+/**
+ * Feature definition within a product
+ * Describes a capability that can be enabled/disabled per plan
+ */
+export interface FeatureDefinition {
+  /**
+   * Unique feature key (snake_case)
+   * Example: "ai_assistant", "bulk_export"
+   */
+  key: string
+
+  /**
+   * Human-readable feature name
+   */
+  name: string
+
+  /**
+   * Optional description
+   */
+  description?: string
+
+  /**
+   * Feature category for grouping
+   */
+  category: FeatureCategory
+}
+
+/**
+ * Plan-specific configuration within a product
+ * Defines what features and limits apply to each plan tier
+ */
+export interface ProductPlanConfig {
+  /**
+   * Feature keys enabled for this plan
+   * Must reference keys defined in product.features
+   */
+  features: string[]
+
+  /**
+   * Limits for this plan
+   * undefined = unlimited
+   */
+  limits: {
+    seats?: number
+    apiCallsPerMonth?: number
+    storageGb?: number
+    [key: string]: number | undefined
+  }
+
+  /**
+   * Additional feature flags to enable for this plan
+   * These are in addition to the standard feature keys
+   */
+  customFlags?: string[]
+}
+
+/**
+ * Kill switch defaults for a product
+ */
+export interface KillSwitchDefaults {
+  /**
+   * Whether the product is enabled
+   * Set to false to disable the entire product
+   */
+  productEnabled: boolean
+
+  /**
+   * Whether the product is in maintenance mode
+   * Users see a maintenance page but data is preserved
+   */
+  maintenanceMode: boolean
+}
+
+/**
+ * Role override for product-specific permission adjustments
+ */
+export interface RoleOverride {
+  /**
+   * Additional permissions to grant this role
+   */
+  additionalPermissions?: Permission[]
+
+  /**
+   * Permissions to remove from this role
+   */
+  removePermissions?: Permission[]
+}
+
+/**
+ * Product Configuration Contract
+ *
+ * The canonical source of truth for a product's capabilities.
+ * Each product MUST have exactly one product.config.ts file
+ * that satisfies this contract.
+ *
+ * @ai-context This is the single source of truth for:
+ * - What features exist in the product
+ * - What plans unlock what features
+ * - What limits apply per plan
+ * - Kill switch defaults
+ */
+export interface ProductConfigContract {
   /**
    * Product identifier (kebab-case)
-   * Used in URLs, package names, and file paths
+   * Used in URLs, database prefixes, and file paths
    * Example: "my-saas-product"
    */
   id: string
@@ -178,51 +279,83 @@ export interface ProductConfig {
   name: string
 
   /**
+   * Semantic version of the product
+   */
+  version: string
+
+  /**
    * Product description
    */
   description?: string
 
   /**
-   * Product-specific features
-   * These are in addition to base StartKit features
+   * Feature definitions for this product
+   * Key is the feature key, value is the definition
    */
-  features: string[]
+  features: Record<string, FeatureDefinition>
 
   /**
-   * Product-specific limits
-   * Overrides or extends plan limits
+   * Plan configurations
+   * Defines what each plan tier unlocks
    */
-  limits?: {
-    /**
-     * Maximum number of organizations (for multi-tenant products)
-     * undefined = unlimited
-     */
-    maxOrganizations?: number
+  plans: Record<PlanTier, ProductPlanConfig>
 
-    /**
-     * Maximum number of users per organization
-     * undefined = unlimited
-     */
-    maxUsersPerOrg?: number
+  /**
+   * Optional role overrides for product-specific permission adjustments
+   */
+  roles?: Partial<Record<OrganizationRole, RoleOverride>>
 
-    /**
-     * Custom limits keyed by metric name
-     */
-    [key: string]: number | undefined
+  /**
+   * Kill switch defaults
+   */
+  killSwitches: KillSwitchDefaults
+
+  /**
+   * Stripe product configuration (optional, set via setup-stripe)
+   */
+  stripe?: {
+    productId: string
+    priceIds: Partial<Record<PlanTier, string>>
   }
 
   /**
-   * Stripe product configuration
+   * Branding configuration
    */
-  stripe?: {
-    /**
-     * Stripe product ID (created via setup-stripe script)
-     */
-    productId: string
+  branding?: {
+    primaryColor?: string
+    logo?: string
+    favicon?: string
+  }
 
-    /**
-     * Stripe price IDs for each plan tier
-     */
+  /**
+   * Navigation configuration
+   */
+  navigation?: {
+    main: Array<{
+      label: string
+      href: string
+      icon?: string
+      requiredFeature?: string
+    }>
+  }
+}
+
+/**
+ * @deprecated Use ProductConfigContract instead
+ * Legacy product configuration - kept for backward compatibility
+ */
+export interface ProductConfig {
+  id: string
+  name: string
+  description?: string
+  features: string[]
+  limits?: {
+    maxOrganizations?: number
+    maxUsersPerOrg?: number
+    [key: string]: number | undefined
+  }
+  stripe?: {
+    productId: string
     priceIds: {
       free?: string
       starter?: string

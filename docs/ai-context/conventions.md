@@ -102,6 +102,66 @@ cat packages/database/src/migrations/sql/000X_*.sql
 pnpm db:push  # Development
 ```
 
+### Schema Ownership Rules
+
+The factory maintains strict separation between core and product-specific tables.
+
+#### Core Tables (packages/database/src/schema/)
+
+These tables are shared by ALL products and managed by the platform team:
+
+| Table | Purpose |
+|-------|---------|
+| `users` | User accounts (synced from Clerk) |
+| `organizations` | Tenant entities |
+| `organization_members` | User-org membership and roles |
+| `subscriptions` | Billing state |
+| `feature_flag_definitions` | Global flag registry |
+| `organization_feature_flags` | Per-org flag overrides |
+| `audit_logs` | Compliance and audit trail |
+| `kill_switches` | Emergency controls |
+
+#### Product-Specific Tables (apps/[product]/src/db/schema/)
+
+Products MAY create their own tables, but they MUST:
+
+1. **Live in the app directory**, not in `packages/database/`
+2. **Include `organization_id`** column with proper RLS policies
+3. **Use naming convention**: `[product_prefix]_[table_name]`
+4. **Be documented** in the product's `product.config.ts`
+
+```typescript
+// ✅ CORRECT - Product table in app directory
+// apps/project-manager/src/db/schema/projects.ts
+export const pmProjects = pgTable('pm_projects', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id').notNull(),
+  name: text('name').notNull(),
+  // ...
+})
+
+// ❌ WRONG - Product table in core package
+// packages/database/src/schema/projects.ts  <-- DO NOT DO THIS
+```
+
+#### Cross-Product Tables: FORBIDDEN
+
+**Hard rule**: Products MUST NOT share tables beyond core.
+
+If two products need shared data, you have three options:
+
+1. **Promote to core**: After platform team review, move the table to `packages/database/`
+2. **Use API calls**: Products communicate via API (microservice pattern)
+3. **Use events**: Loose coupling via audit log events or webhooks
+
+```typescript
+// ❌ WRONG - Products sharing a custom table
+// This creates coupling and prevents independent evolution
+
+// ✅ RIGHT - Product A calls Product B's API
+const data = await fetch('/api/product-b/resource')
+```
+
 ## Authentication & Authorization
 
 ### Permission Checks
