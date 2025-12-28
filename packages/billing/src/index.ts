@@ -24,6 +24,9 @@ export {
   createBillingPortalSession,
   getSubscription,
   cancelSubscription,
+  resumeSubscription,
+  changeSubscription,
+  updateSubscriptionQuantity,
 } from './subscriptions'
 
 // Usage tracking
@@ -32,5 +35,8 @@ export { trackUsage, getUsageSummary, reportUsageToStripe } from './usage'
 // Webhook handling
 export { handleStripeWebhook, verifyStripeSignature } from './webhooks'
 
+// Pricing configuration
+export { defaultPlans, getPlanConfig, getAvailablePlans, planToPriceConfig } from './pricing'
+
 // Types
-export type { CheckoutConfig, UsageEvent, WebhookEvent } from './types'
+export type { CheckoutConfig, UsageEvent, WebhookEvent, PriceConfig } from './types'

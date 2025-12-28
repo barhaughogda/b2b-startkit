@@ -269,41 +269,41 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 6.1 Subscription Management
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Implement `createCheckoutSession()` | ⬜ | Redirects to Stripe Checkout |
-| Implement `createCustomerPortal()` | ⬜ | Opens Stripe portal |
-| Implement `getSubscription()` | ⬜ | Returns current plan details |
-| Implement `cancelSubscription()` | ⬜ | Cancels at period end |
-| Implement `resumeSubscription()` | ⬜ | Resumes canceled sub |
-| Implement `changeSubscription()` | ⬜ | Upgrade/downgrade |
+| Implement `createCheckoutSession()` | ✅ | Redirects to Stripe Checkout |
+| Implement `createCustomerPortal()` | ✅ | Opens Stripe portal |
+| Implement `getSubscription()` | ✅ | Returns current plan details |
+| Implement `cancelSubscription()` | ✅ | Cancels at period end |
+| Implement `resumeSubscription()` | ✅ | Resumes canceled sub |
+| Implement `changeSubscription()` | ✅ | Upgrade/downgrade |
 
 ### 6.2 Usage Tracking
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Set up Upstash Redis connection | ⬜ | Real-time usage storage |
-| Implement `trackUsage(metric, value)` | ⬜ | Increment usage counter |
-| Implement `getUsage(metric, period)` | ⬜ | Get current usage |
-| Implement usage aggregation job | ⬜ | Hourly sync to DB |
-| Implement Stripe usage reporting | ⬜ | Report at billing cycle |
-| Add usage limit enforcement | ⬜ | Block when over limit |
+| Set up Upstash Redis connection | ⬜ | Real-time usage storage (TODO: Add Redis for production) |
+| Implement `trackUsage(metric, value)` | ✅ | Increment usage counter |
+| Implement `getUsage(metric, period)` | ✅ | Get current usage |
+| Implement usage aggregation job | ✅ | Hourly sync to DB |
+| Implement Stripe usage reporting | ✅ | Report at billing cycle |
+| Add usage limit enforcement | ✅ | Block when over limit |
 
 ### 6.3 Webhook Handlers 🔒
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Handle `checkout.session.completed` | ⬜ | Create subscription in DB |
-| Handle `customer.subscription.updated` | ⬜ | Sync status |
-| Handle `customer.subscription.deleted` | ⬜ | Mark canceled |
-| Handle `invoice.paid` | ⬜ | Update billing history |
-| Handle `invoice.payment_failed` | ⬜ | Trigger grace period |
-| Add idempotency keys | ⬜ | Safe to replay |
-| Add webhook signature verification | ⬜ | Security requirement |
+| Handle `checkout.session.completed` | ✅ | Create subscription in DB |
+| Handle `customer.subscription.updated` | ✅ | Sync status |
+| Handle `customer.subscription.deleted` | ✅ | Mark canceled |
+| Handle `invoice.paid` | ✅ | Update billing history |
+| Handle `invoice.payment_failed` | ✅ | Trigger grace period |
+| Add idempotency keys | ✅ | Safe to replay |
+| Add webhook signature verification | ✅ | Security requirement |
 
 ### 6.4 Pricing Configuration
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create pricing plan config type | ⬜ | Define plan structure |
-| Create default plans (Free, Pro, Enterprise) | ⬜ | In Stripe + config |
-| Implement plan limits | ⬜ | Seats, storage, API calls |
-| Create pricing page component | ⬜ | Shows all plans |
+| Create pricing plan config type | ✅ | Define plan structure |
+| Create default plans (Free, Pro, Enterprise) | ✅ | In Stripe + config |
+| Implement plan limits | ✅ | Seats, storage, API calls |
+| Create pricing page component | ⬜ | Shows all plans (UI component - Section 7) |
 
 ---
 
