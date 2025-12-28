@@ -318,23 +318,23 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 7.1 Core Components (shadcn)
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Add Card component | ⬜ | For dashboard widgets |
-| Add Dialog/Modal component | ⬜ | For confirmations |
-| Add Dropdown Menu | ⬜ | For actions menus |
-| Add Input component | ⬜ | Form input |
-| Add Label component | ⬜ | Form labels |
-| Add Select component | ⬜ | Dropdown select |
-| Add Textarea component | ⬜ | Multi-line input |
-| Add Checkbox component | ⬜ | Boolean input |
-| Add Switch/Toggle component | ⬜ | On/off toggle |
-| Add Avatar component | ⬜ | User avatars |
-| Add Badge component | ⬜ | Status badges |
-| Add Alert component | ⬜ | Notifications |
-| Add Toast/Sonner component | ⬜ | Toast notifications |
-| Add Skeleton component | ⬜ | Loading states |
-| Add Tabs component | ⬜ | Tab navigation |
-| Add Table component | ⬜ | Data tables |
-| Add Pagination component | ⬜ | For tables |
+| Add Card component | ✅ | For dashboard widgets |
+| Add Dialog/Modal component | ✅ | For confirmations |
+| Add Dropdown Menu | ✅ | For actions menus |
+| Add Input component | ✅ | Form input |
+| Add Label component | ✅ | Form labels |
+| Add Select component | ✅ | Dropdown select |
+| Add Textarea component | ✅ | Multi-line input |
+| Add Checkbox component | ✅ | Boolean input |
+| Add Switch/Toggle component | ✅ | On/off toggle |
+| Add Avatar component | ✅ | User avatars |
+| Add Badge component | ✅ | Status badges |
+| Add Alert component | ✅ | Notifications |
+| Add Toast/Sonner component | ✅ | Toast notifications |
+| Add Skeleton component | ✅ | Loading states |
+| Add Tabs component | ✅ | Tab navigation |
+| Add Table component | ✅ | Data tables |
+| Add Pagination component | ✅ | For tables |
 
 ### 7.2 Layout Components
 | Task | Status | Acceptance Criteria |
