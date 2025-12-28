@@ -436,21 +436,21 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 9.1 PostHog Integration
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Create package structure | ⬜ | package.json, tsconfig |
-| Add PostHog client setup | ⬜ | Initialize on app load |
-| Create `track()` helper | ⬜ | Track custom events |
-| Create `identify()` helper | ⬜ | Identify users |
-| Create `setOrganization()` helper | ⬜ | Group by org |
-| Add React provider | ⬜ | Context for hooks |
-| Create `useAnalytics` hook | ⬜ | Client-side tracking |
+| Create package structure | ✅ | package.json, tsconfig |
+| Add PostHog client setup | ✅ | Initialize on app load |
+| Create `track()` helper | ✅ | Track custom events |
+| Create `identify()` helper | ✅ | Identify users |
+| Create `setOrganization()` helper | ✅ | Group by org |
+| Add React provider | ✅ | Context for hooks |
+| Create `useAnalytics` hook | ✅ | Client-side tracking |
 
 ### 9.2 Event Tracking
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Define core event schema | ⬜ | Consistent event structure |
-| Track auth events | ⬜ | Sign in, sign out, sign up |
-| Track billing events | ⬜ | Subscribe, cancel, upgrade |
-| Track feature usage events | ⬜ | Key feature interactions |
+| Define core event schema | ✅ | Consistent event structure |
+| Track auth events | ✅ | Sign in, sign out, sign up |
+| Track billing events | ✅ | Subscribe, cancel, upgrade |
+| Track feature usage events | ✅ | Key feature interactions |
 
 ---
 
