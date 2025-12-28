@@ -216,29 +216,29 @@ Note: Testing follows TDD - write tests alongside each section, not at the end.
 ### 4.1 Permission Engine
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Define base permission types | ⬜ | CRUD + custom actions |
-| Define resource types | ⬜ | All entities in system |
-| Implement `can(user, action, resource)` | ⬜ | Returns boolean |
-| Implement `authorize()` that throws | ⬜ | Throws ForbiddenError |
-| Add permission caching | ⬜ | Don't recalculate every call |
+| Define base permission types | ✅ | CRUD + custom actions |
+| Define resource types | ✅ | All entities in system |
+| Implement `can(user, action, resource)` | ✅ | Returns boolean |
+| Implement `authorize()` that throws | ✅ | Throws ForbiddenError |
+| Add permission caching | ✅ | Don't recalculate every call |
 
 ### 4.2 Role System
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Define `owner` role permissions | ⬜ | Full access to org |
-| Define `admin` role permissions | ⬜ | All except billing/delete org |
-| Define `member` role permissions | ⬜ | Read + limited write |
-| Define `viewer` role permissions | ⬜ | Read only |
-| Implement role hierarchy | ⬜ | Owner > Admin > Member > Viewer |
-| Allow custom permission overrides | ⬜ | Add/remove per user |
+| Define `owner` role permissions | ✅ | Full access to org |
+| Define `admin` role permissions | ✅ | All except billing/delete org |
+| Define `member` role permissions | ✅ | Read + limited write |
+| Define `viewer` role permissions | ✅ | Read only |
+| Implement role hierarchy | ✅ | Owner > Admin > Member > Viewer |
+| Allow custom permission overrides | ✅ | Add/remove per user |
 
 ### 4.3 Feature Flags
 | Task | Status | Acceptance Criteria |
 |------|--------|---------------------|
-| Implement `hasFeature(org, flag)` | ⬜ | Checks org's flags |
-| Implement plan-based default flags | ⬜ | Pro plan gets X features |
-| Create feature flag admin API | ⬜ | CRUD for flags |
-| Add feature flag UI component | ⬜ | Wrap features in flag check |
+| Implement `hasFeature(org, flag)` | ✅ | Checks org's flags |
+| Implement plan-based default flags | ✅ | Pro plan gets X features |
+| Create feature flag admin API | ✅ | CRUD for flags |
+| Add feature flag UI component | ✅ | Wrap features in flag check |
 
 ---
 
