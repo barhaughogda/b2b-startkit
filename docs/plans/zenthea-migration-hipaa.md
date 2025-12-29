@@ -264,10 +264,11 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
   - **Acceptance**: app runs locally inside StartKit (temporary Convex/NextAuth allowed only as an intermediate landing).
   - **Completed**: 2025-01-XX - Imported ~1,241 TypeScript files, merged configs, preserved Convex/NextAuth temporarily
 
-- [ ] **T04 — Make Zenthea participate cleanly in Turbo tasks** (2–3 SP)
+- [x] **T04 — Make Zenthea participate cleanly in Turbo tasks** (2–3 SP)
   - **Owner**: Agent
   - **Depends on**: T03
   - **Acceptance**: `pnpm lint` + `pnpm typecheck` pass for the monorepo.
+  - **Completed**: 2025-01-XX - Set up ESLint, updated tsconfig, created typecheck script, fixed TypeScript errors
 
 ### 2) AWS staging target (PHI in-scope => AWS, not Vercel)
 - [ ] **T05 — Stand up AWS staging compute for Zenthea (ECS/Fargate + ALB)** (2–3 SP)
