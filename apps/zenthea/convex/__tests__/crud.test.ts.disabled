@@ -1,0 +1,435 @@
+import { describe, it, expect, beforeEach } from "vitest";
+import { ConvexTestingHelper } from "convex/testing";
+import { api } from "../_generated/api";
+import { Id } from "../_generated/dataModel";
+
+describe("CRUD Operations", () => {
+  let t: ConvexTestingHelper;
+
+  beforeEach(async () => {
+    t = new ConvexTestingHelper();
+    await t.setup();
+  });
+
+  describe("Patient CRUD Operations", () => {
+    it("should create a patient with valid data", async () => {
+      const patientData = {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("1990-01-01").getTime(),
+        email: "john.doe@example.com",
+        phone: "+1-555-123-4567",
+        address: {
+          street: "123 Main St",
+          city: "Anytown",
+          state: "CA",
+          zipCode: "12345",
+        },
+        insurance: {
+          provider: "Blue Cross",
+          policyNumber: "BC123456",
+          groupNumber: "GRP001",
+        },
+        tenantId: "tenant-1",
+      };
+
+      const patientId = await t.mutation(api.patients.createPatient, patientData);
+      expect(patientId).toBeDefined();
+
+      const patient = await t.query(api.patients.getPatient, { id: patientId });
+      expect(patient).toMatchObject({
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@example.com",
+        tenantId: "tenant-1",
+      });
+    });
+
+    it("should reject patient creation with invalid email", async () => {
+      const patientData = {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("1990-01-01").getTime(),
+        email: "invalid-email",
+        tenantId: "tenant-1",
+      };
+
+      await expect(
+        t.mutation(api.patients.createPatient, patientData)
+      ).rejects.toThrow("Invalid email format");
+    });
+
+    it("should reject patient creation with future date of birth", async () => {
+      const patientData = {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: Date.now() + 86400000, // Tomorrow
+        tenantId: "tenant-1",
+      };
+
+      await expect(
+        t.mutation(api.patients.createPatient, patientData)
+      ).rejects.toThrow("Date of birth must be in the past");
+    });
+
+    it("should reject duplicate email within tenant", async () => {
+      const patientData = {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("1990-01-01").getTime(),
+        email: "john.doe@example.com",
+        tenantId: "tenant-1",
+      };
+
+      // Create first patient
+      await t.mutation(api.patients.createPatient, patientData);
+
+      // Try to create second patient with same email
+      await expect(
+        t.mutation(api.patients.createPatient, {
+          ...patientData,
+          firstName: "Jane",
+        })
+      ).rejects.toThrow("Patient with this email already exists in this tenant");
+    });
+
+    it("should update patient successfully", async () => {
+      const patientData = {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("1990-01-01").getTime(),
+        tenantId: "tenant-1",
+      };
+
+      const patientId = await t.mutation(api.patients.createPatient, patientData);
+      
+      const updateData = {
+        id: patientId,
+        firstName: "Johnny",
+        phone: "+1-555-987-6543",
+      };
+
+      await t.mutation(api.patients.updatePatient, updateData);
+
+      const updatedPatient = await t.query(api.patients.getPatient, { id: patientId });
+      expect(updatedPatient?.firstName).toBe("Johnny");
+      expect(updatedPatient?.phone).toBe("+1-555-987-6543");
+    });
+
+    it("should reject patient deletion with existing appointments", async () => {
+      // Create patient
+      const patientId = await t.mutation(api.patients.createPatient, {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("1990-01-01").getTime(),
+        tenantId: "tenant-1",
+      });
+
+      // Create provider
+      const providerId = await t.mutation(api.providers.createProvider, {
+        firstName: "Dr. Smith",
+        lastName: "Provider",
+        specialty: "General Medicine",
+        email: "dr.smith@example.com",
+        licenseNumber: "LIC123",
+        npi: "1234567890",
+        tenantId: "tenant-1",
+      });
+
+      // Create appointment
+      await t.mutation(api.appointments.createAppointment, {
+        patientId,
+        providerId,
+        scheduledAt: Date.now() + 86400000, // Tomorrow
+        duration: 30,
+        type: "consultation",
+        tenantId: "tenant-1",
+      });
+
+      // Try to delete patient
+      await expect(
+        t.mutation(api.patients.deletePatient, { id: patientId })
+      ).rejects.toThrow("Cannot delete patient with existing appointments");
+    });
+  });
+
+  describe("Provider CRUD Operations", () => {
+    it("should create a provider with valid data", async () => {
+      const providerData = {
+        firstName: "Dr. Jane",
+        lastName: "Smith",
+        specialty: "Cardiology",
+        email: "jane.smith@example.com",
+        phone: "+1-555-123-4567",
+        licenseNumber: "LIC123456",
+        npi: "1234567890",
+        tenantId: "tenant-1",
+      };
+
+      const providerId = await t.mutation(api.providers.createProvider, providerData);
+      expect(providerId).toBeDefined();
+
+      const provider = await t.query(api.providers.getProvider, { id: providerId });
+      expect(provider).toMatchObject({
+        firstName: "Dr. Jane",
+        lastName: "Smith",
+        specialty: "Cardiology",
+        email: "jane.smith@example.com",
+        npi: "1234567890",
+        tenantId: "tenant-1",
+      });
+    });
+
+    it("should reject provider creation with invalid NPI", async () => {
+      const providerData = {
+        firstName: "Dr. Jane",
+        lastName: "Smith",
+        specialty: "Cardiology",
+        email: "jane.smith@example.com",
+        licenseNumber: "LIC123456",
+        npi: "12345", // Invalid NPI (too short)
+        tenantId: "tenant-1",
+      };
+
+      await expect(
+        t.mutation(api.providers.createProvider, providerData)
+      ).rejects.toThrow("NPI must be exactly 10 digits");
+    });
+
+    it("should reject duplicate NPI within tenant", async () => {
+      const providerData = {
+        firstName: "Dr. Jane",
+        lastName: "Smith",
+        specialty: "Cardiology",
+        email: "jane.smith@example.com",
+        licenseNumber: "LIC123456",
+        npi: "1234567890",
+        tenantId: "tenant-1",
+      };
+
+      // Create first provider
+      await t.mutation(api.providers.createProvider, providerData);
+
+      // Try to create second provider with same NPI
+      await expect(
+        t.mutation(api.providers.createProvider, {
+          ...providerData,
+          email: "different@example.com",
+        })
+      ).rejects.toThrow("Provider with this NPI already exists in this tenant");
+    });
+  });
+
+  describe("Appointment CRUD Operations", () => {
+    let patientId: Id<"patients">;
+    let providerId: Id<"providers">;
+
+    beforeEach(async () => {
+      // Create test patient
+      patientId = await t.mutation(api.patients.createPatient, {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("1990-01-01").getTime(),
+        tenantId: "tenant-1",
+      });
+
+      // Create test provider
+      providerId = await t.mutation(api.providers.createProvider, {
+        firstName: "Dr. Jane",
+        lastName: "Smith",
+        specialty: "Cardiology",
+        email: "jane.smith@example.com",
+        licenseNumber: "LIC123456",
+        npi: "1234567890",
+        tenantId: "tenant-1",
+      });
+    });
+
+    it("should create an appointment with valid data", async () => {
+      const appointmentData = {
+        patientId,
+        providerId,
+        scheduledAt: Date.now() + 86400000, // Tomorrow
+        duration: 30,
+        type: "consultation" as const,
+        notes: "Initial consultation",
+        tenantId: "tenant-1",
+      };
+
+      const appointmentId = await t.mutation(api.appointments.createAppointment, appointmentData);
+      expect(appointmentId).toBeDefined();
+
+      const appointment = await t.query(api.appointments.getAppointment, { id: appointmentId });
+      expect(appointment).toMatchObject({
+        patientId,
+        providerId,
+        type: "consultation",
+        status: "scheduled",
+        tenantId: "tenant-1",
+      });
+    });
+
+    it("should reject appointment creation in the past", async () => {
+      const appointmentData = {
+        patientId,
+        providerId,
+        scheduledAt: Date.now() - 86400000, // Yesterday
+        duration: 30,
+        type: "consultation" as const,
+        tenantId: "tenant-1",
+      };
+
+      await expect(
+        t.mutation(api.appointments.createAppointment, appointmentData)
+      ).rejects.toThrow("Appointment must be scheduled in the future");
+    });
+
+    it("should reject appointment creation with invalid duration", async () => {
+      const appointmentData = {
+        patientId,
+        providerId,
+        scheduledAt: Date.now() + 86400000,
+        duration: 0, // Invalid duration
+        type: "consultation" as const,
+        tenantId: "tenant-1",
+      };
+
+      await expect(
+        t.mutation(api.appointments.createAppointment, appointmentData)
+      ).rejects.toThrow("Duration must be greater than 0");
+    });
+
+    it("should reject appointment creation with scheduling conflict", async () => {
+      const baseTime = Date.now() + 86400000; // Tomorrow
+      
+      // Create first appointment
+      await t.mutation(api.appointments.createAppointment, {
+        patientId,
+        providerId,
+        scheduledAt: baseTime,
+        duration: 60, // 1 hour
+        type: "consultation" as const,
+        tenantId: "tenant-1",
+      });
+
+      // Try to create conflicting appointment
+      const conflictingData = {
+        patientId,
+        providerId,
+        scheduledAt: baseTime + 1800000, // 30 minutes later (overlaps)
+        duration: 60,
+        type: "consultation" as const,
+        tenantId: "tenant-1",
+      };
+
+      await expect(
+        t.mutation(api.appointments.createAppointment, conflictingData)
+      ).rejects.toThrow("Provider has a scheduling conflict at the requested time");
+    });
+
+    it("should update appointment status", async () => {
+      const appointmentId = await t.mutation(api.appointments.createAppointment, {
+        patientId,
+        providerId,
+        scheduledAt: Date.now() + 86400000,
+        duration: 30,
+        type: "consultation" as const,
+        tenantId: "tenant-1",
+      });
+
+      await t.mutation(api.appointments.updateAppointmentStatus, {
+        id: appointmentId,
+        status: "confirmed",
+      });
+
+      const appointment = await t.query(api.appointments.getAppointment, { id: appointmentId });
+      expect(appointment?.status).toBe("confirmed");
+    });
+  });
+
+  describe("Medical Record CRUD Operations", () => {
+    let patientId: Id<"patients">;
+    let providerId: Id<"providers">;
+    let appointmentId: Id<"appointments">;
+
+    beforeEach(async () => {
+      // Create test patient
+      patientId = await t.mutation(api.patients.createPatient, {
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: new Date("1990-01-01").getTime(),
+        tenantId: "tenant-1",
+      });
+
+      // Create test provider
+      providerId = await t.mutation(api.providers.createProvider, {
+        firstName: "Dr. Jane",
+        lastName: "Smith",
+        specialty: "Cardiology",
+        email: "jane.smith@example.com",
+        licenseNumber: "LIC123456",
+        npi: "1234567890",
+        tenantId: "tenant-1",
+      });
+
+      // Create test appointment
+      appointmentId = await t.mutation(api.appointments.createAppointment, {
+        patientId,
+        providerId,
+        scheduledAt: Date.now() + 86400000,
+        duration: 30,
+        type: "consultation" as const,
+        tenantId: "tenant-1",
+      });
+    });
+
+    it("should create a medical record with valid data", async () => {
+      const recordData = {
+        patientId,
+        providerId,
+        appointmentId,
+        diagnosis: "Hypertension",
+        treatment: "Lifestyle modifications and medication",
+        medications: ["Lisinopril 10mg daily"],
+        notes: "Patient responds well to treatment",
+        tenantId: "tenant-1",
+      };
+
+      const recordId = await t.mutation(api.medicalRecords.createMedicalRecord, recordData);
+      expect(recordId).toBeDefined();
+
+      const record = await t.query(api.medicalRecords.getMedicalRecord, { id: recordId });
+      expect(record).toMatchObject({
+        patientId,
+        providerId,
+        appointmentId,
+        diagnosis: "Hypertension",
+        treatment: "Lifestyle modifications and medication",
+        medications: ["Lisinopril 10mg daily"],
+        tenantId: "tenant-1",
+      });
+    });
+
+    it("should update medical record successfully", async () => {
+      const recordId = await t.mutation(api.medicalRecords.createMedicalRecord, {
+        patientId,
+        providerId,
+        appointmentId,
+        diagnosis: "Hypertension",
+        treatment: "Initial treatment",
+        tenantId: "tenant-1",
+      });
+
+      await t.mutation(api.medicalRecords.updateMedicalRecord, {
+        id: recordId,
+        diagnosis: "Controlled Hypertension",
+        treatment: "Continued medication with good response",
+        medications: ["Lisinopril 10mg daily", "Metoprolol 25mg daily"],
+      });
+
+      const updatedRecord = await t.query(api.medicalRecords.getMedicalRecord, { id: recordId });
+      expect(updatedRecord?.diagnosis).toBe("Controlled Hypertension");
+      expect(updatedRecord?.medications).toEqual(["Lisinopril 10mg daily", "Metoprolol 25mg daily"]);
+    });
+  });
+});

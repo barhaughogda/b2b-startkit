@@ -1,0 +1,340 @@
+/* Zenthea Design System CSS Variables */
+/* Based on the comprehensive design system documentation */
+
+:root {
+  /* Brand Colors - From Huemint Brand Intersection */
+  --zenthea-teal: #5FBFAF;
+  --zenthea-purple: #5F284A;
+  --zenthea-coral: #E07B7E;
+  --zenthea-cream: #F2DDC9;
+
+  /* Light Theme Colors */
+  --color-background-primary: #F2DDC9;
+  --color-background-secondary: #f0fdfa;
+  --color-background-tertiary: #faf5ff;
+  --color-background-elevated: #ffffff;
+  --color-background-overlay: rgba(95, 40, 74, 0.5);
+  
+  --color-surface-primary: #F2DDC9;
+  --color-surface-secondary: #f0fdfa;
+  --color-surface-tertiary: #faf5ff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-interactive: #f0fdfa;
+  
+  --color-text-primary: #5F284A;
+  --color-text-secondary: #0f766e;
+  --color-text-tertiary: #78716c;
+  --color-text-disabled: #a8a29e;
+  --color-text-inverse: #F2DDC9;
+  --color-text-link: #5FBFAF;
+  --color-text-link-hover: #0d9488;
+  
+  --color-border-primary: #d6d3d1;
+  --color-border-secondary: #5eead4;
+  --color-border-tertiary: #a8a29e;
+  --color-border-focus: #5FBFAF;
+  --color-border-error: #B91C1C;
+  --color-border-success: #22c55e;
+  --color-border-warning: #B91C1C;
+  
+  --color-interactive-primary: #5FBFAF;
+  --color-interactive-primary-hover: #0d9488;
+  --color-interactive-primary-active: #0f766e;
+  --color-interactive-secondary: #5F284A;
+  --color-interactive-secondary-hover: #4c1d95;
+  --color-interactive-secondary-active: #2e1065;
+  --color-interactive-disabled: #a8a29e;
+  
+  --color-status-success: #22c55e;
+  --color-status-warning: #B91C1C;
+  --color-status-error: #B91C1C;
+  --color-status-info: #5FBFAF;
+  --color-status-critical: #991B1B;
+  
+  --color-healthcare-patient: #22c55e;      /* Green - matches landing page green */
+  --color-healthcare-appointment: #22c55e;  /* Green - matches landing page green */
+  --color-healthcare-medical: #3b82f6;     /* Blue - matches landing page blue */
+  --color-healthcare-messaging: #8b5cf6;   /* Purple - matches landing page purple */
+  --color-healthcare-profile: #f97316;     /* Orange - matches landing page orange */
+  --color-healthcare-security: #ef4444;    /* Red - matches landing page red */
+  --color-healthcare-vital: #B91C1C;
+  --color-healthcare-alert: #B91C1C;
+  --color-healthcare-normal: #22c55e;
+  --color-healthcare-abnormal: #B91C1C;
+  --color-healthcare-critical: #991B1B;
+
+  /* Shadcn/ui compatibility */
+  --background: var(--color-background-elevated);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-surface-elevated);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-surface-elevated);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--color-interactive-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface-secondary);
+  --secondary-foreground: var(--color-text-primary);
+  --muted: var(--color-surface-tertiary);
+  --muted-foreground: var(--color-text-tertiary);
+  --accent: var(--color-surface-interactive);
+  --accent-foreground: var(--color-text-primary);
+  --destructive: var(--color-status-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-border-primary);
+  --input: var(--color-border-primary);
+  --ring: var(--color-border-focus);
+  --radius: 0.5rem;
+
+  /* Sidebar colors */
+  --sidebar-background: var(--color-surface-primary);
+  --sidebar-foreground: var(--color-text-primary);
+  --sidebar-primary: var(--color-interactive-primary);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--color-surface-interactive);
+  --sidebar-accent-foreground: var(--color-text-primary);
+  --sidebar-border: var(--color-border-primary);
+  --sidebar-ring: var(--color-border-focus);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Modern Dark Theme - Updated to match ChatGPT-style dark mode */
+  --color-background-primary: #0f0f0f;     /* Very dark gray (main background) */
+  --color-background-secondary: #1a1a1a;   /* Slightly lighter dark gray */
+  --color-background-tertiary: #262626;    /* Medium dark gray */
+  --color-background-elevated: #1a1a1a;    /* Elevated surfaces */
+  --color-background-overlay: rgba(0, 0, 0, 0.8);
+  
+  --color-surface-primary: #1a1a1a;        /* Dark gray */
+  --color-surface-secondary: #1a1a1a;     /* Dark gray */
+  --color-surface-tertiary: #262626;      /* Medium dark gray */
+  --color-surface-elevated: #1a1a1a;      /* Dark gray */
+  --color-surface-interactive: #333333;   /* Interactive gray */
+  
+  --color-text-primary: #ffffff;          /* Pure white */
+  --color-text-secondary: #d1d5db;        /* Light gray */
+  --color-text-tertiary: #9ca3af;        /* Medium gray */
+  --color-text-disabled: #6b7280;        /* Dark gray */
+  --color-text-inverse: #0f0f0f;         /* Very dark gray */
+  --color-text-link: #008080;             /* Brand teal */
+  --color-text-link-hover: #2dd4bf;      /* Light teal */
+  
+  --color-border-primary: #374151;        /* Dark gray */
+  --color-border-secondary: #4b5563;      /* Medium gray */
+  --color-border-tertiary: #6b7280;      /* Light gray */
+  --color-border-focus: #008080;          /* Brand teal */
+  --color-border-error: #ef4444;          /* Red */
+  --color-border-success: #10b981;        /* Green */
+  --color-border-warning: #f59e0b;        /* Orange */
+  
+  --color-interactive-primary: #008080;   /* Brand teal */
+  --color-interactive-primary-hover: #2dd4bf;  /* Light teal */
+  --color-interactive-primary-active: #0d9488; /* Dark teal */
+  --color-interactive-secondary: #5F284A; /* Brand purple */
+  --color-interactive-secondary-hover: #7c3aed; /* Light purple */
+  --color-interactive-secondary-active: #4c1d95; /* Dark purple */
+  --color-interactive-disabled: #6b7280; /* Dark gray */
+  
+  --color-status-success: #10b981;        /* Green */
+  --color-status-warning: #f59e0b;        /* Orange */
+  --color-status-error: #ef4444;          /* Red */
+  --color-status-info: #008080;           /* Brand teal */
+  --color-status-critical: #fca5a5;       /* Light red */
+  
+  --color-healthcare-patient: #10b981;   /* Green */
+  --color-healthcare-appointment: #008080; /* Brand teal */
+  --color-healthcare-medical: #5F284A;   /* Brand purple */
+  --color-healthcare-vital: #ef4444;     /* Red */
+  --color-healthcare-alert: #ef4444;    /* Red */
+  --color-healthcare-normal: #10b981;   /* Green */
+  --color-healthcare-abnormal: #ef4444; /* Red */
+  --color-healthcare-critical: #fca5a5;  /* Light red */
+
+  /* Update shadcn/ui variables for dark theme */
+  --background: var(--color-background-primary);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-surface-elevated);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-surface-elevated);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--color-interactive-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface-secondary);
+  --secondary-foreground: var(--color-text-primary);
+  --muted: var(--color-surface-tertiary);
+  --muted-foreground: var(--color-text-tertiary);
+  --accent: var(--color-surface-interactive);
+  --accent-foreground: var(--color-text-primary);
+  --destructive: var(--color-status-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-border-primary);
+  --input: var(--color-border-primary);
+  --ring: var(--color-border-focus);
+
+  /* Sidebar colors for dark theme */
+  --sidebar-background: var(--color-surface-primary);
+  --sidebar-foreground: var(--color-text-primary);
+  --sidebar-primary: var(--color-interactive-primary);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--color-surface-interactive);
+  --sidebar-accent-foreground: var(--color-text-primary);
+  --sidebar-border: var(--color-border-primary);
+  --sidebar-ring: var(--color-border-focus);
+}
+
+/* High Contrast Theme */
+[data-theme="high-contrast"] {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f0f0f0;
+  --color-background-tertiary: #e0e0e0;
+  --color-background-elevated: #ffffff;
+  --color-background-overlay: rgba(0, 0, 0, 0.8);
+  
+  --color-surface-primary: #ffffff;
+  --color-surface-secondary: #f0f0f0;
+  --color-surface-tertiary: #e0e0e0;
+  --color-surface-elevated: #ffffff;
+  --color-surface-interactive: #f0f0f0;
+  
+  --color-text-primary: #000000;
+  --color-text-secondary: #333333;
+  --color-text-tertiary: #666666;
+  --color-text-disabled: #999999;
+  --color-text-inverse: #ffffff;
+  --color-text-link: #0000ff;
+  --color-text-link-hover: #000080;
+  
+  --color-border-primary: #000000;
+  --color-border-secondary: #333333;
+  --color-border-tertiary: #666666;
+  --color-border-focus: #0000ff;
+  --color-border-error: #ff0000;
+  --color-border-success: #008000;
+  --color-border-warning: #ff8000;
+  
+  --color-interactive-primary: #0000ff;
+  --color-interactive-primary-hover: #000080;
+  --color-interactive-primary-active: #000040;
+  --color-interactive-secondary: #333333;
+  --color-interactive-secondary-hover: #000000;
+  --color-interactive-secondary-active: #000000;
+  --color-interactive-disabled: #999999;
+  
+  --color-status-success: #008000;
+  --color-status-warning: #ff8000;
+  --color-status-error: #ff0000;
+  --color-status-info: #0000ff;
+  --color-status-critical: #800000;
+  
+  --color-healthcare-patient: #008000;
+  --color-healthcare-appointment: #0000ff;
+  --color-healthcare-medical: #800080;
+  --color-healthcare-vital: #ff8000;
+  --color-healthcare-alert: #ff0000;
+  --color-healthcare-normal: #008000;
+  --color-healthcare-abnormal: #ff0000;
+  --color-healthcare-critical: #800000;
+
+  /* Update shadcn/ui variables for high contrast */
+  --background: var(--color-background-primary);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-surface-elevated);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-surface-elevated);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--color-interactive-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface-secondary);
+  --secondary-foreground: var(--color-text-primary);
+  --muted: var(--color-surface-tertiary);
+  --muted-foreground: var(--color-text-tertiary);
+  --accent: var(--color-surface-interactive);
+  --accent-foreground: var(--color-text-primary);
+  --destructive: var(--color-status-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-border-primary);
+  --input: var(--color-border-primary);
+  --ring: var(--color-border-focus);
+
+  /* Sidebar colors for high contrast */
+  --sidebar-background: var(--color-surface-primary);
+  --sidebar-foreground: var(--color-text-primary);
+  --sidebar-primary: var(--color-interactive-primary);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--color-surface-interactive);
+  --sidebar-accent-foreground: var(--color-text-primary);
+  --sidebar-border: var(--color-border-primary);
+  --sidebar-ring: var(--color-border-focus);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Motion preferences */
+.motion-safe {
+  transition: all 0.3s ease;
+}
+
+.motion-reduce {
+  transition: none;
+}
+
+/* Healthcare-specific utility classes */
+.healthcare-patient {
+  color: var(--color-healthcare-patient);
+}
+
+.healthcare-appointment {
+  color: var(--color-healthcare-appointment);
+}
+
+.healthcare-medical {
+  color: var(--color-healthcare-medical);
+}
+
+.healthcare-vital {
+  color: var(--color-healthcare-vital);
+}
+
+.healthcare-alert {
+  color: var(--color-healthcare-alert);
+}
+
+.healthcare-normal {
+  color: var(--color-healthcare-normal);
+}
+
+.healthcare-abnormal {
+  color: var(--color-healthcare-abnormal);
+}
+
+.healthcare-critical {
+  color: var(--color-healthcare-critical);
+}
+
+/* Status utility classes */
+.status-success {
+  color: var(--color-status-success);
+}
+
+.status-warning {
+  color: var(--color-status-warning);
+}
+
+.status-error {
+  color: var(--color-status-error);
+}
+
+.status-info {
+  color: var(--color-status-info);
+}
+
+.status-critical {
+  color: var(--color-status-critical);
+}
