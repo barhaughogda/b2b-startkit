@@ -14,7 +14,7 @@
 3. **Make Zenthea HIPAA-ready** for PHI/EHR workloads by migrating **fully away from Convex and Vercel** (data + compute) into an AWS environment under a BAA.
 
 ## Related specs (foundational)
-- `docs/plans/zenthea-hipaa-access-control.md` — HIPAA access control, minimum-necessary, break-glass, and audit logging requirements for Zenthea.
+- `apps/zenthea/docs/hipaa-access-control.md` — HIPAA access control, minimum-necessary, break-glass, and audit logging requirements for Zenthea.
 
 ## Definitions (practical)
 - **PHI**: any protected health information. Assume Zenthea will handle PHI.
@@ -225,10 +225,33 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
 > - **Agent + Human**: pairing—I'll prepare changes; you execute in consoles / provide keys / approve.
 
 ### 0) Compliance + vendor gating (do this first)
-- [ ] **T00 — Confirm BAAs and PHI boundaries across vendors** (1–2 SP)
+- [x] **T00 — Confirm BAAs and PHI boundaries across vendors** (1–2 SP)
   - **Owner**: Human
   - **Depends on**: none
-  - **Acceptance**: written vendor list + BAA status + “allowed tooling for PHI environments” decisions.
+  - **Acceptance**:
+    - Written vendor list + PHI boundaries (what is allowed to receive PHI vs not)
+    - BAA requirements confirmed (required vs conditional vs none)
+    - “Allowed tooling for PHI environments” decisions (esp. third‑party scripts/embeds on authenticated pages)
+    - Final decision on **SMS/MFA** path (disable vs AWS HIPAA‑eligible messaging vs add Twilio/Vonage BAA)
+  - **Resources**:
+    - 📋 **HIPAA Strategy**: `docs/plans/zenthea-baa-questionnaire.md` - HIPAA-compliant vendor design (DOs/DON'Ts)
+    - 📝 **BAA Required List**: `docs/plans/zenthea-baa-required-list.md` - Clear list of vendors requiring BAAs
+    - 📊 **Vendor Inventory**: `docs/plans/zenthea-vendor-inventory.md` - Complete vendor list (reference)
+  - **Steps**:
+    1. Review HIPAA-compliant vendor strategy (questionnaire)
+    2. Confirm “locked” vendor decisions:
+       - **AWS Bedrock for PHI LLM/RAG** (under AWS BAA)
+       - **Clerk for auth** (requires Clerk BAA)
+       - **ElevenLabs for PHI voice** (requires ElevenLabs BAA + Zero Retention Mode)
+       - **Google Calendar** allowed only with **PHI‑free** events
+       - **OpenEvidence** allowed only in **no‑PHI mode** (do not adopt Dialer/Visit transcription without changing BAA posture)
+    3. Make the remaining decision: **SMS/MFA path** (disable vs AWS HIPAA‑eligible messaging vs add Twilio/Vonage BAA)
+    4. Review BAA required list (AWS/Clerk/ElevenLabs required; SMS may add a 4th)
+    5. Contact AWS + Clerk + ElevenLabs to request BAAs (start immediately)
+    6. Document decisions and BAA status
+    7. Get legal/compliance review before proceeding
+  - **Goal**: Minimize vendors to reduce BAAs (**locked: 3 BAAs** = AWS + Clerk + ElevenLabs; **SMS disabled for now**)
+  - **Note**: BAAs are still **not signed yet**; T00 closes the *decision + boundary* work so infra/auth migration can proceed while BAAs are being requested/signed.
 
 ### 1) Monorepo import (safe landing zone)
 - [x] **T01 — Env validation plan for AWS-only Zenthea** (1–2 SP)
