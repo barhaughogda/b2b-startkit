@@ -1,6 +1,6 @@
 import { superadminDb } from '@startkit/database'
 import { auditLogs, users, organizations } from '@startkit/database/schema'
-import { eq, desc, ilike, or, sql, count } from 'drizzle-orm'
+import { eq, desc, ilike, or, sql, count, inArray } from 'drizzle-orm'
 
 /**
  * Activity log item
@@ -96,7 +96,7 @@ export async function getActivityLogs(params: ActivitySearchParams = {}) {
     const orgs = await superadminDb
       .select({ id: organizations.id, name: organizations.name })
       .from(organizations)
-      .where(sql`${organizations.id} = ANY(${orgIds})`)
+      .where(inArray(organizations.id, orgIds))
     orgs.forEach((o) => orgsMap.set(o.id, o.name))
   }
 

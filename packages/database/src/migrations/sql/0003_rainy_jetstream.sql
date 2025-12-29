@@ -1,0 +1,1 @@
+ALTER TABLE "product_keys" ADD COLUMN "signing_key" text NOT NULL;

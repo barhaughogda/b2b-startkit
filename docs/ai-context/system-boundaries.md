@@ -11,7 +11,7 @@ This document defines the boundaries of the B2B StartKit system to help AI assis
 ├─────────────────────────────────────────────────────────────┤
 │  apps/                                                      │
 │  ├── web-template/  (Base template for new products)        │
-│  ├── superadmin/    (Internal admin dashboard)              │
+│  ├── superadmin/    (Control Plane - platform management)   │
 │  └── [product-*]/   (Individual SaaS products)              │
 ├─────────────────────────────────────────────────────────────┤
 │  packages/                                                  │
@@ -19,8 +19,8 @@ This document defines the boundaries of the B2B StartKit system to help AI assis
 │  ├── database/      (Drizzle + Supabase + RLS - CRITICAL)  │
 │  ├── auth/          (Clerk integration - CRITICAL)          │
 │  ├── rbac/          (Permissions, roles - CRITICAL)         │
-│  ├── billing/       (Stripe integration - CRITICAL)          │
-│  ├── ui/            (shadcn components - SAFE)             │
+│  ├── billing/       (Stripe integration - CRITICAL)         │
+│  ├── ui/            (shadcn components - SAFE)              │
 │  └── analytics/     (PostHog integration - SAFE)            │
 ├─────────────────────────────────────────────────────────────┤
 │  infra/                                                     │
@@ -29,10 +29,41 @@ This document defines the boundaries of the B2B StartKit system to help AI assis
 ├─────────────────────────────────────────────────────────────┤
 │  docs/                                                       │
 │  ├── guides/        (User documentation)                    │
-│  ├── adr/           (Architecture Decision Records)          │
-│  └── ai-context/    (AI assistant context)                 │
+│  ├── adr/           (Architecture Decision Records)         │
+│  └── ai-context/    (AI assistant context)                  │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### Control Plane Architecture
+
+The `apps/superadmin` serves as the **Control Plane** for the platform:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Control Plane                           │
+│                  (apps/superadmin)                          │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Platform DB (via packages/database)                  │  │
+│  │  - products, product_keys (registered products)       │  │
+│  │  - customers, product_orgs (cross-product customers) │  │
+│  │  - product_subscriptions, billing_events (billing)    │  │
+│  │  - platform_audit_logs (audit trail)                  │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+        ▲                    ▲                    ▲
+        │ Signed Events      │ Signed Events      │ Signed Events
+        │                    │                    │
+┌───────┴───────┐   ┌───────┴───────┐   ┌───────┴───────┐
+│   Product A   │   │   Product B   │   │   Product C   │
+│  (Own Clerk)  │   │  (Own Clerk)  │   │  (Own Clerk)  │
+│   (Own DB)    │   │   (Own DB)    │   │   (Own DB)    │
+└───────────────┘   └───────────────┘   └───────────────┘
+```
+
+Products emit events (org changes, subscriptions, invoices) to the Control Plane via HMAC-signed webhooks. The Control Plane aggregates this data for:
+- Unified customer management across products
+- Platform-wide billing and MRR tracking
+- Cross-product audit logging
 
 ### Package Dependencies
 
@@ -84,6 +115,12 @@ These areas affect security, billing, or data isolation. Changes here must be re
    - Product scaffolding (`create-product.ts`)
    - Stripe setup (`setup-stripe.ts`)
    - Marked with `@ai-no-modify` comment
+
+7. **Control Plane** (`apps/superadmin/src/`)
+   - Event signature verification (`lib/event-signature.ts`)
+   - Event ingestion API (`app/api/control-plane/events/route.ts`)
+   - Product key management (`app/(admin)/products/data.ts`)
+   - Changes could affect platform-wide customer/billing tracking
 
 ### SAFE - Can Be Modified Freely
 
@@ -190,3 +227,9 @@ if (!can(ctx, permission)) {
 - RLS enforces tenant isolation
 - Service role key only for system operations
 - Anon key for client-side queries (with RLS)
+
+### Control Plane (Product → Superadmin)
+- Products emit events via HMAC-signed HTTP calls
+- Events include org lifecycle, subscriptions, invoices
+- Fire-and-forget: product operations don't block on control plane
+- Graceful degradation: works standalone if not configured

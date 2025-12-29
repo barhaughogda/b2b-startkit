@@ -54,6 +54,15 @@ Any file containing the comment `@ai-no-modify` should not be changed without hu
 ### infra/scripts/setup-stripe.ts
 **Why:** Stripe setup automation. Changes could break Stripe product/price creation. Marked with `@ai-no-modify`.
 
+### apps/superadmin/src/lib/event-signature.ts
+**Why:** Control plane HMAC signature verification. Changes could allow unauthorized event injection or break product integration.
+
+### apps/superadmin/src/app/api/control-plane/events/route.ts
+**Why:** Control plane event ingestion endpoint. Changes could break event processing, customer sync, or billing aggregation.
+
+### packages/database/src/schema/control-plane.ts
+**Why:** Control plane database schema. Changes require migrations and could break platform-wide customer and billing tracking.
+
 ## Never Do These Things
 
 ### 1. Disable RLS Policies
@@ -78,7 +87,7 @@ const orgId = 'org_12345' // Hardcoded!
 ### 4. Expose Secrets in Code
 ```typescript
 // NEVER DO THIS
-const apiKey = 'sk_live_xxxxx' // Exposed secret!
+const apiKey = 'EXAMPLE_API_KEY' // Exposed secret!
 ```
 
 ### 5. Create Cross-Tenant Queries

@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Building2,
   Users,
+  Users2,
   CreditCard,
   Flag,
   Activity,
@@ -15,6 +16,8 @@ import {
   Menu,
   X,
   Shield,
+  Package,
+  Receipt,
 } from 'lucide-react'
 import { useState } from 'react'
 import type { SuperadminContext } from '@/lib/auth'
@@ -90,7 +93,13 @@ export function AdminShell({ admin, children }: AdminShellProps) {
               </NavItem>
             </NavSection>
 
-            <NavSection title="Management">
+            <NavSection title="Platform">
+              <NavItem href="/products" icon={Package}>
+                Products
+              </NavItem>
+              <NavItem href="/customers" icon={Users2}>
+                Customers
+              </NavItem>
               <NavItem href="/organizations" icon={Building2}>
                 Organizations
               </NavItem>
@@ -99,6 +108,9 @@ export function AdminShell({ admin, children }: AdminShellProps) {
               </NavItem>
               <NavItem href="/subscriptions" icon={CreditCard}>
                 Subscriptions
+              </NavItem>
+              <NavItem href="/billing" icon={Receipt}>
+                Billing
               </NavItem>
             </NavSection>
 

@@ -1,6 +1,6 @@
 import { superadminDb } from '@startkit/database'
 import { users, organizationMembers, organizations } from '@startkit/database/schema'
-import { eq, desc, ilike, count, or, sql } from 'drizzle-orm'
+import { eq, desc, ilike, count, or, sql, inArray } from 'drizzle-orm'
 
 /**
  * User list item
@@ -113,7 +113,7 @@ export async function getUsers(params: UserSearchParams = {}) {
           count: count(),
         })
         .from(organizationMembers)
-        .where(sql`${organizationMembers.userId} = ANY(${userIds})`)
+        .where(inArray(organizationMembers.userId, userIds))
         .groupBy(organizationMembers.userId)
     : []
 

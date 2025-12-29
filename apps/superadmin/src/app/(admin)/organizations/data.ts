@@ -1,6 +1,6 @@
 import { superadminDb } from '@startkit/database'
 import { organizations, subscriptions, organizationMembers, users } from '@startkit/database/schema'
-import { eq, desc, ilike, count, sql, or } from 'drizzle-orm'
+import { eq, desc, ilike, count, sql, or, inArray } from 'drizzle-orm'
 
 /**
  * Organization list item
@@ -114,18 +114,16 @@ export async function getOrganizations(params: OrganizationSearchParams = {}) {
 
   // Get member counts for each org
   const orgIds = orgsResult.map((o) => o.id)
-  const memberCounts = await superadminDb
-    .select({
-      organizationId: organizationMembers.organizationId,
-      count: count(),
-    })
-    .from(organizationMembers)
-    .where(
-      orgIds.length > 0
-        ? sql`${organizationMembers.organizationId} = ANY(${orgIds})`
-        : sql`false`
-    )
-    .groupBy(organizationMembers.organizationId)
+  const memberCounts = orgIds.length > 0
+    ? await superadminDb
+        .select({
+          organizationId: organizationMembers.organizationId,
+          count: count(),
+        })
+        .from(organizationMembers)
+        .where(inArray(organizationMembers.organizationId, orgIds))
+        .groupBy(organizationMembers.organizationId)
+    : []
 
   const memberCountMap = new Map(
     memberCounts.map((m) => [m.organizationId, m.count])

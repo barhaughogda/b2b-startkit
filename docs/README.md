@@ -7,8 +7,19 @@ Welcome to the B2B StartKit documentation. This is your guide to building and sc
 - [Master Plan](./master-plan.md) - Original vision, architecture, and cross-check
 - [Getting Started](./guides/getting-started.md)
 - [Creating a New Product](./guides/creating-new-product.md)
-- [Architecture Overview](./guides/architecture.md)
 - [Architecture Decision Records](./adr/)
+
+## Guides
+
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](./guides/getting-started.md) | Initial setup and first steps |
+| [Creating a New Product](./guides/creating-new-product.md) | Scaffold a new SaaS product |
+| [Database Migrations](./guides/database-migrations.md) | Schema changes and Drizzle |
+| [Billing Integration](./guides/billing-integration.md) | Stripe setup and subscriptions |
+| [RBAC](./guides/rbac.md) | Permissions and roles |
+| [Control Plane Integration](./guides/control-plane-integration.md) | Multi-product management |
+| [Control Plane Production](./guides/control-plane-production-checklist.md) | Production readiness |
 
 ## Package Documentation
 

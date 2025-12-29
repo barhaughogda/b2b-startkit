@@ -290,6 +290,58 @@ pnpm install  # Reinstall dependencies
 
 If port 3000 is in use, Next.js will use the next available port (3001, 3002, etc.).
 
+## Control Plane Integration (Optional)
+
+If you're running the StartKit platform with multiple products, connect your product to the **Control Plane** for centralized management:
+
+### What the Control Plane Provides
+
+- **Unified customer view** across all products
+- **Billing aggregation** - MRR, subscriptions, revenue per product
+- **Organization management** - Link customer orgs across products
+- **Platform audit logs** - Track all administrative actions
+
+### How to Connect Your Product
+
+1. **Register the product** in the Superadmin dashboard:
+   ```
+   https://admin.yourdomain.com/products → Register Product
+   ```
+
+2. **Generate a signing key** for the product:
+   - Click on your product → Generate Key
+   - Copy the Key ID (`sk_xxxx`) and Secret (`cpsk_xxxx`)
+   - **Save the secret immediately** - it's only shown once!
+
+3. **Add environment variables** to your product:
+   ```env
+   # In your product's .env.local
+   CONTROL_PLANE_URL=https://admin.yourdomain.com
+   CONTROL_PLANE_KID=sk_xxxxxxxx
+   CONTROL_PLANE_SECRET=cpsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   ```
+
+4. **Verify the connection** by creating an organization in your product - it should appear in the Control Plane's customer list.
+
+### What Gets Synced Automatically
+
+When connected, your product automatically syncs:
+
+| Event | Description |
+|-------|-------------|
+| `organization.created` | New orgs appear in Control Plane |
+| `organization.updated` | Name/slug changes are reflected |
+| `subscription.created` | New subscriptions tracked in billing |
+| `subscription.updated` | Plan changes, cancellations sync |
+| `invoice.paid` | Payment events for revenue tracking |
+
+### Running Standalone (No Control Plane)
+
+If you don't configure the control plane variables:
+- The product works normally in **standalone mode**
+- No errors or warnings (graceful skip)
+- You can connect later by adding the environment variables
+
 ## Next Steps
 
 After creating your product:
@@ -297,7 +349,8 @@ After creating your product:
 1. **Customize branding**: Update `product.ts` config
 2. **Set up billing**: See [Billing Integration Guide](./billing-integration.md)
 3. **Configure RBAC**: See [RBAC Guide](./rbac.md)
-4. **Deploy**: Follow deployment guide (coming soon)
+4. **Connect to Control Plane** (optional): See above
+5. **Deploy**: Follow deployment guide (coming soon)
 
 ## Example: Creating "TaskMaster"
 
@@ -326,3 +379,5 @@ pnpm dev
 - [Billing Integration Guide](./billing-integration.md) - Stripe setup
 - [RBAC Guide](./rbac.md) - Permissions and roles
 - [Database Guide](./database-migrations.md) - Database management
+- [Control Plane Integration](./control-plane-integration.md) - Multi-product management
+- [Control Plane Production Checklist](./control-plane-production-checklist.md) - Going live

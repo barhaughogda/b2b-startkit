@@ -13,12 +13,19 @@ import {
   handleMembershipUpdated,
   handleMembershipDeleted,
 } from '@startkit/auth/webhooks'
+import {
+  emitOrgCreated,
+  emitOrgUpdated,
+} from '@/lib/control-plane-client'
 
 /**
  * Clerk webhook handler
  *
  * Syncs user and organization data from Clerk to our database.
  * All handlers are idempotent and safe to replay.
+ *
+ * Control plane events are emitted fire-and-forget style after successful
+ * database sync - they don't block the webhook response.
  *
  * @ai-no-modify Webhook handlers are critical for data sync.
  */
@@ -70,16 +77,34 @@ export async function POST(req: Request) {
         await handleUserDeleted(evt.data, svix_id)
         break
 
-      case 'organization.created':
+      case 'organization.created': {
         await handleOrgCreated(evt.data, svix_id)
+        // Fire-and-forget: emit to control plane
+        const orgData = evt.data as { id: string; name: string; slug?: string | null }
+        emitOrgCreated({
+          externalOrgId: orgData.id,
+          name: orgData.name,
+          slug: orgData.slug ?? undefined,
+        }).catch((err) => console.warn('[Control Plane] Failed to emit org.created:', err.message))
         break
+      }
 
-      case 'organization.updated':
+      case 'organization.updated': {
         await handleOrgUpdated(evt.data, svix_id)
+        // Fire-and-forget: emit to control plane
+        const orgData = evt.data as { id: string; name: string; slug?: string | null }
+        emitOrgUpdated({
+          externalOrgId: orgData.id,
+          name: orgData.name,
+          slug: orgData.slug ?? undefined,
+        }).catch((err) => console.warn('[Control Plane] Failed to emit org.updated:', err.message))
         break
+      }
 
       case 'organization.deleted':
         await handleOrgDeleted(evt.data, svix_id)
+        // Note: We don't emit org.deleted to control plane - the control plane
+        // retains org data for audit/billing history
         break
 
       case 'organizationMembership.created':

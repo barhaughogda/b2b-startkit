@@ -12,9 +12,45 @@
  * @ai-no-modify This script grants platform-wide superadmin access
  */
 
+import * as fs from 'fs'
+import * as path from 'path'
 import { getSuperadminDb } from '../../packages/database/src/client'
 import { users } from '../../packages/database/src/schema'
 import { eq } from 'drizzle-orm'
+
+// Load environment variables from .env.local files
+function loadEnv() {
+  // Try to load from web-template first (most likely to exist)
+  const envFiles = [
+    path.join(process.cwd(), 'apps/web-template/.env.local'),
+    path.join(process.cwd(), 'apps/superadmin/.env.local'),
+    path.join(process.cwd(), '.env.local'),
+  ]
+
+  for (const envFile of envFiles) {
+    if (fs.existsSync(envFile)) {
+      const content = fs.readFileSync(envFile, 'utf-8')
+      const lines = content.split('\n')
+      
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (trimmed && !trimmed.startsWith('#')) {
+          const [key, ...valueParts] = trimmed.split('=')
+          if (key && valueParts.length > 0) {
+            const value = valueParts.join('=').trim().replace(/^["']|["']$/g, '')
+            if (!process.env[key]) {
+              process.env[key] = value
+            }
+          }
+        }
+      }
+      console.log(`📁 Loaded environment from ${envFile}\n`)
+      return
+    }
+  }
+  
+  console.warn('⚠️  No .env.local file found. Make sure DATABASE_URL is set in your environment.\n')
+}
 
 async function grantSuperadmin(email: string) {
   console.log(`🔐 Granting superadmin access to: ${email}\n`)
@@ -75,6 +111,9 @@ async function grantSuperadmin(email: string) {
 }
 
 function main() {
+  // Load environment variables first
+  loadEnv()
+
   const email = process.argv[2]
 
   if (!email) {

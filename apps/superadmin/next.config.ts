@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
     '@startkit/config',
   ],
 
+  // Exclude dev dependencies from server bundles
+  // This prevents Next.js from trying to bundle @playwright/test
+  serverExternalPackages: ['@playwright/test'],
+
   // Image optimization configuration
   images: {
     remotePatterns: [
