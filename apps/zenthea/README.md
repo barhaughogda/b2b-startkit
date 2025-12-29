@@ -52,4 +52,4 @@ See `env.template` for complete list with documentation.
 
 ## Migration Status
 
-See `docs/plans/zenthea-migration-hipaa.md` for migration progress and architecture decisions.
+See `docs/migration-plan.md` for migration progress and architecture decisions.

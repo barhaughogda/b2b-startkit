@@ -8,7 +8,7 @@ import { z } from 'zod'
  * 
  * Zenthea is HIPAA-compliant and runs entirely on AWS infrastructure.
  * 
- * @see docs/plans/zenthea-migration-hipaa.md - T01 for context
+ * @see docs/migration-plan.md - T01 for context
  */
 
 /**

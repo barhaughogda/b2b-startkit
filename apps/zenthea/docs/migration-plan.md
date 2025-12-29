@@ -10,7 +10,7 @@
 3. **Make Zenthea HIPAA-ready** for PHI/EHR workloads by migrating **fully away from Convex and Vercel** (data + compute) into an AWS environment under a BAA.
 
 ## Related specs (foundational)
-- `docs/plans/zenthea-hipaa-access-control.md` — HIPAA access control, minimum-necessary, break-glass, and audit logging requirements for Zenthea.
+- `docs/hipaa-access-control.md` — HIPAA access control, minimum-necessary, break-glass, and audit logging requirements for Zenthea.
 
 ## Definitions (practical)
 - **PHI**: any protected health information. Assume Zenthea will handle PHI.
