@@ -22,6 +22,7 @@ export {
   SignedOut,
   UserButton,
   OrganizationSwitcher,
+  OrganizationProfile,
   CreateOrganization,
 } from '@clerk/nextjs'
 

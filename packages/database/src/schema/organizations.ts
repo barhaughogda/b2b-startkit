@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, jsonb, index, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, timestamp, jsonb, index, pgEnum, boolean } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { users } from './users'
 
@@ -97,6 +97,10 @@ export const organizationMembers = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     role: organizationRoleEnum('role').notNull().default('member'),
+
+    // App admin flag - grants access to /admin/* routes in the product
+    // This is separate from platform superadmin (users.isSuperadmin)
+    isAppAdmin: boolean('is_app_admin').notNull().default(false),
 
     // Custom permissions override (JSON array of permission strings)
     customPermissions: jsonb('custom_permissions').$type<string[]>().default([]),

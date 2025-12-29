@@ -23,6 +23,9 @@ export { ROLES, getRolePermissions, isRoleAtLeast, clearRolePermissionsCache } f
 // Feature flags (client-safe - no database dependencies)
 export { hasFeature, getFeatureFlags, evaluateFeatureFlag, getPlanDefaultFlags, planMeetsMinimum } from './flags'
 
+// App admin utilities
+export { isAppAdmin, canAsAppAdmin, requireAppAdmin, AppAdminRequiredError, APP_ADMIN_PERMISSIONS } from './app-admin'
+
 // Server-only exports moved to './server' to prevent client bundling issues
 // Import database-related functions from '@startkit/rbac/server' in server code
 

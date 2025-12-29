@@ -1,5 +1,5 @@
 {
-  "extends": "@startkit/config/tsconfig/nextjs.json",
+  "extends": "@startkit/config/tsconfig/nextjs",
   "compilerOptions": {
     "plugins": [
       {

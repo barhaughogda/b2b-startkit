@@ -147,6 +147,7 @@ export default async function SettingsPage() {
               </CardHeader>
               <CardContent>
                 <OrganizationProfile
+                  routing="hash"
                   appearance={{
                     elements: {
                       rootBox: 'w-full',

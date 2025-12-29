@@ -10,8 +10,10 @@ export interface PermissionContext {
   customPermissions: Permission[]
   /** Organization's subscription plan */
   plan: PlanTier
-  /** Whether user is a global superadmin */
+  /** Whether user is a global superadmin (platform-wide) */
   isSuperadmin: boolean
+  /** Whether user is an app admin (product-level admin access) */
+  isAppAdmin?: boolean
   /** Active feature flags for this org */
   featureFlags: Map<FeatureFlagKey, boolean>
 }
