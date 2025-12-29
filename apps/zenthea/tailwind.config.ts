@@ -102,6 +102,7 @@ const config: Config = {
           'link-hover': 'var(--color-text-link-hover)',
         },
         border: {
+          DEFAULT: 'hsl(var(--border))',
           primary: 'var(--color-border-primary)',
           secondary: 'var(--color-border-secondary)',
           tertiary: 'var(--color-border-tertiary)',
@@ -188,7 +189,6 @@ const config: Config = {
         bg: 'hsl(var(--background))',
         fg: 'hsl(var(--foreground))',
         muted: 'hsl(var(--muted))',
-        border: 'hsl(var(--border))',
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',

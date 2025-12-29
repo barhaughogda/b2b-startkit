@@ -78,7 +78,7 @@ function SignInPageContent() {
         } else if (errorMessage.includes("account_locked")) {
           // Account is locked - extract minutes remaining
           const match = result.error.match(/account_locked:(\d+)/i);
-          const minutesRemaining = match ? parseInt(match[1], 10) : null;
+          const minutesRemaining = match && match[1] ? parseInt(match[1], 10) : null;
           if (minutesRemaining !== null) {
             setError(`Account locked due to too many failed login attempts. Please try again in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`);
           } else {

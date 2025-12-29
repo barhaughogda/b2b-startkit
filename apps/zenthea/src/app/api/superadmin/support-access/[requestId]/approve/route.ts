@@ -82,7 +82,7 @@ export async function POST(
 
     // Get IP address and user agent for audit logging
     const ipAddress =
-      request.ip || request.headers.get("x-forwarded-for") || undefined;
+      request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined;
     const userAgent = request.headers.get("user-agent") || undefined;
 
     // Approve support access request via Convex

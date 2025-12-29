@@ -501,7 +501,10 @@ export function migrateLegacyFooterToMenuV2(footer: FooterConfig): FooterMenuCol
 
     // Add to last column if it exists, otherwise create new column
     if (menuColumns.length > 0) {
-      menuColumns[menuColumns.length - 1].sections.push(externalSection);
+      const lastColumn = menuColumns[menuColumns.length - 1];
+      if (lastColumn) {
+        lastColumn.sections.push(externalSection);
+      }
     } else {
       menuColumns.push({
         id: 'external-links-column',

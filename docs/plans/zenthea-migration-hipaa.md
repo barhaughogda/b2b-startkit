@@ -3,6 +3,10 @@
 ## Status
 - **Draft v1** (created by AI, needs validation against Zenthea repo + vendor contracts)
 - **Audience**: engineering + product owner
+- **Progress**: Phase A - Monorepo import in progress
+  - ✅ T01: Env validation plan (completed)
+  - ✅ T02: Scaffold apps/zenthea (completed)
+  - ✅ T03: Import Zenthea code (completed - 1,241 files imported)
 
 ## Goals
 1. **Move Zenthea into this b2b-startkit monorepo** as an app under `apps/zenthea`.
@@ -254,10 +258,11 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
     - `src/app/globals.css` with Zenthea-specific styling
     - All files follow StartKit patterns but use Zenthea-specific env validation
 
-- [ ] **T03 — Import Zenthea code into `apps/zenthea` (minimal changes)** (3 SP)
+- [x] **T03 — Import Zenthea code into `apps/zenthea` (minimal changes)** (3 SP)
   - **Owner**: Agent
   - **Depends on**: T02
   - **Acceptance**: app runs locally inside StartKit (temporary Convex/NextAuth allowed only as an intermediate landing).
+  - **Completed**: 2025-01-XX - Imported ~1,241 TypeScript files, merged configs, preserved Convex/NextAuth temporarily
 
 - [ ] **T04 — Make Zenthea participate cleanly in Turbo tasks** (2–3 SP)
   - **Owner**: Agent

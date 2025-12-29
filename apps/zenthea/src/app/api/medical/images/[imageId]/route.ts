@@ -55,7 +55,7 @@ export async function GET(
           studyId,
           accessType,
           reason: 'Insufficient permissions',
-          ipAddress: request.ip || 'unknown',
+          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
           userAgent: request.headers.get('user-agent') || 'unknown'
         })
       });
@@ -99,7 +99,7 @@ export async function GET(
         imageType: metadata.imageType,
         modality: metadata.modality,
         bodyPart: metadata.bodyPart,
-        ipAddress: request.ip || 'unknown',
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown'
       })
     });
@@ -214,7 +214,7 @@ export async function DELETE(
         deleted: true,
         originalFileSize: metadata.fileSize,
         imageType: metadata.imageType,
-        ipAddress: request.ip || 'unknown',
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown'
       })
     });

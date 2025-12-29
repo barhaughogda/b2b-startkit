@@ -14,6 +14,7 @@ export function getPageTitle(pathname: string): string {
   if (pathSegments.length === 0) return 'Dashboard';
   
   const lastSegment = pathSegments[pathSegments.length - 1];
+  if (!lastSegment) return 'Dashboard';
   
   // Convert kebab-case to Title Case
   return lastSegment
@@ -39,6 +40,7 @@ export function generateBreadcrumbItems(pathname: string): BreadcrumbItem[] {
   let currentPath = '/company';
   for (let i = 1; i < pathSegments.length; i++) {
     const segment = pathSegments[i];
+    if (!segment) continue;
     currentPath += `/${segment}`;
     
     const isLast = i === pathSegments.length - 1;

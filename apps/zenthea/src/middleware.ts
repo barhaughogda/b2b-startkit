@@ -39,7 +39,7 @@ export default withAuth(
     const { pathname } = req.nextUrl
     const hostname = req.headers.get('host') || 'localhost'
     const token = req.nextauth.token
-    const ipAddress = req.ip || req.headers.get('x-forwarded-for') || 'unknown'
+    const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
     // ===========================================

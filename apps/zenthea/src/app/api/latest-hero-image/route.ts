@@ -79,6 +79,10 @@ export async function GET() {
     );
 
     const latestObject = sortedObjects[0];
+    if (!latestObject) {
+      return NextResponse.json({ success: false, error: 'No hero images found' }, { status: 404 });
+    }
+    
     const baseUrl = process.env.NEXTAUTH_URL || 'https://app.zenthea.ai';
     const latestUrl = `${baseUrl}/api/serve-image?key=${encodeURIComponent(latestObject.Key!)}`;
 

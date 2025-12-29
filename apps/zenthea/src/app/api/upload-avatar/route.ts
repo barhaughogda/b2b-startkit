@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       userRole: token?.role,
       cookies: cookieHeader ? 'present' : 'missing',
       hasNextAuthCookie,
-      cookieCount: cookieHeader.split(';').length,
+      cookieCount: cookieHeader ? cookieHeader.split(';').length : 0,
       secretConfigured: !!secret,
       environment: process.env.NODE_ENV,
       vercelEnv: process.env.VERCEL_ENV,

@@ -58,7 +58,7 @@ export function getLuminance(rgb: { r: number; g: number; b: number }): number {
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
   })
 
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return 0.2126 * (r ?? 0) + 0.7152 * (g ?? 0) + 0.0722 * (b ?? 0)
 }
 
 /**

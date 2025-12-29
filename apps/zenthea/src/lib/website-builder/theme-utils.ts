@@ -155,13 +155,14 @@ export interface ThemeCSSVariables {
  */
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
+  if (!result || !result[1] || !result[2] || !result[3]) {
+    return null;
+  }
+  return {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  };
 }
 
 /**
@@ -251,10 +252,13 @@ export function generateThemeCSSVariables(
 ): ThemeCSSVariables {
   const fullTheme = mergeThemeWithDefaults(theme);
   const fontPair = fullTheme.fontPair || 'inter-system';
-  const fonts = FONT_FAMILIES[fontPair] || FONT_FAMILIES['inter-system'];
-  const headingSizes = HEADING_SIZES[fullTheme.headingSize || 'medium'];
-  const spacing = SECTION_SPACING[fullTheme.sectionSpacing || 'normal'];
-  const radius = CORNER_RADIUS[fullTheme.cornerRadius || 'medium'];
+  const fonts = FONT_FAMILIES[fontPair] || FONT_FAMILIES['inter-system']!;
+  const headingSizeKey = fullTheme.headingSize || 'medium';
+  const headingSizes = HEADING_SIZES[headingSizeKey] || HEADING_SIZES['medium']!;
+  const spacingKey = fullTheme.sectionSpacing || 'normal';
+  const spacing = SECTION_SPACING[spacingKey] || SECTION_SPACING['normal']!;
+  const radiusKey = fullTheme.cornerRadius || 'medium';
+  const radius = CORNER_RADIUS[radiusKey] || CORNER_RADIUS['medium']!;
 
   return {
     // Colors
@@ -280,12 +284,12 @@ export function generateThemeCSSVariables(
     '--theme-section-py-md': spacing.pyMd,
     // Radius
     '--theme-radius': radius,
-    '--theme-radius-sm': CORNER_RADIUS[fullTheme.cornerRadius === 'none' ? 'none' : 'small'],
+    '--theme-radius-sm': CORNER_RADIUS[fullTheme.cornerRadius === 'none' ? 'none' : 'small'] || CORNER_RADIUS['small']!,
     '--theme-radius-lg': CORNER_RADIUS[
       fullTheme.cornerRadius === 'full' ? 'full' : 
       fullTheme.cornerRadius === 'large' ? 'large' : 
       'medium'
-    ],
+    ] || CORNER_RADIUS['medium']!,
   };
 }
 
@@ -304,14 +308,14 @@ export function getThemeStyles(
  * Get Google Fonts link URL for the selected font pair
  */
 export function getFontUrl(fontPair: string): string {
-  return FONT_URLS[fontPair] || FONT_URLS['inter-system'];
+  return FONT_URLS[fontPair] || FONT_URLS['inter-system']!;
 }
 
 /**
  * Get font family CSS for heading or body
  */
 export function getFontFamily(fontPair: string, type: 'heading' | 'body'): string {
-  const fonts = FONT_FAMILIES[fontPair] || FONT_FAMILIES['inter-system'];
+  const fonts = FONT_FAMILIES[fontPair] || FONT_FAMILIES['inter-system']!;
   return fonts[type];
 }
 
