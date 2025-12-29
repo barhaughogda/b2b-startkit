@@ -167,6 +167,67 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
+  apps/zenthea:
+    dependencies:
+      '@clerk/nextjs':
+        specifier: ^6.9.6
+        version: 6.36.5(next@15.5.9(@playwright/test@1.57.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@startkit/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@startkit/billing':
+        specifier: workspace:*
+        version: link:../../packages/billing
+      '@startkit/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@startkit/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@startkit/rbac':
+        specifier: workspace:*
+        version: link:../../packages/rbac
+      '@startkit/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      next:
+        specifier: ^15.1.3
+        version: 15.5.9(@playwright/test@1.57.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.3
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.3(react@19.2.3)
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.19(tsx@4.21.0))
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.19.3
+      '@types/react':
+        specifier: ^19.0.2
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.2.3(@types/react@19.2.7)
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.23(postcss@8.5.6)
+      postcss:
+        specifier: ^8.4.49
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.19(tsx@4.21.0)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
   infra/mcp-servers:
     dependencies:
       '@modelcontextprotocol/sdk':

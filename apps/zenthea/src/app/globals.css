@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Zenthea-specific styles
+ *
+ * Override @startkit/ui variables here for product-specific theming
+ */
+
+@layer base {
+  :root {
+    /* Healthcare-focused color scheme - professional and trustworthy */
+    --accent: 200 100% 50%;
+    --accent-foreground: 0 0% 0%;
+    
+    /* Primary stays elegant dark */
+    --primary: 240 6% 10%;
+    --primary-foreground: 0 0% 98%;
+  }
+  
+  .dark {
+    --accent: 200 100% 55%;
+    --accent-foreground: 0 0% 0%;
+  }
+}
+
+/* Custom font imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
