@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { requireOrganization } from '@startkit/auth/server'
 import { withTenant } from '@startkit/database/tenant'
 import { PatientService } from '@/lib/db/services/patient.service'
+import { canAccessPatient, applyMinimumNecessary } from '@/lib/db/access-control'
 
 /**
  * GET /api/patients/[id]
@@ -15,14 +16,24 @@ export async function GET(
     const { id } = await params
     const { organization, user } = await requireOrganization()
     
+    // HIPAA: Check if user has permission to access this patient
+    const hasAccess = await canAccessPatient(id)
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Permission denied' }, { status: 403 })
+    }
+
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const patient = await PatientService.getPatientById(id, organization.organizationId)
+        const patient = await PatientService.getPatientById(id, organization.organizationId, user.userId)
         if (!patient) {
           return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
         }
-        return NextResponse.json(patient)
+
+        // HIPAA: Apply "Minimum Necessary" filter based on role
+        const filteredPatient = applyMinimumNecessary(organization.role as any, patient)
+        
+        return NextResponse.json(filteredPatient)
       }
     )
   } catch (error: any) {
@@ -50,7 +61,7 @@ export async function PATCH(
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const patient = await PatientService.updatePatient(id, body, organization.organizationId)
+        const patient = await PatientService.updatePatient(id, body, organization.organizationId, user.userId)
         if (!patient) {
           return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
         }
@@ -81,7 +92,7 @@ export async function DELETE(
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const patient = await PatientService.deletePatient(id, organization.organizationId)
+        const patient = await PatientService.deletePatient(id, organization.organizationId, user.userId)
         if (!patient) {
           return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
         }

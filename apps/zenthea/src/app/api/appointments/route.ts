@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const list = await AppointmentService.getAppointments(organization.organizationId, options)
+        const list = await AppointmentService.getAppointments(organization.organizationId, user.userId, options)
         return NextResponse.json(list)
       }
     )

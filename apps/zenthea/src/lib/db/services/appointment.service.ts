@@ -2,6 +2,7 @@ import { eq, and, sql, between } from 'drizzle-orm'
 import { db } from '@startkit/database'
 import { appointments, appointmentMembers, patients, clinics } from '../schema'
 import { users } from '@startkit/database/schema'
+import { AuditService } from './audit.service'
 
 /**
  * Appointment Service
@@ -16,6 +17,7 @@ export class AppointmentService {
    */
   static async getAppointments(
     organizationId: string, 
+    userId: string,
     options: { status?: string; startDate?: Date; endDate?: Date } = {}
   ) {
     let query = db.select({
@@ -43,13 +45,23 @@ export class AppointmentService {
       query = query.where(between(appointments.scheduledAt, options.startDate, options.endDate))
     }
 
-    return await query.orderBy(appointments.scheduledAt)
+    const list = await query.orderBy(appointments.scheduledAt)
+
+    await AuditService.log({
+      organizationId,
+      userId,
+      action: 'view_list',
+      resource: 'appointments',
+      resourceId: 'all',
+    })
+
+    return list
   }
 
   /**
    * Get a specific appointment by ID with members
    */
-  static async getAppointmentById(id: string, organizationId: string) {
+  static async getAppointmentById(id: string, organizationId: string, userId: string) {
     const [appointment] = await db.select()
       .from(appointments)
       .where(
@@ -72,6 +84,14 @@ export class AppointmentService {
     .from(appointmentMembers)
     .innerJoin(users, eq(appointmentMembers.userId, users.id))
     .where(eq(appointmentMembers.appointmentId, id))
+
+    await AuditService.log({
+      organizationId,
+      userId,
+      action: 'view',
+      resource: 'appointment',
+      resourceId: id,
+    })
 
     return {
       ...appointment,
@@ -106,6 +126,15 @@ export class AppointmentService {
           })
         }
       }
+
+      await AuditService.log({
+        organizationId,
+        userId: createdBy,
+        action: 'create',
+        resource: 'appointment',
+        resourceId: newAppointment.id,
+        details: { appointmentData: data },
+      })
 
       return newAppointment
     })
@@ -154,6 +183,15 @@ export class AppointmentService {
         }
       }
 
+      await AuditService.log({
+        organizationId,
+        userId: modifiedBy,
+        action: 'update',
+        resource: 'appointment',
+        resourceId: id,
+        details: { updates: data },
+      })
+
       return updatedAppointment
     })
   }
@@ -176,13 +214,24 @@ export class AppointmentService {
       )
       .returning()
     
+    if (updated) {
+      await AuditService.log({
+        organizationId,
+        userId: modifiedBy,
+        action: 'update_status',
+        resource: 'appointment',
+        resourceId: id,
+        details: { status },
+      })
+    }
+
     return updated || null
   }
 
   /**
    * Delete an appointment
    */
-  static async deleteAppointment(id: string, organizationId: string) {
+  static async deleteAppointment(id: string, organizationId: string, userId: string) {
     const [deleted] = await db.delete(appointments)
       .where(
         and(
@@ -192,6 +241,16 @@ export class AppointmentService {
       )
       .returning()
     
+    if (deleted) {
+      await AuditService.log({
+        organizationId,
+        userId,
+        action: 'delete',
+        resource: 'appointment',
+        resourceId: id,
+      })
+    }
+
     return deleted || null
   }
 }

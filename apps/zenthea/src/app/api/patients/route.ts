@@ -14,7 +14,7 @@ export async function GET() {
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const patients = await PatientService.getPatients(organization.organizationId)
+        const patients = await PatientService.getPatients(organization.organizationId, user.userId)
         return NextResponse.json(patients)
       }
     )
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const patient = await PatientService.createPatient(body, organization.organizationId)
+        const patient = await PatientService.createPatient(body, organization.organizationId, user.userId)
         return NextResponse.json(patient, { status: 201 })
       }
     )

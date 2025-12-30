@@ -18,7 +18,7 @@ export async function GET(
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const appointment = await AppointmentService.getAppointmentById(id, organization.organizationId)
+        const appointment = await AppointmentService.getAppointmentById(id, organization.organizationId, user.userId)
         if (!appointment) {
           return NextResponse.json({ error: 'Appointment not found' }, { status: 404 })
         }
@@ -83,7 +83,7 @@ export async function DELETE(
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },
       async () => {
-        const deleted = await AppointmentService.deleteAppointment(id, organization.organizationId)
+        const deleted = await AppointmentService.deleteAppointment(id, organization.organizationId, user.userId)
         if (!deleted) {
           return NextResponse.json({ error: 'Appointment not found' }, { status: 404 })
         }
