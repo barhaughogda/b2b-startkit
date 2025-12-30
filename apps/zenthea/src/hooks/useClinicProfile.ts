@@ -1,102 +1,79 @@
-'use client';
+import useSWR from 'swr'
+import { useZentheaSession } from './useZentheaSession'
 
-import { useQuery, useMutation } from 'convex/react';
-import { useZentheaSession } from './useZentheaSession';
-import { useEffect, useState, useMemo } from 'react';
-import { api } from '@/convex/_generated/api';
-import { canUseConvexQuery } from '@/lib/convexIdValidation';
-import { convex } from '@/lib/convex';
+const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 /**
- * Hook to fetch and update clinic/tenant profile data
- * Handles errors gracefully and prevents render-phase state updates
- * 
- * Includes mutations for:
- * - Branding (logo, colors, favicon)
- * - Contact info (phone, email, website, address)
- * - Info (name, tagline, description)
- * - Slug (URL path)
- * - Domains (subdomain, custom domain, preferred access)
+ * Custom hook for fetching and managing clinic data from Postgres
  */
-export function useClinicProfile() {
-  const { data: session } = useZentheaSession();
-  const tenantId = session?.user?.tenantId;
-  const [queryError, setQueryError] = useState<Error | null>(null);
+export function useClinics() {
+  const { data: session } = useZentheaSession()
+  
+  const { data, error, isLoading, mutate } = useSWR<any[]>(
+    session ? '/api/clinics' : null,
+    fetcher
+  )
 
-  // Check if we can use Convex queries
-  const canQuery = useMemo(() => {
-    return tenantId && canUseConvexQuery(session?.user?.id, tenantId);
-  }, [tenantId, session?.user?.id]);
-
-  // Determine query args - memoized to prevent unnecessary re-renders
-  const queryArgs = useMemo(() => {
-    if (!canQuery || !tenantId || !convex) {
-      return 'skip';
+  const createClinic = async (clinicData: any) => {
+    const response = await fetch('/api/clinics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(clinicData),
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to create clinic')
     }
-    return { tenantId };
-  }, [canQuery, tenantId]);
-
-  // Fetch tenant branding data (includes name, branding, contactInfo, slug, domains, etc.)
-  // Uses tenantBranding API for more complete data including URL/domain settings
-  // Always pass the query function - Convex handles 'skip' internally
-  // Note: useQuery returns undefined when loading, null when not found, or data when successful
-  // If the deployed Convex function throws, the error boundary will catch it
-  const tenantData = useQuery(
-    api.tenantBranding.getTenantBranding,
-    queryArgs
-  );
-
-  // Clear error when query succeeds - use effect to avoid render-phase updates
-  useEffect(() => {
-    if (tenantData !== undefined) {
-      // Only clear error if we got a result (null or data)
-      if (tenantData !== null || !canQuery) {
-        setQueryError(null);
-      }
-    }
-  }, [tenantData, canQuery]);
-
-  // Update mutations for branding (logo, colors, favicon)
-  const updateBranding = useMutation(
-    api.tenantBranding.updateTenantBranding
-  );
-
-  // Update mutations for contact info (phone, email, website, address)
-  const updateContactInfo = useMutation(
-    api.tenants.updateTenantContactInfo
-  );
-
-  // Update mutations for basic info (name, tagline, description)
-  const updateInfo = useMutation(
-    api.tenantBranding.updateTenantInfo
-  );
-
-  // Update mutations for URL slug
-  const updateSlug = useMutation(
-    api.tenantBranding.updateTenantSlug
-  );
-
-  // Update mutations for domain settings (subdomain, custom domain, preferred access)
-  const updateDomains = useMutation(
-    api.tenantBranding.updateTenantDomains
-  );
-
-  // Handle loading state: undefined means loading, null means tenant not found
-  const isLoading = tenantData === undefined && canQuery && !queryError;
-  const hasError = (tenantData === null && canQuery) || !!queryError;
+    
+    const newClinic = await response.json()
+    await mutate()
+    return newClinic
+  }
 
   return {
-    tenantData: tenantData ?? null, // Normalize to null if undefined (when not querying)
-    updateBranding,
-    updateContactInfo,
-    updateInfo,
-    updateSlug,
-    updateDomains,
+    clinics: data || [],
     isLoading,
-    hasError,
-    tenantId,
-    canQuery: !!canQuery,
-    error: queryError,
-  };
+    error,
+    createClinic,
+    refreshClinics: mutate,
+  }
 }
 
+/**
+ * Custom hook for a single clinic
+ */
+export function useClinicProfile(id?: string) {
+  const { data: session } = useZentheaSession()
+  
+  // If no ID is provided, we could potentially fetch the first clinic or handled differently.
+  // For now, let's assume an ID is needed for specific clinic management.
+  const { data, error, isLoading, mutate } = useSWR<any>(
+    session && id ? `/api/clinics/${id}` : null,
+    fetcher
+  )
+
+  const updateClinic = async (updateData: any) => {
+    if (!id) throw new Error('Clinic ID is required for update')
+    
+    const response = await fetch(`/api/clinics/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData),
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to update clinic')
+    }
+    
+    const updated = await response.json()
+    await mutate()
+    return updated
+  }
+
+  return {
+    clinic: data,
+    isLoading,
+    error,
+    updateClinic,
+  }
+}
