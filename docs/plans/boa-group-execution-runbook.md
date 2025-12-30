@@ -105,20 +105,28 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
     - `staging.zenthea.ai` points to AWS staging.
 
 ### 1.3 Auth + tenant identity (must exist before DB migration is meaningful)
-- [ ] **T07 — Create/configure Clerk apps (dev/staging/prod) + org strategy** (Owner: Human + Agent, Depends on: T00)
+- [x] **T07 — Create/configure Clerk apps (dev/staging/prod) + org strategy** (Owner: Human + Agent, Depends on: T00)
   - **Acceptance**:
     - Clerk keys exist for environments.
     - Orgs enabled and strategy confirmed.
   - **Reference**: `docs/plans/zenthea-clerk-org-strategy.md`
 
-- [🟡] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (Owner: Agent, Depends on: T07)
-  - **Status**: Scaffolded Clerk integration. Compatibility layer created. Next: mass migration of components.
-- [ ] **T09 — Tenant mapping spec: Zenthea `tenantId` → Clerk org → DB `organization_id`** (Owner: Agent + Human, Depends on: T08)
+- [x] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (Owner: Agent, Depends on: T07)
+  - **Acceptance**: sign-in works; organization context is available server-side.
+  - **Status**: Fully migrated. 265 files updated. NextAuth removed.
+
+- [x] **T09 — Tenant mapping spec: Zenthea `tenantId` → Clerk org → DB `organization_id`** (Owner: Agent + Human, Depends on: T08)
+  - **Acceptance**: one canonical mapping decision is made and documented.
+  - **Reference**: `docs/plans/zenthea-tenant-mapping-spec.md`
 
 ### 1.4 Database foundation (AWS Postgres + RLS)
-- [ ] **T10 — Provision AWS Postgres (RDS/Aurora) for staging** (Owner: Human, Depends on: T00)
+- [x] **T10 — Provision AWS Postgres (RDS/Aurora) for staging** (Owner: Human, Depends on: T00)
+  - **Acceptance**: DB exists; networking/SGs correct; credentials stored safely.
+  - **Status**: Completed. RDS instance live at `staging-zenthea-db.ccr2iey8suev.us-east-1.rds.amazonaws.com:5432`.
+
 - [ ] **T11 — Apply StartKit migrations + RLS to AWS Postgres** (Owner: Agent + Human, Depends on: T10)
-- [ ] **T12 — Convex→Postgres schema mapping plan** (Owner: Agent, Depends on: T09 + T11)
+- [🟡] **T12 — Convex→Postgres schema mapping plan** (Owner: Agent, Depends on: T09 + T11)
+  - **Status**: Core Drizzle schema drafted in `apps/zenthea/src/lib/db/schema.ts`.
 
 ### 1.5 Feature migration off Convex (repeatable slices)
 - [ ] **T13 — Migrate first vertical slice (Patients / Appointments / Messages)** (Owner: Agent, Depends on: T12)

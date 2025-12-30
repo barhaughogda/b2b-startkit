@@ -371,38 +371,41 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
     - ALB Hosted Zone ID: `Z35SXDOTRQ7X7K` (us-east-1 ALBs)
 
 ### 3) Auth + tenant identity (must exist before DB migration is meaningful)
-- [ ] **T07 — Create/configure Clerk apps (dev/staging/prod) + orgs strategy** (1–3 SP)
+- [x] **T07 — Create/configure Clerk apps (dev/staging/prod) + orgs strategy** (1–3 SP)
   - **Owner**: Human + Agent
   - **Depends on**: T00
   - **Acceptance**: Clerk keys for staging + orgs enabled + org/role model documented.
-  - **Status**: Strategy documented in `docs/plans/zenthea-clerk-org-strategy.md`. Waiting for Human to provide keys.
+  - **Status**: Strategy documented in `docs/plans/zenthea-clerk-org-strategy.md`. Keys provided in `.env.local`.
 
-- [✅] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (2–3 SP)
+- [x] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (2–3 SP)
   - **Owner**: Agent
   - **Depends on**: T07
   - **Acceptance**: sign-in works; organization context is available server-side.
   - **Completed**: 2025-12-30 - ClerkProvider added, Middleware replaced, Webhook handler implemented. Compatibility layer `useZentheaSession` and `getZentheaServerSession` created and mass-migrated across all components, hooks, API routes, and tests.
 
-- [ ] **T09 — Tenant mapping spec: Zenthea `tenantId` → Clerk org → DB `organization_id`** (2–3 SP)
+- [x] **T09 — Tenant mapping spec: Zenthea `tenantId` → Clerk org → DB `organization_id`** (2–3 SP)
   - **Owner**: Agent + Human
   - **Depends on**: T08
   - **Acceptance**: one canonical mapping decision is made and documented.
+  - **Status**: Mapping strategy documented in `docs/plans/zenthea-tenant-mapping-spec.md`.
 
 ### 4) Database foundation (AWS Postgres + RLS)
-- [ ] **T10 — Provision AWS Postgres (RDS/Aurora) for staging** (2–3 SP)
+- [x] **T10 — Provision AWS Postgres (RDS/Aurora) for staging** (2–3 SP)
   - **Owner**: Human
   - **Depends on**: T00
   - **Acceptance**: DB exists; networking/SGs correct; credentials stored safely.
+  - **Status**: Completed. RDS instance live at `staging-zenthea-db.ccr2iey8suev.us-east-1.rds.amazonaws.com:5432`.
 
 - [ ] **T11 — Apply StartKit migrations + RLS to AWS Postgres** (2–3 SP)
   - **Owner**: Agent + Human
   - **Depends on**: T10
   - **Acceptance**: schema migrations applied and `db:apply-rls` applied successfully.
 
-- [ ] **T12 — Convex→Postgres schema mapping (domain-by-domain plan)** (3 SP)
+- [🟡] **T12 — Convex→Postgres schema mapping (domain-by-domain plan)** (3 SP)
   - **Owner**: Agent
   - **Depends on**: T09, T11
   - **Acceptance**: prioritized mapping list from `convex/schema.ts` to relational tables with `organization_id`.
+  - **Status**: Initial Drizzle schema drafted in `apps/zenthea/src/lib/db/schema.ts` covering core entities (Clinics, Patients, Providers, Appointments, Medical Records, Messages, Invoices, etc.).
 
 ### 5) Feature migration off Convex (repeatable slices)
 - [ ] **T13 — Migrate first vertical slice (pick one: Patients / Appointments / Messages)** (3 SP)
