@@ -166,7 +166,9 @@ function ProviderDirectoryContent() {
       const previousCursor = cursorHistory[cursorHistory.length - 1];
       // Remove the last cursor from history
       setCursorHistory(prev => prev.slice(0, -1));
-      setCursor(previousCursor);
+      if (previousCursor !== undefined) {
+        setCursor(previousCursor);
+      }
       setCurrentPage(prev => prev - 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentPage > 1) {

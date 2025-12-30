@@ -497,6 +497,7 @@ export function PatientHistoryTimeline({
     if (touches.length < 2) return 0;
     const touch1 = touches[0];
     const touch2 = touches[1];
+    if (!touch1 || !touch2) return 0;
     return Math.sqrt(
       Math.pow(touch2.clientX - touch1.clientX, 2) + 
       Math.pow(touch2.clientY - touch1.clientY, 2)
@@ -525,15 +526,13 @@ export function PatientHistoryTimeline({
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (e.touches.length === 2) {
       setLastTouchDistance(getTouchDistance(e.touches));
-    } else if (e.touches.length === 1) {
+    } else if (e.touches.length === 1 && e.touches[0]) {
       setIsDragging(true);
       setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
     }
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    e.preventDefault();
-    
     if (e.touches.length === 2) {
       // Pinch zoom
       const currentDistance = getTouchDistance(e.touches);
@@ -542,7 +541,7 @@ export function PatientHistoryTimeline({
         setZoomLevel(prev => Math.max(0.5, Math.min(3, prev * scale)));
       }
       setLastTouchDistance(currentDistance);
-    } else if (e.touches.length === 1 && isDragging) {
+    } else if (e.touches.length === 1 && isDragging && e.touches[0]) {
       // Drag to scroll
       if (scrollContainerRef.current) {
         const deltaX = e.touches[0].clientX - dragStart.x;

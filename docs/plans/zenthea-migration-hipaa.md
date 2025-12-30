@@ -294,17 +294,63 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
   - **Completed**: 2025-01-XX - Set up ESLint, updated tsconfig, created typecheck script, fixed TypeScript errors
 
 ### 2) AWS staging target (PHI in-scope => AWS, not Vercel)
-- [ ] **T05 — Stand up AWS staging compute for Zenthea (ECS/Fargate + ALB)** (2–3 SP)
+- [x] **T05 — Stand up AWS staging compute for Zenthea (ECS/Fargate + ALB)** (2–3 SP)
   - **Owner**: Agent + Human
   - **Depends on**: T00
   - **Acceptance**: reachable staging endpoint (ALB DNS), secrets in Secrets Manager/SSM, logs flowing.
+  - **Implementation**:
+    - ✅ Created Terraform infrastructure (`infra/aws/zenthea-staging/terraform/`)
+    - ✅ Created Dockerfile for Next.js standalone deployment
+    - ✅ Added `output: 'standalone'` to `next.config.ts`
+    - ✅ Created `/api/health` endpoint for ALB/ECS health checks
+    - ✅ Built and pushed Docker image to ECR
+    - ✅ Triggered ECS service update
+  - **Remaining Steps**:
+    - Add DNS record `staging.zenthea.ai` -> ALB DNS name in Vercel.
+
+- [ ] **T06 — Configure staging DNS and SSL** (1 SP)
+    7. Update ECS service to use new image
+    8. Verify deployment and health checks
+  - **Resources**:
+    - 📁 Infrastructure: `infra/aws/zenthea-staging/terraform/`
+    - 🐳 Dockerfile: `infra/aws/zenthea-staging/Dockerfile`
+    - 📖 Deployment Guide: `infra/aws/zenthea-staging/DEPLOYMENT.md`
+    - 📚 README: `infra/aws/zenthea-staging/README.md`
 
 - [ ] **T06 — DNS control + rollback hostnames** (1–2 SP)
   - **Owner**: Human
   - **Depends on**: T05
   - **Acceptance**:
     - `legacy.zenthea.ai` → old Vercel+Convex deployment (rollback)
-    - `staging.zenthea.ai` → AWS staging
+    - `staging.zenthea.ai` → AWS staging ALB
+  - **Steps**:
+    1. **Move DNS hosting to Route 53** (or keep current provider but ensure you control DNS records)
+       - If using Route 53: Create hosted zone for `zenthea.ai`
+       - If using external provider: Ensure you have full DNS control
+    2. **Configure rollback hostname**:
+       - Create A record: `legacy.zenthea.ai` → old Vercel deployment IP/hostname
+       - Test: `curl https://legacy.zenthea.ai` should reach old deployment
+    3. **Configure staging hostname**:
+       - Get ALB DNS name from Terraform output: `terraform output alb_dns_name`
+       - Create A record (Alias) in Route 53:
+         - Name: `staging`
+         - Type: `A - Alias`
+         - Alias Target: Select ALB from dropdown
+         - Evaluate Target Health: Yes
+       - Or use CLI (see DEPLOYMENT.md Step 9)
+    4. **Lower TTL** (if not already low):
+       - Set TTL to 300 seconds (5 minutes) for faster DNS changes
+    5. **Test DNS**:
+       - Wait 5-10 minutes for propagation
+       - Verify: `curl https://staging.zenthea.ai/api/health` returns 200 OK
+       - Verify rollback: `curl https://legacy.zenthea.ai` still works
+    6. **Document rollback procedure**:
+       - If staging fails, switch `staging.zenthea.ai` DNS to point to `legacy.zenthea.ai`
+       - Or create CNAME: `staging.zenthea.ai` → `legacy.zenthea.ai` (temporary)
+  - **Resources**:
+    - AWS Route 53 Console or DNS provider console
+    - Terraform output: `alb_dns_name`
+    - ALB Hosted Zone ID: `Z35SXDOTRQ7X7K` (us-east-1 ALBs)
 
 ### 3) Auth + tenant identity (must exist before DB migration is meaningful)
 - [ ] **T07 — Create/configure Clerk apps (dev/staging/prod) + orgs strategy** (1–3 SP)

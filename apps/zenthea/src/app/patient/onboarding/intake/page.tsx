@@ -283,6 +283,7 @@ function PatientIntakePageContent() {
   const totalSections = FORM_SECTIONS.length;
 
   const validateCurrentSection = (): boolean => {
+    if (!currentSection) return true;
     const section = currentSection.id;
     
     switch (section) {
@@ -318,6 +319,7 @@ function PatientIntakePageContent() {
 
     setIsSaving(true);
     try {
+      if (!currentSection) throw new Error("Invalid current section");
       const section = currentSection.id;
       let sectionData: any = {};
       let sectionName: string = '';
@@ -472,12 +474,17 @@ function PatientIntakePageContent() {
       const newData = { ...prev };
       let current: any = newData;
       for (let i = 0; i < path.length - 1; i++) {
-        if (!current[path[i]]) {
-          current[path[i]] = {};
+        const key = path[i];
+        if (key === undefined) continue;
+        if (!current[key]) {
+          current[key] = {};
         }
-        current = current[path[i]];
+        current = current[key];
       }
-      current[path[path.length - 1]] = value;
+      const lastKey = path[path.length - 1];
+      if (lastKey !== undefined) {
+        current[lastKey] = value;
+      }
       return newData;
     });
   };
@@ -509,6 +516,7 @@ function PatientIntakePageContent() {
   };
 
   const renderSection = () => {
+    if (!currentSection) return null;
     switch (currentSection.id) {
       case 'provider':
         return (
@@ -969,7 +977,7 @@ function PatientIntakePageContent() {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">
-                  Step {currentStep + 1} of {FORM_SECTIONS.length}: {currentSection.title}
+                  Step {currentStep + 1} of {FORM_SECTIONS.length}: {currentSection?.title}
                 </span>
                 <span className="text-sm text-text-secondary">
                   {Math.round(progress)}% Complete
@@ -1014,7 +1022,7 @@ function PatientIntakePageContent() {
 
             {/* Form Section */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4">{currentSection.title}</h3>
+              <h3 className="text-lg font-semibold mb-4">{currentSection?.title}</h3>
               {renderSection()}
             </div>
 

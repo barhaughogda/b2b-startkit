@@ -193,6 +193,7 @@ export function PermissionEditor({
     // Navigate to the parent of the target
     for (let i = 0; i < path.length - 1; i++) {
       const key = path[i];
+      if (key === undefined) continue;
       if (!current[key]) {
         // Create intermediate objects if they don't exist
         if (i === 0) {
@@ -206,6 +207,7 @@ export function PermissionEditor({
     }
 
     const targetKey = path[path.length - 1];
+    if (targetKey === undefined) return newPerms;
     
     // Handle different permission structures
     if (path.length === 1) {
@@ -247,7 +249,7 @@ export function PermissionEditor({
     } else if (path.includes('components')) {
       // Component level
       const featureKey = path[path.indexOf('features') + 1];
-      if (!current.features || !current.features[featureKey]) {
+      if (featureKey === undefined || !current.features || !current.features[featureKey]) {
         return newPerms; // Invalid path
       }
       const feature = current.features[featureKey];
@@ -274,7 +276,7 @@ export function PermissionEditor({
       // Tab level
       const componentKey = path[path.indexOf('components') + 1];
       const featureKey = path[path.indexOf('features') + 1];
-      if (!current.features || !current.features[featureKey]) {
+      if (featureKey === undefined || componentKey === undefined || !current.features || !current.features[featureKey]) {
         return newPerms;
       }
       const feature = current.features[featureKey];
@@ -348,6 +350,7 @@ export function PermissionEditor({
     
     for (let i = 0; i < path.length; i++) {
       const key = path[i];
+      if (key === undefined) return false;
       
       if (i === 0) {
         // Section level

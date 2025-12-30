@@ -106,8 +106,11 @@ export function ClinicAvailabilityManager({ userId, tenantId }: ClinicAvailabili
   useEffect(() => {
     // Only initialize if we have clinics, no selected clinic, and haven't initialized yet
     if (userClinics && userClinics.length > 0 && !selectedClinicId && !hasInitializedRef.current) {
-      setSelectedClinicId(userClinics[0]._id);
-      hasInitializedRef.current = true;
+      const firstClinic = userClinics[0];
+      if (firstClinic) {
+        setSelectedClinicId(firstClinic._id);
+        hasInitializedRef.current = true;
+      }
     }
     // Reset initialization flag if clinics are cleared
     if (!userClinics || userClinics.length === 0) {
@@ -510,7 +513,7 @@ export function ClinicAvailabilityManager({ userId, tenantId }: ClinicAvailabili
                         type="date"
                         value={overrideDate}
                         onChange={(e) => setOverrideDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
+                        min={new Date().toISOString().split('T')[0]!}
                         className="mt-1"
                       />
                     </div>

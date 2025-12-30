@@ -70,8 +70,8 @@ export function OpeningHoursEditor({
   // Fetch existing opening hours
   const openingHours = useQuery(
     clinicId 
-      ? api.openingHours.getClinicOpeningHours
-      : api.openingHours.getCompanyOpeningHours,
+      ? (api as any).openingHours.getClinicOpeningHours
+      : (api as any).openingHours.getCompanyOpeningHours,
     (clinicId 
       ? { tenantId, clinicId }
       : { tenantId }) as any
@@ -111,9 +111,9 @@ export function OpeningHoursEditor({
   }, [openingHours]);
 
   // Mutations
-  const setWeeklySchedule = useMutation(api.openingHours.setWeeklySchedule);
-  const addDateOverride = useMutation(api.openingHours.addDateOverride);
-  const removeDateOverride = useMutation(api.openingHours.removeDateOverride);
+  const setWeeklySchedule = useMutation((api as any).openingHours.setWeeklySchedule);
+  const addDateOverride = useMutation((api as any).openingHours.addDateOverride);
+  const removeDateOverride = useMutation((api as any).openingHours.removeDateOverride);
 
   const handleDayToggle = (day: DayOfWeek) => {
     setSchedule(prev => ({

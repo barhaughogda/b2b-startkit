@@ -588,8 +588,11 @@ export function PlatformSettings({ className }: PlatformSettingsProps) {
                               checked={webhook.active}
                               onCheckedChange={(checked) => {
                                 const newWebhooks = [...settings.webhooks];
-                                newWebhooks[index].active = checked;
-                                setSettings((prev) => ({ ...prev, webhooks: newWebhooks }));
+                                const webhook = newWebhooks[index];
+                                if (webhook) {
+                                  webhook.active = checked;
+                                  setSettings((prev) => ({ ...prev, webhooks: newWebhooks }));
+                                }
                                 if (error) setError(null);
                                 if (success) setSuccess(null);
                               }}

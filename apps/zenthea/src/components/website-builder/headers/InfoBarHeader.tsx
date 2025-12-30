@@ -89,7 +89,7 @@ export function InfoBarHeader({
       return href.substring(1);
     }
     if (href.startsWith('/') && href.length > 1) {
-      return href.substring(1).split('/')[0];
+      return href.substring(1).split('/')[0] || null;
     }
     return null;
   };

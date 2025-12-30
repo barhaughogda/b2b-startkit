@@ -47,8 +47,8 @@ interface MainCardProps {
   handleScroll: (e: React.UIEvent) => void;
   handleWheel: (e: React.WheelEvent) => void;
   // Dropdown state
-  priorityRef: React.RefObject<HTMLDivElement>;
-  statusRef: React.RefObject<HTMLDivElement>;
+  priorityRef: React.RefObject<HTMLDivElement | null>;
+  statusRef: React.RefObject<HTMLDivElement | null>;
   isPriorityDropdownOpen: boolean;
   isStatusDropdownOpen: boolean;
   getPriorityDropdownPosition: () => { top: number; left: number };

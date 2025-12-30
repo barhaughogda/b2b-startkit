@@ -179,7 +179,9 @@ export const reorderPublicProfiles = mutation({
   handler: async (ctx, args) => {
     // Update display order for each profile
     for (let i = 0; i < args.profileIds.length; i++) {
-      await ctx.db.patch(args.profileIds[i], {
+      const profileId = args.profileIds[i];
+      if (!profileId) continue;
+      await ctx.db.patch(profileId, {
         displayOrder: i,
         updatedAt: Date.now(),
       });
@@ -364,7 +366,7 @@ export const createPublicProfileByUserId = mutation({
       tenantId: args.tenantId,
       providerProfileId: providerProfile._id,
       displayName,
-      title: specialties.length > 0 ? specialties[0] : 'Team Member', // Use first specialty as title
+      title: specialties[0] ?? 'Team Member', // Use first specialty as title
       bio: providerProfile.bio || 'No bio provided',
       photo: providerProfile.professionalPhotoUrl,
       specialties,

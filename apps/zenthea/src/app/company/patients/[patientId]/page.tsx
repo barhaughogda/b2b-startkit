@@ -38,7 +38,7 @@ function PatientProfileContent() {
   
   // Convert dateOfBirth from timestamp (number) to string format (YYYY-MM-DD)
   const patientDateOfBirth = patient?.dateOfBirth 
-    ? new Date(patient.dateOfBirth).toISOString().split('T')[0] 
+    ? new Date(patient.dateOfBirth).toISOString().split('T')[0]! 
     : undefined;
 
   // Handle creating a new appointment - opens AppointmentCard in create mode with patient pre-filled
@@ -57,7 +57,7 @@ function PatientProfileContent() {
       patientId: patient._id,
       patientName: patient.name,
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0]!,
       duration: 30,
       type: 'consultation',
       status: 'scheduled',

@@ -142,7 +142,7 @@ export function UnifiedModalProvider({ children }: { children: React.ReactNode }
       }
     };
     
-    const dimensions = modalData.dimensions || sizeDimensions[modalData.size || 'md'];
+    const dimensions = modalData.dimensions || sizeDimensions[modalData.size || 'md'] || sizeDimensions.md!;
     const position = modalData.position || findAvailablePosition(modals, dimensions.width, dimensions.height);
     
     const newModal: Modal = {

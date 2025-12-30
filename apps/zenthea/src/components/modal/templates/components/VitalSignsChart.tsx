@@ -19,16 +19,20 @@ interface VitalSignsChartProps {
 export function VitalSignsChart({ vitalSigns }: VitalSignsChartProps) {
   // Group vital signs by type
   const groupedVitals = vitalSigns.reduce((acc, vital) => {
-    if (!acc[vital.type]) {
-      acc[vital.type] = [];
+    const type = vital.type;
+    if (!acc[type]) {
+      acc[type] = [];
     }
-    acc[vital.type].push(vital);
+    acc[type]!.push(vital);
     return acc;
   }, {} as Record<string, VitalSign[]>);
 
   // Sort each group by timestamp
   Object.keys(groupedVitals).forEach(type => {
-    groupedVitals[type].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const group = groupedVitals[type];
+    if (group) {
+      group.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    }
   });
 
   const colors = {
@@ -80,7 +84,10 @@ export function VitalSignsChart({ vitalSigns }: VitalSignsChartProps) {
     <div className="space-y-6">
       {Object.keys(groupedVitals).map(type => {
         const vitals = groupedVitals[type];
+        if (!vitals) return null;
+        
         const latest = vitals[vitals.length - 1];
+        if (!latest) return null;
         
         if (vitals.length < 2) {
           return (
@@ -112,9 +119,9 @@ export function VitalSignsChart({ vitalSigns }: VitalSignsChartProps) {
           if (type === 'blood_pressure') {
             // For blood pressure, use systolic value for the chart
             const [systolic] = vital.value.split('/').map(Number);
-            value = systolic;
+            value = systolic || 0;
           } else {
-            value = parseFloat(vital.value);
+            value = parseFloat(vital.value) || 0;
           }
           
           return {
@@ -152,7 +159,7 @@ export function VitalSignsChart({ vitalSigns }: VitalSignsChartProps) {
                   />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip 
-                    formatter={(value: any, name: string, props: any) => [
+                    formatter={(value: any, name: any, props: any) => [
                       type === 'blood_pressure' ? props.payload.fullValue : formatValue(type, value.toString()),
                       type.replace('_', ' ').toUpperCase()
                     ]}

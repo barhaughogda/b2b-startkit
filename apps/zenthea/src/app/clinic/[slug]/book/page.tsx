@@ -1003,7 +1003,7 @@ export default function TenantBookingPage() {
                       type="date"
                       value={date}
                       onChange={(e) => updateDate(index, e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
+                      min={new Date().toISOString().split('T')[0]!}
                       className="pl-10"
                     />
                   </div>

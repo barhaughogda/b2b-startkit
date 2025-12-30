@@ -20,7 +20,7 @@ vi.mock('date-fns', () => ({
       return date.toLocaleDateString();
     }
     if (formatStr === 'yyyy-MM-dd') {
-      return date.toISOString().split('T')[0];
+      return date.toISOString().split('T')[0]!;
     }
     if (formatStr === 'h:mm a') {
       return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });

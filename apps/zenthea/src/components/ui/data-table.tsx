@@ -226,13 +226,16 @@ export function DataTable<T extends Record<string, any>>({
   };
 
   const handleDateFilterChange = (filterKey: string, field: 'from' | 'to', value: string) => {
-    setDateFilters((prev) => ({
-      ...prev,
-      [filterKey]: {
-        ...prev[filterKey],
-        [field]: value,
-      },
-    }));
+    setDateFilters((prev) => {
+      const current = prev[filterKey] || { from: '', to: '' };
+      return {
+        ...prev,
+        [filterKey]: {
+          ...current,
+          [field]: value,
+        },
+      };
+    });
   };
 
   const clearFilters = () => {

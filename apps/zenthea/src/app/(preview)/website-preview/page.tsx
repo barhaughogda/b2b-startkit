@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { TemplateRenderer } from '@/components/website-templates';
 import type { PreviewData } from '@/lib/website-builder/preview-messages';
 import { isValidPreviewMessage, isMessageFromSameOrigin } from '@/lib/website-builder/preview-messages';
@@ -12,7 +12,7 @@ const PREVIEW_STORAGE_KEY = 'website-builder-preview-data';
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 100;
 const MAX_WAIT_TIME = 2000; // 2 seconds max
-export default function WebsitePreviewPage() {
+export default function WebsitePreviewPage(): any {
   // Track if component has mounted to prevent hydration mismatches
   const [mounted, setMounted] = useState(false);
   

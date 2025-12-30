@@ -241,7 +241,7 @@ describe('PatientAppointmentsList', () => {
     it('should categorize future appointments as upcoming', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 7);
-      const futureDateString = futureDate.toISOString().split('T')[0];
+      const futureDateString = futureDate.toISOString().split('T')[0]!;
 
       const storeAppointments = [
         {
@@ -269,7 +269,7 @@ describe('PatientAppointmentsList', () => {
     it('should categorize past appointments as recent', () => {
       const pastDate = new Date();
       pastDate.setDate(pastDate.getDate() - 7);
-      const pastDateString = pastDate.toISOString().split('T')[0];
+      const pastDateString = pastDate.toISOString().split('T')[0]!;
 
       const storeAppointments = [
         {
@@ -297,7 +297,7 @@ describe('PatientAppointmentsList', () => {
     it('should always categorize completed appointments as recent', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 7);
-      const futureDateString = futureDate.toISOString().split('T')[0];
+      const futureDateString = futureDate.toISOString().split('T')[0]!;
 
       const storeAppointments = [
         {
@@ -326,7 +326,7 @@ describe('PatientAppointmentsList', () => {
     it('should always categorize cancelled appointments as recent', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 7);
-      const futureDateString = futureDate.toISOString().split('T')[0];
+      const futureDateString = futureDate.toISOString().split('T')[0]!;
 
       const storeAppointments = [
         {
@@ -364,7 +364,7 @@ describe('PatientAppointmentsList', () => {
       const storeAppointments = [
         {
           id: '1',
-          date: futureDate2.toISOString().split('T')[0], // Later date
+          date: futureDate2.toISOString().split('T')[0]!, // Later date
           time: '2:00 PM',
           provider: { id: 'p1', name: 'Dr. A', specialty: 'General' },
           type: 'Checkup',
@@ -374,7 +374,7 @@ describe('PatientAppointmentsList', () => {
         },
         {
           id: '2',
-          date: futureDate1.toISOString().split('T')[0], // Earlier date
+          date: futureDate1.toISOString().split('T')[0]!, // Earlier date
           time: '10:00 AM',
           provider: { id: 'p2', name: 'Dr. B', specialty: 'General' },
           type: 'Checkup',

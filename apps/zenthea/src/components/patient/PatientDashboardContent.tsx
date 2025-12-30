@@ -171,7 +171,7 @@ export function PatientDashboardContent() {
 
     // Transform appointment data for AppointmentCard
     const scheduledDate = new Date(fullAppointment.scheduledAt);
-    const dateStr = scheduledDate.toISOString().split('T')[0];
+    const dateStr = scheduledDate.toISOString().split('T')[0]!;
     const timeStr = scheduledDate.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
@@ -208,7 +208,7 @@ export function PatientDashboardContent() {
       patientId: patientId || fullAppointment._id,
       patientName: session?.user?.name || 'Patient',
       patientDateOfBirth: patientProfile?.dateOfBirth 
-        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0] 
+        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0]! 
         : undefined,
       priority: 'medium' as Priority,
       status: cardStatus,
@@ -219,7 +219,7 @@ export function PatientDashboardContent() {
   const handlePrescriptionClick = (prescription: { id: string; name: string; dosage: string; frequency: string; prescriber?: string; startDate?: string; status?: string }) => {
     // Extract index from id (format: "med-{index}")
     const indexMatch = prescription.id.match(/med-(\d+)/);
-    if (!indexMatch || !patientProfile?.medications) {
+    if (!indexMatch || !indexMatch[1] || !patientProfile?.medications) {
       console.error('Prescription not found:', prescription.id);
       return;
     }
@@ -239,7 +239,7 @@ export function PatientDashboardContent() {
       patientId: patientId || prescription.id,
       patientName: session?.user?.name || 'Patient',
       patientDateOfBirth: patientProfile?.dateOfBirth 
-        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0] 
+        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0]! 
         : '',
       medication: {
         name: medication.name,
@@ -259,7 +259,7 @@ export function PatientDashboardContent() {
         quantity: 30, // Default quantity
         refills: 0,
         daysSupply: 30,
-        startDate: medication.startDate || new Date().toISOString().split('T')[0],
+        startDate: medication.startDate || new Date().toISOString().split('T')[0]!,
         endDate: null,
         instructions: `${medication.dosage} ${medication.frequency}${medication.route ? ` via ${medication.route}` : ''}`,
         indication: medication.indication || 'Not specified',
@@ -303,7 +303,7 @@ export function PatientDashboardContent() {
       patientId: patientId || prescription.id,
       patientName: session?.user?.name || 'Patient',
       patientDateOfBirth: patientProfile?.dateOfBirth 
-        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0] 
+        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0]! 
         : undefined,
       priority: 'medium' as Priority,
       status: cardStatus,
@@ -348,7 +348,7 @@ export function PatientDashboardContent() {
       patientId: patientId || message.id.toString(),
       patientName: session?.user?.name || 'Patient',
       patientDateOfBirth: patientProfile?.dateOfBirth 
-        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0] 
+        ? new Date(patientProfile.dateOfBirth).toISOString().split('T')[0]! 
         : undefined,
       priority: cardPriority,
       status: cardStatus,

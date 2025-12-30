@@ -49,8 +49,11 @@ export default function TestimonialsBlockEditor({ props, onChange }: BlockEditor
 
   const updateTestimonial = (index: number, updates: Partial<TestimonialsBlockProps['testimonials'][0]>) => {
     const newTestimonials = [...testimonialsProps.testimonials];
-    newTestimonials[index] = { ...newTestimonials[index], ...updates };
-    updateProp('testimonials', newTestimonials);
+    const existing = newTestimonials[index];
+    if (existing) {
+      newTestimonials[index] = { ...existing, ...updates } as TestimonialsBlockProps['testimonials'][0];
+      updateProp('testimonials', newTestimonials);
+    }
   };
 
   const removeTestimonial = (index: number) => {
@@ -83,7 +86,18 @@ export default function TestimonialsBlockEditor({ props, onChange }: BlockEditor
         </div>
         <div className="space-y-2">
           <Label>Max Visible: {testimonialsProps.maxVisible}</Label>
-          <Slider value={[testimonialsProps.maxVisible]} onValueChange={([value]) => updateProp('maxVisible', value)} min={1} max={6} step={1} />
+          <Slider 
+            value={[testimonialsProps.maxVisible]} 
+            onValueChange={(values) => {
+              const val = values[0];
+              if (val !== undefined) {
+                updateProp('maxVisible', val);
+              }
+            }} 
+            min={1} 
+            max={6} 
+            step={1} 
+          />
         </div>
       </div>
       <div className="space-y-4">

@@ -146,7 +146,7 @@ export default function MessagesPage() {
           time = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
         }
 
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = date.toISOString().split('T')[0]!;
         if (!dateStr) {
           throw new Error('Invalid date format');
         }

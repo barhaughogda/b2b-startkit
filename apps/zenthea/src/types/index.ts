@@ -64,6 +64,7 @@ export interface Patient {
   insuranceProvider?: string
   insuranceNumber?: string
   preferredLanguage?: string
+  department?: string
 }
 
 export interface Provider {

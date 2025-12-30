@@ -354,7 +354,7 @@ export const getAnalytics = query({
       );
       
       dailyMetrics.push({
-        date: new Date(dayStart).toISOString().split('T')[0],
+        date: new Date(dayStart).toISOString().split('T')[0]!,
         appointments: dayAppointments.length,
         newPatients: dayPatients.length,
         medicalRecords: dayRecords.length,
@@ -548,6 +548,8 @@ export const getAppointmentConflicts = query({
       for (let j = i + 1; j < appointments.length; j++) {
         const apt1 = appointments[i];
         const apt2 = appointments[j];
+        
+        if (!apt1 || !apt2) continue;
 
         // Same provider
         if (apt1.providerId === apt2.providerId) {

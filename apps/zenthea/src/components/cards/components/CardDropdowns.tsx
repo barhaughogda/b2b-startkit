@@ -14,8 +14,8 @@ import {
 interface CardDropdownsProps {
   priority: Priority;
   status: TaskStatus;
-  priorityRef: React.RefObject<HTMLDivElement>;
-  statusRef: React.RefObject<HTMLDivElement>;
+  priorityRef: React.RefObject<HTMLDivElement | null>;
+  statusRef: React.RefObject<HTMLDivElement | null>;
   isPriorityDropdownOpen: () => boolean;
   isStatusDropdownOpen: () => boolean;
   getPriorityDropdownPosition: () => { x: number; y: number } | null;

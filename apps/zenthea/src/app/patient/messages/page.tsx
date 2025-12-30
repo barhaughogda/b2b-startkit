@@ -32,7 +32,7 @@ interface Message {
   subject: string;
   preview: string;
   time: string;
-  date: string;
+  date: string | undefined;
   unread: boolean;
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'new' | 'in-progress' | 'replied' | 'archived';
@@ -177,7 +177,7 @@ export default function PatientMessagesPage() {
         subject: lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '...' : ''),
         preview: lastMsg.content,
         time,
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split('T')[0]!,
         unread: conv.unreadCount > 0,
         priority,
         status,
@@ -203,7 +203,7 @@ export default function PatientMessagesPage() {
     if (a.unread !== b.unread) return a.unread ? -1 : 1;
     
     // Finally sort by time (newest first)
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
+    return new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime();
   });
 
   // Define table columns
@@ -497,7 +497,7 @@ export default function PatientMessagesPage() {
           content: mainContent,
           priority: message.priority === 'critical' ? 'urgent' : message.priority === 'medium' ? 'normal' : message.priority,
           isRead: !message.unread,
-          timestamp: firstMessage?.timestamp || new Date(message.date).toISOString(),
+          timestamp: firstMessage?.timestamp || new Date(message.date ?? 0).toISOString(),
           sender,
           recipient,
           threadMessages: mappedThreadMessages.map(msg => ({
@@ -562,7 +562,7 @@ export default function PatientMessagesPage() {
               badge: 'Message'
             }
           },
-          createdAt: new Date(message.date).toISOString(),
+          createdAt: new Date(message.date ?? 0).toISOString(),
           accessCount: 0
         });
         console.log('Card opened successfully');

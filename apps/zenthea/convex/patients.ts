@@ -574,7 +574,7 @@ export const getPatientsWithComputedFields = query({
       const completedAppointments = patientAppointments
         .filter(apt => apt.status === 'completed')
         .sort((a, b) => b.scheduledAt - a.scheduledAt);
-      const lastVisit = completedAppointments.length > 0
+      const lastVisit = completedAppointments[0]
         ? new Date(completedAppointments[0].scheduledAt).toLocaleDateString()
         : 'Never';
       
@@ -585,15 +585,14 @@ export const getPatientsWithComputedFields = query({
           apt.scheduledAt > now
         )
         .sort((a, b) => a.scheduledAt - b.scheduledAt);
-      const nextAppointment = upcomingAppointments.length > 0
+      const nextAppointment = upcomingAppointments[0]
         ? new Date(upcomingAppointments[0].scheduledAt).toLocaleDateString()
         : undefined;
       
       // Determine status (Active if has recent activity or upcoming appointment, otherwise Inactive)
       // Consider active if last visit was within 6 months or has upcoming appointment
       const sixMonthsAgo = now - (6 * 30 * 24 * 60 * 60 * 1000);
-      const hasRecentActivity = completedAppointments.length > 0 && 
-        completedAppointments[0].scheduledAt > sixMonthsAgo;
+      const hasRecentActivity = (completedAppointments[0]?.scheduledAt ?? 0) > sixMonthsAgo;
       const status: 'Active' | 'Inactive' = (hasRecentActivity || upcomingAppointments.length > 0) 
         ? 'Active' 
         : 'Inactive';

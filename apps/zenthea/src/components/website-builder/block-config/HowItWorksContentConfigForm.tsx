@@ -216,8 +216,11 @@ export function HowItWorksContentConfigForm({
   // Update an existing step
   const handleUpdateStep = (index: number, updates: Partial<HowItWorksStep>) => {
     const newSteps = [...steps];
-    newSteps[index] = { ...newSteps[index], ...updates };
-    onUpdate({ ...props, steps: newSteps });
+    const existing = newSteps[index];
+    if (existing) {
+      newSteps[index] = { ...existing, ...updates } as HowItWorksStep;
+      onUpdate({ ...props, steps: newSteps });
+    }
   };
 
   // Remove a step
@@ -232,24 +235,34 @@ export function HowItWorksContentConfigForm({
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newSteps = [...steps];
-    [newSteps[index - 1], newSteps[index]] = [newSteps[index], newSteps[index - 1]];
-    // Update step numbers
-    newSteps.forEach((step, i) => {
-      step.number = i + 1;
-    });
-    onUpdate({ ...props, steps: newSteps });
+    const item1 = newSteps[index - 1];
+    const item2 = newSteps[index];
+    if (item1 && item2) {
+      newSteps[index - 1] = item2;
+      newSteps[index] = item1;
+      // Update step numbers
+      newSteps.forEach((step, i) => {
+        step.number = i + 1;
+      });
+      onUpdate({ ...props, steps: newSteps });
+    }
   };
 
   // Move step down in the list
   const handleMoveDown = (index: number) => {
     if (index === steps.length - 1) return;
     const newSteps = [...steps];
-    [newSteps[index], newSteps[index + 1]] = [newSteps[index + 1], newSteps[index]];
-    // Update step numbers
-    newSteps.forEach((step, i) => {
-      step.number = i + 1;
-    });
-    onUpdate({ ...props, steps: newSteps });
+    const item1 = newSteps[index];
+    const item2 = newSteps[index + 1];
+    if (item1 && item2) {
+      newSteps[index] = item2;
+      newSteps[index + 1] = item1;
+      // Update step numbers
+      newSteps.forEach((step, i) => {
+        step.number = i + 1;
+      });
+      onUpdate({ ...props, steps: newSteps });
+    }
   };
 
   return (

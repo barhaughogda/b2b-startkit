@@ -90,7 +90,10 @@ export default function FAQBlock({
   // Initialize selected question for split-panel if not set
   React.useEffect(() => {
     if (layout === 'split-panel' && displayItems.length > 0 && !selectedQuestionId) {
-      setSelectedQuestionId(displayItems[0].id);
+      const firstItem = displayItems[0];
+      if (firstItem) {
+        setSelectedQuestionId(firstItem.id);
+      }
     }
   }, [layout, displayItems, selectedQuestionId]);
 
@@ -149,6 +152,7 @@ export default function FAQBlock({
 
   const renderSplitPanel = () => {
     const selectedItem = displayItems.find(item => item.id === selectedQuestionId) || displayItems[0];
+    if (!selectedItem) return null;
 
     return (
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">

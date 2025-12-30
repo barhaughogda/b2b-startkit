@@ -5,6 +5,8 @@
  * Routes in this group inherit from root layout but are isolated for preview purposes.
  */
 
+import React from "react";
+
 export const metadata = {
   title: 'Website Preview',
   robots: 'noindex, nofollow', // Don't index preview pages
@@ -12,8 +14,6 @@ export const metadata = {
 
 export default function PreviewLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: any) {
   return children;
 }

@@ -1,9 +1,10 @@
-import { ProviderLayout } from "@/components/provider/ProviderLayout"
+import type { ReactNode } from 'react'
+import { ProviderLayout } from '@/components/provider/ProviderLayout'
 
 export default function ProviderPortalLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <ProviderLayout>

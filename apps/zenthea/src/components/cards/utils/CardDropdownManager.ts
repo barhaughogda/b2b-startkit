@@ -15,16 +15,16 @@ export class CardDropdownManager {
   private dropdownState: DropdownState;
   private setDropdownState: (state: DropdownState) => void;
   private handlers: CardEventHandlers;
-  private priorityRef: React.RefObject<HTMLDivElement>;
-  private statusRef: React.RefObject<HTMLDivElement>;
+  private priorityRef: React.RefObject<HTMLDivElement | null>;
+  private statusRef: React.RefObject<HTMLDivElement | null>;
   private id: string;
 
   constructor(
     dropdownState: DropdownState,
     setDropdownState: (state: DropdownState) => void,
     handlers: CardEventHandlers,
-    priorityRef: React.RefObject<HTMLDivElement>,
-    statusRef: React.RefObject<HTMLDivElement>,
+    priorityRef: React.RefObject<HTMLDivElement | null>,
+    statusRef: React.RefObject<HTMLDivElement | null>,
     id: string
   ) {
     this.dropdownState = dropdownState;
@@ -126,8 +126,8 @@ export const useCardDropdowns = (handlers: CardEventHandlers, id: string) => {
     statusDropdownOpen: false
   });
 
-  const priorityRef = useRef<HTMLDivElement>(null);
-  const statusRef = useRef<HTMLDivElement>(null);
+  const priorityRef = useRef<HTMLDivElement | null>(null);
+  const statusRef = useRef<HTMLDivElement | null>(null);
 
   const dropdownManager = useCallback(
     () => new CardDropdownManager(dropdownState, setDropdownState, handlers, priorityRef, statusRef, id),

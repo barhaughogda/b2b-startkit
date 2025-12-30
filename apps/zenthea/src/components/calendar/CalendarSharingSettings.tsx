@@ -195,11 +195,13 @@ export function CalendarSharingSettings({ userId, tenantId }: CalendarSharingSet
           event.preventDefault();
           if (highlightedIndex >= 0 && highlightedIndex < filteredUsers.length) {
             const selectedUser = filteredUsers[highlightedIndex];
-            setSelectedUserId(selectedUser._id);
-            setIsSearchOpen(false);
-            setSearchEmail('');
-            setHighlightedIndex(-1);
-            searchInputRef.current?.blur();
+            if (selectedUser) {
+              setSelectedUserId(selectedUser._id);
+              setIsSearchOpen(false);
+              setSearchEmail('');
+              setHighlightedIndex(-1);
+              searchInputRef.current?.blur();
+            }
           }
           break;
         case 'Escape':

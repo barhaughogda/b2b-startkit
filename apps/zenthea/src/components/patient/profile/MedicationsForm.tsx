@@ -46,7 +46,7 @@ export function MedicationsForm({ patientId, initialData }: MedicationsFormProps
       dosage: '',
       frequency: '',
       route: 'oral',
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: new Date().toISOString().split('T')[0]!,
       indication: '',
       notes: '',
     };

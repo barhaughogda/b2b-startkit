@@ -187,7 +187,7 @@ export function ProviderIdentitySection({
               value={formData.dateOfBirth || ''}
               onChange={(value) => updateField('dateOfBirth', value)}
               className={errors.dateOfBirth ? 'border-status-error' : ''}
-              max={new Date().toISOString().split('T')[0]} // Can't be in the future
+              max={new Date().toISOString().split('T')[0]!} // Can't be in the future
             />
             {errors.dateOfBirth && (
               <p className="text-xs text-status-error mt-1">

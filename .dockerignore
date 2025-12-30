@@ -1,0 +1,16 @@
+**/node_modules
+**/.next
+**/.turbo
+**/dist
+**/build
+**/coverage
+**/.cache
+**/*.log
+**/*.tsbuildinfo
+**/.DS_Store
+**/.env*
+**/.pnpm-store
+.git
+.github
+playwright-report
+test-results

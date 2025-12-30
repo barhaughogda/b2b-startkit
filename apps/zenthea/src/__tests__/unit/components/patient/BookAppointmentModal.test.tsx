@@ -27,7 +27,7 @@ vi.mock('@/stores/appointmentsStore', () => ({
 
 // Mock date-fns
 vi.mock('date-fns', () => ({
-  format: vi.fn((date) => date.toISOString().split('T')[0])
+  format: vi.fn((date) => date.toISOString().split('T')[0]!)
 }));
 
 describe('BookAppointmentModal', () => {

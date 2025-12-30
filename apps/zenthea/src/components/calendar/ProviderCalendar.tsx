@@ -404,8 +404,8 @@ export function ProviderCalendar({
     availabilityData.windows.forEach((window) => {
       const [startHour] = window.startTime.split(':').map(Number);
       const [endHour] = window.endTime.split(':').map(Number);
-      if (startHour < minHour) minHour = startHour;
-      if (endHour > maxHour) maxHour = endHour;
+      if (startHour !== undefined && startHour < minHour) minHour = startHour;
+      if (endHour !== undefined && endHour > maxHour) maxHour = endHour;
     });
 
     // Add 1 hour padding on each side
@@ -496,7 +496,7 @@ export function ProviderCalendar({
         };
 
         // Use different color shades for shared calendars
-        let colors = statusColors[appointment.status] || statusColors.scheduled;
+        let colors = statusColors[appointment.status] || statusColors['scheduled'] || { bg: '#3b82f6', border: '#2563eb' };
         if (isShared && ownerUserId) {
           // Lighter/more transparent colors for shared calendars
           const baseColor = colors.bg;
@@ -551,7 +551,7 @@ export function ProviderCalendar({
         }
 
         const colorIndex = clinicColorMap.get(window.clinicId) ?? 0;
-        const colors = CLINIC_COLORS[colorIndex];
+        const colors = CLINIC_COLORS[colorIndex] || CLINIC_COLORS[0]!;
 
         // Use local date/time strings to display availability in the clinic's local time
         // This ensures 09:00 at the clinic displays as 09:00 regardless of browser timezone
@@ -599,7 +599,7 @@ export function ProviderCalendar({
           patientId: extendedProps.patientId || '',
           patientName: extendedProps.patientName || 'Unknown Patient',
           time: event.start ? event.start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '',
-          date: event.start ? event.start.toISOString().split('T')[0] : '',
+          date: event.start ? event.start.toISOString().split('T')[0]! : '',
           duration: event.end && event.start 
             ? Math.round((event.end.getTime() - event.start.getTime()) / (60 * 1000)) 
             : 30,

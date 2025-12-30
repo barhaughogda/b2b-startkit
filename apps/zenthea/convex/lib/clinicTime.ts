@@ -63,7 +63,7 @@ export function getStartOfDayInTimezone(timestamp: number, timezone: string): nu
   const dateStr = getDateStringInTimezone(timestamp, timezone);
   
   // Parse date parts
-  const [year, month, day] = dateStr.split('-').map(Number);
+  const [year, month, day] = dateStr.split('-').map(Number) as [number, number, number];
   
   // Create a date formatter to get the UTC offset for this date in the timezone
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -77,7 +77,7 @@ export function getStartOfDayInTimezone(timestamp: number, timezone: string): nu
   });
   
   // Create a target date at midnight
-  const targetDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)); // Use noon to avoid DST edge cases
+  const targetDate = new Date(Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1, 12, 0, 0)); // Use noon to avoid DST edge cases
   
   // Get timezone parts for this date
   const formatted = formatter.formatToParts(targetDate);
@@ -95,7 +95,7 @@ export function getStartOfDayInTimezone(timestamp: number, timezone: string): nu
   // Create midnight in the timezone
   // If local is ahead of UTC (positive offset), subtract to get UTC time
   // If local is behind UTC (negative offset), add to get UTC time
-  const midnightUTC = Date.UTC(year, month - 1, day, 0, 0, 0, 0) - (offsetHours * 60 * 60 * 1000);
+  const midnightUTC = Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1, 0, 0, 0, 0) - (offsetHours * 60 * 60 * 1000);
   
   return midnightUTC;
 }
@@ -119,19 +119,19 @@ export function localTimeToUTC(
   if (typeof dateStr === 'number') {
     // Convert timestamp to date string in timezone
     const ds = getDateStringInTimezone(dateStr, timezone);
-    [year, month, day] = ds.split('-').map(Number);
+    [year, month, day] = ds.split('-').map(Number) as [number, number, number];
   } else {
-    [year, month, day] = dateStr.split('-').map(Number);
+    [year, month, day] = dateStr.split('-').map(Number) as [number, number, number];
   }
   
   // Parse time
-  const [hours, minutes] = timeStr.split(':').map(Number);
+  const [hours, minutes] = timeStr.split(':').map(Number) as [number, number];
   
   // Get timezone offset for this specific date and time
   // We need to find the UTC time that corresponds to this local time
   
   // Start with a naive UTC date
-  const naiveUTC = Date.UTC(year, month - 1, day, hours, minutes, 0, 0);
+  const naiveUTC = Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1, hours ?? 0, minutes ?? 0, 0, 0);
   
   // Get what local time this would be in the target timezone
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -184,11 +184,11 @@ export function generateTimeSlotsForDay(
   const dateStr = getDateStringInTimezone(dateTimestamp, timezone);
   
   // Parse times
-  const [startHours, startMinutes] = startTime.split(':').map(Number);
-  const [endHours, endMinutes] = endTime.split(':').map(Number);
+  const [startHours, startMinutes] = startTime.split(':').map(Number) as [number, number];
+  const [endHours, endMinutes] = endTime.split(':').map(Number) as [number, number];
   
-  const startTotalMinutes = startHours * 60 + startMinutes;
-  const endTotalMinutes = endHours * 60 + endMinutes;
+  const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+  const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
   
   // Generate slots
   let currentMinutes = startTotalMinutes;

@@ -120,8 +120,11 @@ export function TestimonialsContentConfigForm({
   // Update an existing testimonial item
   const handleUpdateItem = (index: number, updates: Partial<TestimonialItem>) => {
     const newItems = [...testimonials];
-    newItems[index] = { ...newItems[index], ...updates };
-    onUpdate({ ...props, testimonials: newItems });
+    const existing = newItems[index];
+    if (existing) {
+      newItems[index] = { ...existing, ...updates } as TestimonialItem;
+      onUpdate({ ...props, testimonials: newItems });
+    }
   };
 
   // Remove a testimonial item
@@ -134,16 +137,26 @@ export function TestimonialsContentConfigForm({
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newItems = [...testimonials];
-    [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
-    onUpdate({ ...props, testimonials: newItems });
+    const item1 = newItems[index - 1];
+    const item2 = newItems[index];
+    if (item1 && item2) {
+      newItems[index - 1] = item2;
+      newItems[index] = item1;
+      onUpdate({ ...props, testimonials: newItems });
+    }
   };
 
   // Move item down in the list
   const handleMoveDown = (index: number) => {
     if (index === testimonials.length - 1) return;
     const newItems = [...testimonials];
-    [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
-    onUpdate({ ...props, testimonials: newItems });
+    const item1 = newItems[index];
+    const item2 = newItems[index + 1];
+    if (item1 && item2) {
+      newItems[index] = item2;
+      newItems[index + 1] = item1;
+      onUpdate({ ...props, testimonials: newItems });
+    }
   };
 
   return (

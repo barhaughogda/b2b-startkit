@@ -153,7 +153,7 @@ export const getAuditStats = query({
       }
       
       // Count daily activity
-      const date = new Date(log.timestamp).toISOString().split('T')[0];
+      const date = new Date(log.timestamp).toISOString().split('T')[0]!;
       stats.dailyActivity[date] = (stats.dailyActivity[date] || 0) + 1;
     });
     

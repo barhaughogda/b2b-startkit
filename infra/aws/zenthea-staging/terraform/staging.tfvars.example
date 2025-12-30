@@ -1,0 +1,22 @@
+# Example tfvars file for staging environment
+# Copy this to staging.tfvars and fill in actual values
+# DO NOT commit staging.tfvars to git (contains secrets)
+
+aws_region  = "us-east-1"
+environment = "staging"
+
+# Domain configuration
+domain_name          = "staging.zenthea.ai"
+acm_certificate_arn  = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERT_ID"
+
+# ECS Task Configuration
+task_cpu            = 1024  # 1 vCPU
+task_memory         = 2048  # 2 GB
+desired_task_count  = 2
+
+# S3 Buckets (must already exist)
+s3_bucket_name         = "zenthea-images-staging"
+s3_medical_bucket_name = "zenthea-medical-images-staging"
+
+# Logging
+log_retention_days = 30

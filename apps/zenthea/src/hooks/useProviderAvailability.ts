@@ -301,7 +301,7 @@ export function groupSlotsByDate(slots: TimeSlot[]): Map<string, TimeSlot[]> {
   const grouped = new Map<string, TimeSlot[]>();
 
   slots.forEach((slot) => {
-    const dateKey = slot.date.toISOString().split('T')[0];
+    const dateKey = slot.date.toISOString().split('T')[0]!;
     const existing = grouped.get(dateKey) || [];
     grouped.set(dateKey, [...existing, slot]);
   });
@@ -336,7 +336,7 @@ function getDateStringInTimezone(date: Date, timezone: string): string {
     return date.toLocaleDateString('en-CA', { timeZone: timezone });
   } catch {
     // Fallback to UTC if timezone is invalid
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split('T')[0]!;
   }
 }
 
@@ -356,9 +356,9 @@ function getDateStringInTimezone(date: Date, timezone: string): string {
 export function getSlotsForDate(slots: TimeSlot[], date: Date, timezone?: string): TimeSlot[] {
   if (!timezone) {
     // Fall back to UTC comparison (for backward compatibility)
-    const targetDateString = date.toISOString().split('T')[0];
+    const targetDateString = date.toISOString().split('T')[0]!;
     return slots.filter((slot) => {
-      const slotDateString = slot.date.toISOString().split('T')[0];
+      const slotDateString = slot.date.toISOString().split('T')[0]!;
       return slotDateString === targetDateString;
     });
   }

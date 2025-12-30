@@ -451,7 +451,12 @@ export default function HeroBlockEditor({ props, onChange }: BlockEditorProps) {
                   <Label>Overlay Opacity: {Math.round((heroProps.backgroundOverlay || 0.4) * 100)}%</Label>
                   <Slider
                     value={[heroProps.backgroundOverlay || 0.4]}
-                    onValueChange={([value]) => updateProp('backgroundOverlay', value)}
+                    onValueChange={(values) => {
+                      const val = values[0];
+                      if (val !== undefined) {
+                        updateProp('backgroundOverlay', val);
+                      }
+                    }}
                     min={0}
                     max={1}
                     step={0.05}

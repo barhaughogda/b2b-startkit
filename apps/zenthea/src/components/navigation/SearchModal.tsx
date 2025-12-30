@@ -297,7 +297,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     ...results.messages,
                     ...results.appointments,
                   ];
-                  if (allResults.length > 0) {
+                  if (allResults.length > 0 && allResults[0]) {
                     handleResultClick(allResults[0]);
                   }
                 }

@@ -69,7 +69,7 @@ function cssVarToHex(cssVar: string): string {
     }
     
     // Try to get computed value from document
-    if (typeof window !== 'undefined') {
+    if (varName && typeof window !== 'undefined') {
       const computed = getComputedStyle(document.documentElement).getPropertyValue(`--${varName}`).trim();
       if (computed) {
         // If it's already hex, return it
@@ -545,7 +545,12 @@ function HeroBackgroundConfigForm({
             </Label>
             <Slider
               value={[((props.backgroundOverlay as number) || 0.4) * 100]}
-              onValueChange={([value]) => onUpdate({ ...props, backgroundOverlay: value / 100 })}
+              onValueChange={(values) => {
+                const val = values[0];
+                if (val !== undefined) {
+                  onUpdate({ ...props, backgroundOverlay: val / 100 });
+                }
+              }}
               min={0}
               max={80}
               step={5}

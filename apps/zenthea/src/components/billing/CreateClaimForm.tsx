@@ -176,22 +176,29 @@ export function CreateClaimForm({ onSuccess, onCancel }: CreateClaimFormProps) {
     value: any
   ) => {
     const updated = [...lineItems];
-    updated[index] = { ...updated[index], [field]: value };
-    setLineItems(updated);
+    const item = updated[index];
+    if (item) {
+      updated[index] = { ...item, [field]: value } as LineItem;
+      setLineItems(updated);
+    }
   };
 
   // Add diagnosis code to line item
   const addDiagnosisCode = (lineItemIndex: number) => {
     const updated = [...lineItems];
-    updated[lineItemIndex].diagnosisCodes.push('');
-    setLineItems(updated);
+    const item = updated[lineItemIndex];
+    if (item) {
+      item.diagnosisCodes.push('');
+      setLineItems(updated);
+    }
   };
 
   // Remove diagnosis code from line item
   const removeDiagnosisCode = (lineItemIndex: number, diagIndex: number) => {
     const updated = [...lineItems];
-    if (updated[lineItemIndex].diagnosisCodes.length > 1) {
-      updated[lineItemIndex].diagnosisCodes.splice(diagIndex, 1);
+    const item = updated[lineItemIndex];
+    if (item && item.diagnosisCodes.length > 1) {
+      item.diagnosisCodes.splice(diagIndex, 1);
       setLineItems(updated);
     }
   };
@@ -203,22 +210,31 @@ export function CreateClaimForm({ onSuccess, onCancel }: CreateClaimFormProps) {
     value: string
   ) => {
     const updated = [...lineItems];
-    updated[lineItemIndex].diagnosisCodes[diagIndex] = value;
-    setLineItems(updated);
+    const item = updated[lineItemIndex];
+    if (item && item.diagnosisCodes) {
+      item.diagnosisCodes[diagIndex] = value;
+      setLineItems(updated);
+    }
   };
 
   // Add modifier to line item
   const addModifier = (lineItemIndex: number) => {
     const updated = [...lineItems];
-    updated[lineItemIndex].modifiers.push('');
-    setLineItems(updated);
+    const item = updated[lineItemIndex];
+    if (item && item.modifiers) {
+      item.modifiers.push('');
+      setLineItems(updated);
+    }
   };
 
   // Remove modifier from line item
   const removeModifier = (lineItemIndex: number, modIndex: number) => {
     const updated = [...lineItems];
-    updated[lineItemIndex].modifiers.splice(modIndex, 1);
-    setLineItems(updated);
+    const item = updated[lineItemIndex];
+    if (item && item.modifiers) {
+      item.modifiers.splice(modIndex, 1);
+      setLineItems(updated);
+    }
   };
 
   // Update modifier
@@ -228,8 +244,11 @@ export function CreateClaimForm({ onSuccess, onCancel }: CreateClaimFormProps) {
     value: string
   ) => {
     const updated = [...lineItems];
-    updated[lineItemIndex].modifiers[modIndex] = value.toUpperCase();
-    setLineItems(updated);
+    const item = updated[lineItemIndex];
+    if (item && item.modifiers) {
+      item.modifiers[modIndex] = value.toUpperCase();
+      setLineItems(updated);
+    }
   };
 
   // Parse currency input to cents

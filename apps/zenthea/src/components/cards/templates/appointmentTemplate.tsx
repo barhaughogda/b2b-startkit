@@ -65,8 +65,8 @@ export const appointmentTemplate: CardTemplate = {
       patientName: props.patientName || '',
       time: extendedProps.prefilledTime || '10:00 AM',
       date: extendedProps.prefilledDate 
-        ? extendedProps.prefilledDate.toISOString().split('T')[0] 
-        : new Date().toISOString().split('T')[0],
+        ? extendedProps.prefilledDate.toISOString().split('T')[0]! 
+        : new Date().toISOString().split('T')[0]!,
       duration: 30,
       type: 'consultation',
       status: 'scheduled' as const,

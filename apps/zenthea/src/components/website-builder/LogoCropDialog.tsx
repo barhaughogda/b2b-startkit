@@ -154,7 +154,12 @@ export function LogoCropDialog({
               min={1}
               max={3}
               step={0.1}
-              onValueChange={(values) => setZoom(values[0])}
+              onValueChange={(values) => {
+                const val = values[0];
+                if (val !== undefined) {
+                  setZoom(val);
+                }
+              }}
               className="flex-1"
             />
             <ZoomIn className="w-4 h-4 text-text-tertiary" />

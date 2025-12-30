@@ -84,7 +84,7 @@ export function TodayContent() {
       
       // Check if it's 12-hour format (contains AM/PM)
       const amPmMatch = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-      if (amPmMatch) {
+      if (amPmMatch && amPmMatch[1] && amPmMatch[2] && amPmMatch[3]) {
         hours = parseInt(amPmMatch[1], 10);
         minutes = parseInt(amPmMatch[2], 10);
         const amPm = amPmMatch[3].toUpperCase();
@@ -98,7 +98,7 @@ export function TodayContent() {
       } else {
         // Assume 24-hour format (HH:mm)
         const timeMatch = timeString.match(/(\d{1,2}):(\d{2})/);
-        if (timeMatch) {
+        if (timeMatch && timeMatch[1] && timeMatch[2]) {
           hours = parseInt(timeMatch[1], 10);
           minutes = parseInt(timeMatch[2], 10);
         } else {
@@ -139,8 +139,8 @@ export function TodayContent() {
       const mockAppointments: Appointment[] = [
         {
           id: '1',
-          patientId: patients[0]._id, // Use real patient ID
-          patientName: patients[0].name, // Use real patient name
+          patientId: patients[0]?._id || '', // Use real patient ID
+          patientName: patients[0]?.name || '', // Use real patient name
           time: '09:00 AM',
           status: 'scheduled',
           type: 'Consultation',
@@ -306,7 +306,7 @@ export function TodayContent() {
   const handleTaskClick = (task: Task) => {
     // Get patient data - use first patient as demo for now
     const patient = patients?.[0];
-    const patientDateOfBirth = patient?.dateOfBirth ? new Date(patient.dateOfBirth).toISOString().split('T')[0] : undefined;
+    const patientDateOfBirth = patient?.dateOfBirth ? new Date(patient.dateOfBirth).toISOString().split('T')[0]! : undefined;
     
     const baseProps = {
       patientId: patient?._id || task.id,
@@ -332,7 +332,7 @@ export function TodayContent() {
           patientName: patient?.name || 'Patient',
           patientDateOfBirth: patientDateOfBirth,
           time: task.dueTime || '10:00 AM',
-          date: new Date().toISOString().split('T')[0],
+          date: new Date().toISOString().split('T')[0]!,
           duration: 30,
           type: 'Consultation',
           status: 'scheduled',
@@ -407,7 +407,7 @@ export function TodayContent() {
           patientId: patient?._id || task.id,
           patientName: patient?.name || 'John Smith',
           patientDateOfBirth: patientDateOfBirth,
-          date: new Date().toISOString().split('T')[0],
+          date: new Date().toISOString().split('T')[0]!,
           time: new Date().toLocaleTimeString('en-US', { 
             hour: '2-digit', 
             minute: '2-digit',
@@ -513,7 +513,7 @@ export function TodayContent() {
         cardData = {
           title: task.title,
           content: task.description,
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0]!
         };
         break;
       case 'prescription':
@@ -521,7 +521,7 @@ export function TodayContent() {
         cardData = {
           title: task.title,
           content: task.description,
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0]!
         };
         break;
       case 'procedure':
@@ -529,7 +529,7 @@ export function TodayContent() {
         cardData = {
           title: task.title,
           content: task.description,
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0]!
         };
         break;
       case 'diagnosis':
@@ -537,7 +537,7 @@ export function TodayContent() {
         cardData = {
           title: task.title,
           content: task.description,
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0]!
         };
         break;
       default:
@@ -561,7 +561,7 @@ export function TodayContent() {
     // Find patient data for DOB
     const patient = patients?.find(p => p._id === appointment.patientId);
     const patientDateOfBirth = patient?.dateOfBirth 
-      ? new Date(patient.dateOfBirth).toISOString().split('T')[0] 
+      ? new Date(patient.dateOfBirth).toISOString().split('T')[0]! 
       : undefined;
     
     const baseProps = {
@@ -577,7 +577,7 @@ export function TodayContent() {
       patientId: appointment.patientId,
       patientName: appointment.patientName,
       time: appointment.time,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0]!,
       duration: 30,
       type: appointment.type,
       status: appointment.status,
@@ -605,7 +605,7 @@ export function TodayContent() {
       patientId: '',
       patientName: '',
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0]!,
       duration: 30,
       type: 'consultation',
       status: 'scheduled',

@@ -476,15 +476,25 @@ export function BlockCanvas({
   const handleMoveUp = (index: number) => {
     if (index <= 0) return;
     const newBlocks = [...blocks];
-    [newBlocks[index - 1], newBlocks[index]] = [newBlocks[index], newBlocks[index - 1]];
-    onBlocksChange(newBlocks);
+    const item1 = newBlocks[index - 1];
+    const item2 = newBlocks[index];
+    if (item1 && item2) {
+      newBlocks[index - 1] = item2;
+      newBlocks[index] = item1;
+      onBlocksChange(newBlocks);
+    }
   };
 
   const handleMoveDown = (index: number) => {
     if (index >= blocks.length - 1) return;
     const newBlocks = [...blocks];
-    [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
-    onBlocksChange(newBlocks);
+    const item1 = newBlocks[index];
+    const item2 = newBlocks[index + 1];
+    if (item1 && item2) {
+      newBlocks[index] = item2;
+      newBlocks[index + 1] = item1;
+      onBlocksChange(newBlocks);
+    }
   };
 
   const handleToggleEnabled = (blockId: string) => {

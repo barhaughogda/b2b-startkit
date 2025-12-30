@@ -483,8 +483,11 @@ export function TrustBarContentConfigForm({
   // Update item
   const handleUpdateItem = (index: number, updates: Partial<TrustBarItem>) => {
     const newItems = [...items];
-    newItems[index] = { ...newItems[index], ...updates };
-    onUpdate({ ...props, items: newItems });
+    const existing = newItems[index];
+    if (existing) {
+      newItems[index] = { ...existing, ...updates } as TrustBarItem;
+      onUpdate({ ...props, items: newItems });
+    }
   };
 
   // Remove item
@@ -497,16 +500,26 @@ export function TrustBarContentConfigForm({
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newItems = [...items];
-    [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
-    onUpdate({ ...props, items: newItems });
+    const item1 = newItems[index - 1];
+    const item2 = newItems[index];
+    if (item1 && item2) {
+      newItems[index - 1] = item2;
+      newItems[index] = item1;
+      onUpdate({ ...props, items: newItems });
+    }
   };
 
   // Move item down
   const handleMoveDown = (index: number) => {
     if (index === items.length - 1) return;
     const newItems = [...items];
-    [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
-    onUpdate({ ...props, items: newItems });
+    const item1 = newItems[index];
+    const item2 = newItems[index + 1];
+    if (item1 && item2) {
+      newItems[index] = item2;
+      newItems[index + 1] = item1;
+      onUpdate({ ...props, items: newItems });
+    }
   };
 
   return (

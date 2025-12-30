@@ -297,7 +297,11 @@ export function PatientActivityTab({
             </div>
           ) : (
             displayLogs.map((log) => {
-              const config = getActionConfig(log.action);
+              const config = getActionConfig(log.action) || {
+                color: 'text-text-secondary',
+                icon: <FileText className="h-5 w-5" />,
+                label: log.action
+              };
               
               return (
                 <div 

@@ -103,8 +103,11 @@ const getStepIcon = (iconName?: string, stepNumber?: number): LucideIcon => {
       return ICON_MAP[iconName as HowItWorksIcon];
     }
     // Check legacy mapping
-    if (iconName in LEGACY_ICON_MAP) {
-      return ICON_MAP[LEGACY_ICON_MAP[iconName]];
+    if (iconName && iconName in LEGACY_ICON_MAP) {
+      const legacyIcon = LEGACY_ICON_MAP[iconName];
+      if (legacyIcon) {
+        return ICON_MAP[legacyIcon];
+      }
     }
   }
   // Default icons based on step number

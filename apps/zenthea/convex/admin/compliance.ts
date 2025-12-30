@@ -217,7 +217,7 @@ export const generateComplianceReport = query({
       return {
         type: "csv" as const,
         data: csvData,
-        filename: `compliance-report-${new Date().toISOString().split("T")[0]}.csv`,
+        filename: `compliance-report-${new Date().toISOString().split("T")[0]!}.csv`,
         generatedAt: now,
       };
     } else {
@@ -236,7 +236,7 @@ export const generateComplianceReport = query({
       return {
         type: "pdf" as const,
         data: base64Data, // Base64 encoded string for transport
-        filename: `compliance-report-${new Date().toISOString().split("T")[0]}.pdf`,
+        filename: `compliance-report-${new Date().toISOString().split("T")[0]!}.pdf`,
         generatedAt: now,
       };
     }

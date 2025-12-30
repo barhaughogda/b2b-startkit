@@ -126,7 +126,7 @@ function intersectTimeWindows(
   // Parse times to minutes
   const parseTime = (time: string) => {
     const [h, m] = time.split(':').map(Number);
-    return h * 60 + m;
+    return (h ?? 0) * 60 + (m ?? 0);
   };
 
   const start1 = parseTime(window1.startTime);
@@ -213,8 +213,8 @@ export const setRecurringAvailability = mutation({
     // Validate that end time is after start time
     const [startHours, startMinutes] = args.startTime.split(':').map(Number);
     const [endHours, endMinutes] = args.endTime.split(':').map(Number);
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
+    const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+    const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
 
     if (endTotalMinutes <= startTotalMinutes) {
       throw new Error("End time must be after start time");
@@ -345,8 +345,8 @@ export const addAvailabilityOverride = mutation({
 
       const [startHours, startMinutes] = args.startTime.split(':').map(Number);
       const [endHours, endMinutes] = args.endTime.split(':').map(Number);
-      const startTotalMinutes = startHours * 60 + startMinutes;
-      const endTotalMinutes = endHours * 60 + endMinutes;
+      const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+      const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
 
       if (endTotalMinutes <= startTotalMinutes) {
         throw new Error("End time must be after start time");
@@ -567,9 +567,9 @@ export const checkAvailability = query({
       const [startHours, startMinutes] = override.startTime.split(':').map(Number);
       const [endHours, endMinutes] = override.endTime.split(':').map(Number);
       const [checkHours, checkMinutes] = timeString.split(':').map(Number);
-      const startTotalMinutes = startHours * 60 + startMinutes;
-      const endTotalMinutes = endHours * 60 + endMinutes;
-      const checkTotalMinutes = checkHours * 60 + checkMinutes;
+      const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+      const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
+      const checkTotalMinutes = (checkHours ?? 0) * 60 + (checkMinutes ?? 0);
 
       if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes < endTotalMinutes) {
         return { available: true };
@@ -606,9 +606,9 @@ export const checkAvailability = query({
     const [startHours, startMinutes] = recurring.startTime.split(':').map(Number);
     const [endHours, endMinutes] = recurring.endTime.split(':').map(Number);
     const [checkHours, checkMinutes] = timeString.split(':').map(Number);
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
-    const checkTotalMinutes = checkHours * 60 + checkMinutes;
+    const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+    const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
+    const checkTotalMinutes = (checkHours ?? 0) * 60 + (checkMinutes ?? 0);
 
     if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes < endTotalMinutes) {
       return { available: true };
@@ -729,8 +729,8 @@ export const getAvailableTimeSlots = query({
         // Generate slots for this day
         const [startHours, startMinutes] = dayAvailability.startTime.split(':').map(Number);
         const [endHours, endMinutes] = dayAvailability.endTime.split(':').map(Number);
-        const startTotalMinutes = startHours * 60 + startMinutes;
-        const endTotalMinutes = endHours * 60 + endMinutes;
+        const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+        const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
 
         let currentSlotMinutes = startTotalMinutes;
         while (currentSlotMinutes + slotDuration <= endTotalMinutes) {
@@ -889,8 +889,8 @@ export const setUserRecurringAvailability = mutation({
     // Validate that end time is after start time
     const [startHours, startMinutes] = args.startTime.split(':').map(Number);
     const [endHours, endMinutes] = args.endTime.split(':').map(Number);
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
+    const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+    const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
 
     if (endTotalMinutes <= startTotalMinutes) {
       throw new Error("End time must be after start time");
@@ -1014,8 +1014,8 @@ export const addUserAvailabilityOverride = mutation({
     if (args.startTime !== "00:00" || args.endTime !== "00:00") {
       const [startHours, startMinutes] = args.startTime.split(':').map(Number);
       const [endHours, endMinutes] = args.endTime.split(':').map(Number);
-      const startTotalMinutes = startHours * 60 + startMinutes;
-      const endTotalMinutes = endHours * 60 + endMinutes;
+      const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+      const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
 
       if (endTotalMinutes <= startTotalMinutes) {
         throw new Error("End time must be after start time");
@@ -1216,8 +1216,8 @@ export const setUserClinicAvailability = mutation({
     // Validate that end time is after start time
     const [startHours, startMinutes] = args.startTime.split(':').map(Number);
     const [endHours, endMinutes] = args.endTime.split(':').map(Number);
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
+    const startTotalMinutes = (startHours ?? 0) * 60 + (startMinutes ?? 0);
+    const endTotalMinutes = (endHours ?? 0) * 60 + (endMinutes ?? 0);
 
     if (endTotalMinutes <= startTotalMinutes) {
       throw new Error("End time must be after start time");
@@ -1390,7 +1390,7 @@ export const addUserClinicAvailabilityOverride = mutation({
 
       const [startHours, startMinutes] = args.startTime.split(':').map(Number);
       const [endHours, endMinutes] = args.endTime.split(':').map(Number);
-      if (endHours * 60 + endMinutes <= startHours * 60 + startMinutes) {
+      if ((endHours ?? 0) * 60 + (endMinutes ?? 0) <= (startHours ?? 0) * 60 + (startMinutes ?? 0)) {
         throw new Error("End time must be after start time");
       }
     }
@@ -2225,8 +2225,8 @@ export const getUserClinicAvailabilityWindows = query({
         const [endHour, endMin] = dayAvailability.endTime.split(':').map(Number);
         
         // Convert local times to UTC timestamps using the day's midnight
-        const startTimestamp = day.midnightUTC + (startHour * 60 + startMin) * 60 * 1000;
-        const endTimestamp = day.midnightUTC + (endHour * 60 + endMin) * 60 * 1000;
+        const startTimestamp = day.midnightUTC + ((startHour ?? 0) * 60 + (startMin ?? 0)) * 60 * 1000;
+        const endTimestamp = day.midnightUTC + ((endHour ?? 0) * 60 + (endMin ?? 0)) * 60 * 1000;
 
         windows.push({
           clinicId,

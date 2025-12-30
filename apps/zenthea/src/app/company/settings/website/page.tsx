@@ -71,21 +71,21 @@ export default function WebsiteBuilderPage() {
 
   // Queries
   const websiteData = useQuery(
-    api.websiteBuilder.getWebsiteBuilder,
+    (api as any).websiteBuilder?.getWebsiteBuilder,
     tenantId ? { tenantId } : 'skip'
   );
 
   // Mutations
-  const initializeBuilder = useMutation(api.websiteBuilder.initializeWebsiteBuilder);
-  const updateSiteStructureMutation = useMutation(api.websiteBuilder.updateSiteStructure);
-  const updateHeader = useMutation(api.websiteBuilder.updateHeader);
-  const updateFooter = useMutation(api.websiteBuilder.updateFooter);
-  const updateTheme = useMutation(api.websiteBuilder.updateTheme);
-  const updateBlocks = useMutation(api.websiteBuilder.updateBlocks);
-  const publishWebsite = useMutation(api.websiteBuilder.publishWebsite);
+  const initializeBuilder = useMutation((api as any).websiteBuilder?.initializeWebsiteBuilder);
+  const updateSiteStructureMutation = useMutation((api as any).websiteBuilder?.updateSiteStructure);
+  const updateHeader = useMutation((api as any).websiteBuilder?.updateHeader);
+  const updateFooter = useMutation((api as any).websiteBuilder?.updateFooter);
+  const updateTheme = useMutation((api as any).websiteBuilder?.updateTheme);
+  const updateBlocks = useMutation((api as any).websiteBuilder?.updateBlocks);
+  const publishWebsite = useMutation((api as any).websiteBuilder?.publishWebsite);
   
   // Page-related mutations
-  const updatePagesMutation = useMutation(api.websiteBuilder.updatePages);
+  const updatePagesMutation = useMutation((api as any).websiteBuilder?.updatePages);
 
   // Modal state
   const [showSettingsModal, setShowSettingsModal] = useState(false);

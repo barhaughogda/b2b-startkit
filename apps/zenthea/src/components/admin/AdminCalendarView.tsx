@@ -272,7 +272,7 @@ export function AdminCalendarView({
           },
         };
 
-        const colors = statusColors[appointment.status] || statusColors.scheduled;
+        const colors = statusColors[appointment.status] || statusColors['scheduled'] || { bg: '#3b82f6', border: '#2563eb' };
 
         // Title shows patient name and appointment type
         const title = `${appointment.patientName || 'Unknown Patient'} - ${appointment.type}`;

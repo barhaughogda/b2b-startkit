@@ -88,10 +88,10 @@ export const createBookingRequest = mutation({
 
     // Validate preferred dates are in the future and within allowed range
     const now = new Date();
-    const today = now.toISOString().split('T')[0];
+    const today = now.toISOString().split('T')[0]!;
     const advanceBookingDays = tenant.bookingSettings?.advanceBookingDays ?? 30;
     const maxDate = new Date(now.getTime() + advanceBookingDays * 24 * 60 * 60 * 1000);
-    const maxDateStr = maxDate.toISOString().split('T')[0];
+    const maxDateStr = maxDate.toISOString().split('T')[0]!;
 
     for (const date of args.preferredDates) {
       if (date < today) {
@@ -138,7 +138,13 @@ export const createBookingRequest = mutation({
 
     if (recentRequests.length >= 5) {
       // Calculate wait time until oldest request expires (better UX)
-      const oldestRequest = recentRequests.sort((a, b) => a.createdAt - b.createdAt)[0];
+      const sortedRequests = [...recentRequests].sort((a, b) => a.createdAt - b.createdAt);
+      const oldestRequest = sortedRequests[0];
+      
+      if (!oldestRequest) {
+        throw new Error("Too many booking requests. Please try again later.");
+      }
+
       const waitTimeMs = oldestRequest.createdAt + 3600000 - Date.now();
       const waitTimeMinutes = Math.ceil(waitTimeMs / 60000);
       
@@ -332,7 +338,10 @@ export const getBookingRequestCounts = query({
     };
 
     for (const request of requests) {
-      counts[request.status]++;
+      const status = request.status as keyof typeof counts;
+      if (counts[status] !== undefined) {
+        counts[status]++;
+      }
     }
 
     return counts;
