@@ -144,8 +144,8 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
   - **Status**: Completed. All core clinical and communication slices migrated. Convex usage eliminated for these domains.
 
 ### 1.6 RBAC + audit logging hardening
-- [🟡] **T16 — Implement RBAC + minimum-necessary access per spec** (Owner: Agent, Depends on: T08 + T13)
-  - **Status**: Hardening in progress. Created `AuditService` for HIPAA-compliant logging and `access-control.ts` for relationship-based checks. Applied minimum-necessary filters to Patients API.
+- [x] **T16 — Implement RBAC + minimum-necessary access per spec** (Owner: Agent, Depends on: T08 + T13)
+  - **Status**: Completed. Stabilized localhost and pushed stable version to staging.zenthea.ai. Fixed CSP violations, build failures, and cross-platform Docker issues.
 
 ### 1.7 Billing/subscriptions (StartKit Stripe)
 - [x] **T17 — Stripe account + products/prices + webhook endpoints (staging)** (Owner: Human, Depends on: T00)

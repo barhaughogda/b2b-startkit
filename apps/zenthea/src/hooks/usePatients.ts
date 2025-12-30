@@ -45,7 +45,13 @@ export interface PatientWithComputedFields extends Patient {
   avatar?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch patients');
+  }
+  return res.json();
+})
 
 /**
  * Custom hook for fetching and managing patient data from Postgres
@@ -59,7 +65,8 @@ export function usePatients() {
   )
 
   // Compute fields for display
-  const patients: PatientWithComputedFields[] = (data || []).map((patient) => {
+  const safeData = Array.isArray(data) ? data : [];
+  const patients: PatientWithComputedFields[] = safeData.map((patient) => {
     const dob = new Date(patient.dateOfBirth)
     const age = Math.floor((new Date().getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
     

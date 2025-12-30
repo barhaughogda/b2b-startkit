@@ -69,7 +69,9 @@ export function validateSecurityHeaders(headers: SecurityHeaders): SecurityHeade
   });
   
   // Content-Security-Policy validation
-  const cspValid = headers['Content-Security-Policy']?.includes("default-src 'self'") || false;
+  const cspValid = 
+    headers['Content-Security-Policy']?.includes("default-src 'self'") &&
+    headers['Content-Security-Policy']?.includes("https://challenges.cloudflare.com") || false;
   validations.push({
     header: 'Content-Security-Policy',
     present: !!headers['Content-Security-Policy'],
@@ -112,12 +114,15 @@ export function validateSecurityHeaders(headers: SecurityHeaders): SecurityHeade
  * Get recommended security headers for HIPAA compliance
  */
 export function getRecommendedSecurityHeaders(): SecurityHeaders {
+  const isProd = process.env.NODE_ENV === 'production';
+  const upgradeInsecure = isProd ? "; upgrade-insecure-requests" : "";
+
   return {
     'X-Frame-Options': 'DENY',
     'X-Content-Type-Options': 'nosniff',
     'X-XSS-Protection': '1; mode=block',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-    'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';",
+    'Content-Security-Policy': `default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'${upgradeInsecure};`,
     'X-HIPAA-Compliant': 'true',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()'

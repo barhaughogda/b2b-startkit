@@ -1,3 +1,10 @@
+/**
+ * Notifications Hook
+ * 
+ * Fetches and manages user notifications.
+ * Fix: Added robust array check to prevent UI crash when API returns an error object.
+ */
+
 import useSWR from 'swr'
 import { useZentheaSession } from './useZentheaSession'
 
@@ -20,7 +27,13 @@ export interface Notification {
   expiresAt?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch notifications');
+  }
+  return res.json();
+})
 
 /**
  * Custom hook for fetching and managing notification data from Postgres
@@ -30,7 +43,11 @@ export function useNotifications() {
   
   const { data, error, isLoading, mutate } = useSWR<Notification[]>(
     session ? '/api/notifications' : null,
-    fetcher
+    fetcher,
+    {
+      revalidateOnFocus: true,
+      refreshInterval: 30000, // Refresh every 30 seconds
+    }
   )
 
   const markAsRead = async (id: string) => {
@@ -59,9 +76,12 @@ export function useNotifications() {
     return await response.json()
   }
 
+  // Ensure notifications is always an array to prevent .filter crashes
+  const notifications = Array.isArray(data) ? data : [];
+
   return {
-    notifications: data || [],
-    unreadCount: (data || []).filter(n => !n.isRead).length,
+    notifications,
+    unreadCount: notifications.filter(n => !n.isRead).length,
     isLoading,
     error,
     markAsRead,
@@ -74,8 +94,12 @@ export function useNotifications() {
  * Specialty hook for calendar-related notifications
  */
 export function useCalendarNotifications() {
-  const { notifications, unreadCount } = useNotifications()
-  const calendarNotifications = notifications.filter(n => 
+  const { notifications } = useNotifications()
+  
+  // Ensure notifications is an array
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  
+  const calendarNotifications = safeNotifications.filter(n => 
     n.type.startsWith('appointment_') || n.resourceType === 'appointment'
   )
   

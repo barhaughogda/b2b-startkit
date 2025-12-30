@@ -116,7 +116,7 @@ export function AdminNavigationHeader({
                 aria-label="Admin menu"
               >
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={session?.user?.image || ''} alt="User avatar" />
+                  <AvatarImage src={session?.user?.image || undefined} alt="User avatar" />
                   <AvatarFallback className="text-sm font-medium">
                     {session?.user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'A'}
                   </AvatarFallback>

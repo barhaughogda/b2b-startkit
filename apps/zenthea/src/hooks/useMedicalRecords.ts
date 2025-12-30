@@ -24,7 +24,13 @@ export interface MedicalRecord {
   updatedAt: string
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch medical records');
+  }
+  return res.json();
+})
 
 /**
  * Custom hook for fetching and managing medical records from Postgres
@@ -57,7 +63,7 @@ export function useMedicalRecords(patientId?: string) {
   }
 
   return {
-    records: data || [],
+    records: Array.isArray(data) ? data : [],
     isLoading,
     error,
     createRecord,

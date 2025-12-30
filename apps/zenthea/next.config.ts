@@ -128,9 +128,12 @@ const nextConfig: NextConfig = {
 
   // HIPAA-compliant security headers
   async headers() {
-    const devConnectSrc = process.env.NODE_ENV !== 'production'
+    const isProd = process.env.NODE_ENV === 'production'
+    const devConnectSrc = !isProd
       ? ' http://127.0.0.1:7245 http://localhost:7245'
       : ''
+    
+    const upgradeInsecure = isProd ? ["upgrade-insecure-requests"] : []
 
     return [
       // Website builder preview route - allow same-origin iframe embedding
@@ -157,18 +160,18 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com https://*.clerk.accounts.dev https://clerk.com blob: data:",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com https://*.clerk.accounts.dev https://clerk.com https://challenges.cloudflare.com blob: data:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://fonts.gstatic.com data:",
               "media-src 'self' https://res.cloudinary.com https://*.cloudinary.com blob: data:",
-              `connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://api.openai.com https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.us.elevenlabs.io https://human.biodigital.com https://maps.googleapis.com https://*.googleapis.com https://res.cloudinary.com https://*.cloudinary.com https://analytics-api-s.cloudinary.com https://video-analytics-api.cloudinary.com https://*.clerk.accounts.dev https://clerk.com${devConnectSrc}`,
-              "frame-src 'self' https://human.biodigital.com https://www.google.com https://maps.google.com https://*.clerk.accounts.dev",
+              `connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://api.openai.com https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.us.elevenlabs.io https://human.biodigital.com https://maps.googleapis.com https://*.googleapis.com https://res.cloudinary.com https://*.cloudinary.com https://analytics-api-s.cloudinary.com https://video-analytics-api.cloudinary.com https://*.clerk.accounts.dev https://clerk.com https://challenges.cloudflare.com${devConnectSrc}`,
+              "frame-src 'self' https://human.biodigital.com https://www.google.com https://maps.google.com https://*.clerk.accounts.dev https://challenges.cloudflare.com",
               "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
               "object-src 'none'",
-              "upgrade-insecure-requests"
+              ...upgradeInsecure
             ].join('; '),
           },
         ],
@@ -201,18 +204,18 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com blob: data:",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://maps.googleapis.com https://*.clerk.accounts.dev https://clerk.com https://challenges.cloudflare.com blob: data:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' https://fonts.gstatic.com data:",
               "media-src 'self' https://res.cloudinary.com https://*.cloudinary.com blob: data:",
-              `connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://api.openai.com https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.us.elevenlabs.io https://human.biodigital.com https://maps.googleapis.com https://*.googleapis.com https://res.cloudinary.com https://*.cloudinary.com https://analytics-api-s.cloudinary.com https://video-analytics-api.cloudinary.com${devConnectSrc}`,
-              "frame-src 'self' https://human.biodigital.com https://www.google.com https://maps.google.com",
+              `connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://api.openai.com https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.us.elevenlabs.io https://human.biodigital.com https://maps.googleapis.com https://*.googleapis.com https://res.cloudinary.com https://*.cloudinary.com https://analytics-api-s.cloudinary.com https://video-analytics-api.cloudinary.com https://*.clerk.accounts.dev https://clerk.com https://challenges.cloudflare.com${devConnectSrc}`,
+              "frame-src 'self' https://human.biodigital.com https://www.google.com https://maps.google.com https://*.clerk.accounts.dev https://challenges.cloudflare.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
               "object-src 'none'",
-              "upgrade-insecure-requests"
+              ...upgradeInsecure
             ].join('; '),
           },
           {
@@ -235,7 +238,11 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'X-Content-Security-Policy-Report-Only',
-            value: "default-src 'self'; report-uri /api/security/csp-report",
+            value: [
+              "default-src 'self'",
+              "report-uri /api/security/csp-report",
+              ...upgradeInsecure
+            ].join('; '),
           },
           {
             key: 'X-DNS-Prefetch-Control',
@@ -282,9 +289,11 @@ const nextConfig: NextConfig = {
 
   // Redirects
   async redirects() {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.zenthea.ai';
+    
     return [
-      // Force HTTPS in production
-      ...(process.env.NODE_ENV === 'production' ? [
+      // Force HTTPS in production/staging
+      ...(process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging' ? [
         {
           source: '/(.*)',
           has: [
@@ -294,7 +303,7 @@ const nextConfig: NextConfig = {
               value: 'http',
             },
           ],
-          destination: 'https://zenthea.com/:path*',
+          destination: `${appUrl}/:path*`,
           permanent: true,
         },
       ] : []),

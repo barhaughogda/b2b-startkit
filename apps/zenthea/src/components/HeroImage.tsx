@@ -12,6 +12,7 @@ export default function HeroImage() {
   const [heroImageUrl, setHeroImageUrl] = useState<string>('https://dbbi79w6g08cf.cloudfront.net/images/hero/hero-medical-professional.jpg');
   const [isLoading, setIsLoading] = useState(true);
 
+  /* 
   useEffect(() => {
     const fetchHeroImage = async () => {
       try {
@@ -76,23 +77,13 @@ export default function HeroImage() {
 
     fetchHeroImage();
   }, []);
-
-  if (isLoading) {
-    return (
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('https://dbbi79w6g08cf.cloudfront.net/images/hero/hero-medical-professional.jpg')"
-        }}
-      />
-    );
-  }
+  */
 
   return (
     <div 
       className="absolute inset-0 bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: `url('${heroImageUrl}')`
+        backgroundImage: "url('https://res.cloudinary.com/dnfaqg0wg/image/upload/v1764137295/Voice_Transcription_icyvjc.png')"
       }}
     />
   );

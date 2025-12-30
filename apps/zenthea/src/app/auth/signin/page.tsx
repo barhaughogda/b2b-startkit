@@ -114,7 +114,7 @@ function SignInPageContent() {
           finalRedirect = '/superadmin';
         } else {
           // Clinic users (clinic_user, etc.) go to company calendar
-          finalRedirect = '/company/calendar';
+          finalRedirect = '/company/calendar?tab=today';
         }
         
         // Handle callbackUrl if provided

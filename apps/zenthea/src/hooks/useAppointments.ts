@@ -20,7 +20,13 @@ export interface Appointment {
   updatedAt: string
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch appointments');
+  }
+  return res.json();
+})
 
 /**
  * Custom hook for fetching and managing appointment data from Postgres
@@ -56,7 +62,7 @@ export function useAppointments(status: string = 'all') {
   }
 
   return {
-    appointments: data || [],
+    appointments: Array.isArray(data) ? data : [],
     isLoading,
     error,
     createAppointment,

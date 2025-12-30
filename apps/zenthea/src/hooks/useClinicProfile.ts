@@ -1,7 +1,13 @@
 import useSWR from 'swr'
 import { useZentheaSession } from './useZentheaSession'
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch clinics');
+  }
+  return res.json();
+})
 
 /**
  * Custom hook for fetching and managing clinic data from Postgres
@@ -31,7 +37,7 @@ export function useClinics() {
   }
 
   return {
-    clinics: data || [],
+    clinics: Array.isArray(data) ? data : [],
     isLoading,
     error,
     createClinic,

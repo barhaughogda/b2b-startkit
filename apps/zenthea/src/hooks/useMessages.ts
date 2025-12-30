@@ -25,7 +25,13 @@ export interface Message {
   toUserName?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch messages');
+  }
+  return res.json();
+})
 
 /**
  * Custom hook for fetching and managing message data from Postgres
@@ -58,7 +64,7 @@ export function useMessages() {
   }
 
   return {
-    messages: data || [],
+    messages: Array.isArray(data) ? data : [],
     isLoading,
     error,
     sendMessage,
@@ -78,8 +84,9 @@ export function useThread(threadId: string) {
   )
 
   const replyToThread = async (content: string) => {
-    if (!data || data.length === 0) return
-    const lastMessage = data[data.length - 1]
+    const threadData = Array.isArray(data) ? data : []
+    if (threadData.length === 0) return
+    const lastMessage = threadData[threadData.length - 1]
     
     const response = await fetch('/api/messages', {
       method: 'POST',
@@ -103,7 +110,7 @@ export function useThread(threadId: string) {
   }
 
   return {
-    thread: data || [],
+    thread: Array.isArray(data) ? data : [],
     isLoading,
     error,
     replyToThread,

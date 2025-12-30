@@ -1,80 +1,30 @@
 import { ConvexReactClient } from "convex/react";
 
-// Note: In Next.js, only NEXT_PUBLIC_* environment variables are available in client-side code
-// CONVEX_DEPLOYMENT_URL is only available server-side, so we only check NEXT_PUBLIC_CONVEX_URL here
-// For Vercel environments, ensure NEXT_PUBLIC_CONVEX_URL is set for all environments (Production, Preview, Development)
-// CRITICAL: This variable MUST be set in Vercel BEFORE the build happens, as it's embedded at build time
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+/**
+ * Convex Client - Legacy
+ * 
+ * Note: We are migrating to Postgres. This client is maintained for backward
+ * compatibility during the vertical slice migration process.
+ * ALWAYS returns a client instance to prevent build-time crashes.
+ */
 
-// Build-time verification (runs during module initialization)
-if (typeof window === 'undefined') {
-  // Server-side: log during build
-  if (!convexUrl) {
-    console.warn('[Convex Build] ⚠️ NEXT_PUBLIC_CONVEX_URL is not set during build');
-    console.warn('[Convex Build] This will cause the Convex client to be null in the browser');
-  } else {
-    console.log('[Convex Build] ✅ NEXT_PUBLIC_CONVEX_URL is set:', convexUrl.substring(0, 30) + '...');
-  }
-}
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "https://dummy.convex.cloud";
 
-// Validate that the URL is a valid absolute URL before creating the client
 function isValidConvexUrl(url: string | undefined): url is string {
-  if (!url) {
-    // Log in development to help debug
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.warn('[Convex] NEXT_PUBLIC_CONVEX_URL is not set');
-    }
-    return false;
-  }
-  
-  // Trim whitespace
-  const trimmedUrl = url.trim();
-  if (!trimmedUrl) {
-    return false;
-  }
-  
-  // Check if it's a placeholder value (from documentation examples)
-  if (
-    trimmedUrl.includes('your-convex-url') ||
-    trimmedUrl.includes('your-deployment-url') ||
-    trimmedUrl.includes('your-dev-deployment') ||
-    trimmedUrl.includes('your-prod-deployment') ||
-    trimmedUrl.includes('your-new-prod-deployment') ||
-    trimmedUrl.includes('your-local-deployment')
-  ) {
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.warn('[Convex] NEXT_PUBLIC_CONVEX_URL appears to be a placeholder:', trimmedUrl);
-    }
-    return false;
-  }
-  
-  // Check if it's a valid absolute URL
+  if (!url) return false;
+  const trimmed = url.trim();
+  if (!trimmed || trimmed === '' || trimmed.includes('your-')) return false;
   try {
-    const parsed = new URL(trimmedUrl);
-    const isValid = parsed.protocol === 'https:' || parsed.protocol === 'http:';
-    if (!isValid && typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.warn('[Convex] NEXT_PUBLIC_CONVEX_URL has invalid protocol:', parsed.protocol);
-    }
-    return isValid;
-  } catch (error) {
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.warn('[Convex] NEXT_PUBLIC_CONVEX_URL is not a valid URL:', trimmedUrl, error);
-    }
+    new URL(trimmed);
+    return true;
+  } catch {
     return false;
   }
 }
 
-// Create Convex client if URL is valid
-const isValidUrl = isValidConvexUrl(convexUrl);
-export const convex = isValidUrl
-  ? new ConvexReactClient(convexUrl!)
-  : null;
+// Always return a client to satisfy hooks during build/SSG
+export const convex = new ConvexReactClient(isValidConvexUrl(convexUrl) ? convexUrl : "https://dummy.convex.cloud");
 
-// Log initialization status (only log in development and only if client exists)
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  if (convex) {
-    console.log('[Convex] ✅ Client initialized successfully');
-  } else {
-    console.info('[Convex] Client not initialized (Postgres migration active)');
-  }
+  console.log('[Convex] Legacy client initialized');
 }

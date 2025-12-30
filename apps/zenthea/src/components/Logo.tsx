@@ -26,6 +26,7 @@ export default function Logo({
   const [logoUrl, setLogoUrl] = useState<string>('https://dbbi79w6g08cf.cloudfront.net/images/logo/ZentheaLogo-Blue.png');
   const [isLoading, setIsLoading] = useState(true);
 
+  /*
   useEffect(() => {
     const fetchLogo = async () => {
       try {
@@ -80,10 +81,11 @@ export default function Logo({
 
     fetchLogo();
   }, []);
+  */
 
   return (
     <img 
-      src={logoUrl} 
+      src={'https://res.cloudinary.com/dnfaqg0wg/image/upload/v1764138124/logo_atay0w.svg'} 
       alt={alt} 
       className={className}
       width={width}
@@ -91,7 +93,7 @@ export default function Logo({
       onError={(e) => {
         // Only log errors in development to avoid console noise in production
         if (DEBUG) {
-          console.error('Logo image failed to load:', logoUrl);
+          console.error('Logo image failed to load:', 'https://res.cloudinary.com/dnfaqg0wg/image/upload/v1764138124/logo_atay0w.svg');
         }
         // Fallback to the original Z logo if image fails to load
         e.currentTarget.style.display = 'none';
@@ -99,7 +101,7 @@ export default function Logo({
         if (fallback) fallback.style.display = 'flex';
       }}
       onLoad={() => {
-        if (DEBUG) console.log('Logo loaded successfully:', logoUrl);
+        if (DEBUG) console.log('Logo loaded successfully:', 'https://res.cloudinary.com/dnfaqg0wg/image/upload/v1764138124/logo_atay0w.svg');
       }}
     />
   );

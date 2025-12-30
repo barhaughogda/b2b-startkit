@@ -104,7 +104,7 @@ function HomePageContent() {
             finalRedirect = "/superadmin";
           } else {
             // Clinic users (admin, provider, clinic_user) go to company calendar
-            finalRedirect = "/company/calendar";
+            finalRedirect = "/company/calendar?tab=today";
           }
         }
         
@@ -141,9 +141,6 @@ function HomePageContent() {
               alt="Zenthea Logo" 
               className="h-[50px] w-auto"
             />
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zenthea-teal text-white font-bold" style={{display: 'none'}}>
-              Z
-            </div>
           </div>
 
           {/* Welcome Text */}

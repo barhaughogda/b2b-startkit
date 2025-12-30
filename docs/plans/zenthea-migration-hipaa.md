@@ -432,7 +432,7 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
   - **Owner**: Agent
   - **Depends on**: T08, T13
   - **Acceptance**: critical reads/writes are gated; break-glass/support access modeled; audit logs captured and protected.
-  - **Status**: Hardening started. Created `AuditService` and `access-control` utilities. Integrated with Patients vertical slice.
+  - **Status**: Stabilized localhost and pushed stable version to staging.zenthea.ai. Fixed CSP violations and build issues. Hardening in progress.
 
 ### 7) Billing/subscriptions (StartKit Stripe)
 - [x] **T17 — Stripe account + products/prices + webhook endpoints** (1–3 SP)
