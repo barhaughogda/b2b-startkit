@@ -1,43 +1,34 @@
-import { useZentheaSession } from "./useZentheaSession";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { canUseConvexQuery } from "@/lib/convexIdValidation";
+import useSWR from 'swr'
+import { useZentheaSession } from "./useZentheaSession"
 
 /**
  * Core patient data structure from the database
  */
 export interface Patient {
-  /** Unique patient identifier */
-  _id: string;
+  /** Unique patient identifier (UUID) */
+  id: string
   /** Patient's first name */
-  firstName: string;
+  firstName: string
   /** Patient's last name */
-  lastName: string;
-  /** Date of birth as timestamp */
-  dateOfBirth: number;
+  lastName: string
+  /** Date of birth as ISO string or timestamp */
+  dateOfBirth: string | number
   /** Patient's email address */
-  email?: string;
+  email?: string
   /** Patient's phone number */
-  phone?: string;
+  phone?: string
   /** Patient's address information */
-  address?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-  };
+  address?: any
   /** Patient's insurance information */
-  insurance?: {
-    provider: string;
-    policyNumber: string;
-    groupNumber?: string;
-  };
-  /** Tenant ID for multi-tenancy */
-  tenantId: string;
+  insurance?: any
+  /** Organization ID for multi-tenancy */
+  organizationId: string
+  /** Patient status */
+  status: 'active' | 'inactive' | 'discharged'
   /** Record creation timestamp */
-  createdAt: number;
+  createdAt: string
   /** Record last update timestamp */
-  updatedAt: number;
+  updatedAt: string
 }
 
 /**
@@ -45,221 +36,109 @@ export interface Patient {
  */
 export interface PatientWithComputedFields extends Patient {
   /** Computed full name (firstName + lastName) */
-  name: string;
+  name: string
   /** Computed age from dateOfBirth */
-  age: number;
-  /** Patient status for display */
-  status: 'Active' | 'Inactive';
-  /** Last visit date for display */
-  lastVisit: string;
-  /** Next scheduled appointment */
-  nextAppointment?: string;
+  age: number
+  /** Display status */
+  displayStatus: string
   /** Patient avatar URL */
-  avatar?: string;
-  /** Patient gender */
-  gender: 'Male' | 'Female';
+  avatar?: string
 }
 
-// Mock data for when Convex is not available
-const mockPatients: PatientWithComputedFields[] = [
-  {
-    _id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    dateOfBirth: new Date('1985-03-15').getTime(),
-    email: 'john.doe@email.com',
-    phone: '(555) 123-4567',
-    address: {
-      street: '123 Main St',
-      city: 'New York',
-      state: 'NY',
-      zipCode: '10001'
-    },
-    insurance: {
-      provider: 'Blue Cross',
-      policyNumber: 'BC123456',
-      groupNumber: 'GRP001'
-    },
-    tenantId: 'demo-tenant',
-    createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-    name: 'John Doe',
-    age: 39,
-    status: 'Active',
-    lastVisit: '2024-01-15',
-    nextAppointment: '2024-02-15',
-    avatar: undefined,
-    gender: 'Male'
-  },
-  {
-    _id: '2',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    dateOfBirth: new Date('1990-07-22').getTime(),
-    email: 'jane.smith@email.com',
-    phone: '(555) 234-5678',
-    address: {
-      street: '456 Oak Ave',
-      city: 'Los Angeles',
-      state: 'CA',
-      zipCode: '90210'
-    },
-    insurance: {
-      provider: 'Aetna',
-      policyNumber: 'AET789012',
-      groupNumber: 'GRP002'
-    },
-    tenantId: 'demo-tenant',
-    createdAt: Date.now() - 25 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-    name: 'Jane Smith',
-    age: 34,
-    status: 'Active',
-    lastVisit: '2024-01-10',
-    nextAppointment: undefined,
-    avatar: undefined,
-    gender: 'Female'
-  },
-  {
-    _id: '3',
-    firstName: 'Michael',
-    lastName: 'Johnson',
-    dateOfBirth: new Date('1978-11-08').getTime(),
-    email: 'michael.johnson@email.com',
-    phone: '(555) 345-6789',
-    address: {
-      street: '789 Pine St',
-      city: 'Chicago',
-      state: 'IL',
-      zipCode: '60601'
-    },
-    insurance: {
-      provider: 'Cigna',
-      policyNumber: 'CIG345678',
-      groupNumber: 'GRP003'
-    },
-    tenantId: 'demo-tenant',
-    createdAt: Date.now() - 20 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-    name: 'Michael Johnson',
-    age: 45,
-    status: 'Inactive',
-    lastVisit: '2023-12-20',
-    nextAppointment: undefined,
-    avatar: undefined,
-    gender: 'Male'
-  },
-  {
-    _id: '4',
-    firstName: 'Sarah',
-    lastName: 'Williams',
-    dateOfBirth: new Date('1992-04-12').getTime(),
-    email: 'sarah.williams@email.com',
-    phone: '(555) 456-7890',
-    address: {
-      street: '321 Elm St',
-      city: 'Houston',
-      state: 'TX',
-      zipCode: '77001'
-    },
-    insurance: {
-      provider: 'UnitedHealth',
-      policyNumber: 'UHC456789',
-      groupNumber: 'GRP004'
-    },
-    tenantId: 'demo-tenant',
-    createdAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-    name: 'Sarah Williams',
-    age: 32,
-    status: 'Active',
-    lastVisit: '2024-01-20',
-    nextAppointment: '2024-03-01',
-    avatar: undefined,
-    gender: 'Female'
-  },
-  {
-    _id: '5',
-    firstName: 'David',
-    lastName: 'Brown',
-    dateOfBirth: new Date('1983-09-30').getTime(),
-    email: 'david.brown@email.com',
-    phone: '(555) 567-8901',
-    address: {
-      street: '654 Maple Dr',
-      city: 'Phoenix',
-      state: 'AZ',
-      zipCode: '85001'
-    },
-    insurance: {
-      provider: 'Kaiser',
-      policyNumber: 'KAI567890',
-      groupNumber: 'GRP005'
-    },
-    tenantId: 'demo-tenant',
-    createdAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
-    updatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-    name: 'David Brown',
-    age: 40,
-    status: 'Active',
-    lastVisit: '2024-01-25',
-    nextAppointment: '2024-02-28',
-    avatar: undefined,
-    gender: 'Male'
-  }
-];
+const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 /**
- * Custom hook for fetching and managing patient data
- * 
- * Integrates with Convex database to fetch patients by tenant ID with computed fields.
- * Handles loading states and error conditions gracefully.
- * 
- * @returns Object containing patients array, loading state, and error information
- * 
- * @example
- * ```tsx
- * function PatientsPage() {
- *   const { patients, isLoading, error } = usePatients();
- *   
- *   if (isLoading) return <div>Loading...</div>;
- *   if (error) return <div>Error: {error.message}</div>;
- *   
- *   return <PatientList patients={patients} />;
- * }
- * ```
+ * Custom hook for fetching and managing patient data from Postgres
  */
 export function usePatients() {
-  const { data: session } = useZentheaSession();
+  const { data: session } = useZentheaSession()
   
-  // Get tenant ID from session or use demo tenant
-  const tenantId = session?.user?.tenantId || 'demo-tenant';
-  
-  // Check if we can use Convex queries
-  const canQuery = canUseConvexQuery(session?.user?.id, tenantId);
-  
-  // Query patients with computed fields from Convex
-  const patientsData = useQuery(
-    api.patients.getPatientsWithComputedFields,
-    canQuery && tenantId ? { tenantId } : 'skip'
-  ) as PatientWithComputedFields[] | undefined;
-  
-  // Handle loading state
-  const isLoading = patientsData === undefined && canQuery;
-  
-  // Handle error state (if query returns null or error)
-  const error = patientsData === null ? new Error('Failed to fetch patients') : null;
-  
-  // Transform Convex data to match PatientWithComputedFields interface
-  // Convert _id from Id<"patients"> to string for compatibility
-  const patients: PatientWithComputedFields[] = (patientsData || []).map(patient => ({
-    ...patient,
-    _id: patient._id as string, // Convert Convex Id to string
-  }));
-  
+  const { data, error, isLoading, mutate } = useSWR<Patient[]>(
+    session ? '/api/patients' : null,
+    fetcher
+  )
+
+  // Compute fields for display
+  const patients: PatientWithComputedFields[] = (data || []).map((patient) => {
+    const dob = new Date(patient.dateOfBirth)
+    const age = Math.floor((new Date().getTime() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+    
+    return {
+      ...patient,
+      name: `${patient.firstName} ${patient.lastName}`,
+      age,
+      displayStatus: patient.status.charAt(0).toUpperCase() + patient.status.slice(1),
+      avatar: (patient as any).avatarUrl, // Map avatarUrl from DB to avatar for UI
+    }
+  })
+
+  /**
+   * Create a new patient
+   */
+  const createPatient = async (patientData: Partial<Patient>) => {
+    const response = await fetch('/api/patients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patientData),
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to create patient')
+    }
+    
+    const newPatient = await response.json()
+    await mutate() // Refresh the list
+    return newPatient
+  }
+
   return {
     patients,
     isLoading,
     error,
-  };
+    createPatient,
+    refreshPatients: mutate,
+  }
+}
+
+/**
+ * Custom hook for a single patient
+ */
+export function usePatient(id: string) {
+  const { data: session } = useZentheaSession()
+  
+  const { data, error, isLoading, mutate } = useSWR<Patient>(
+    session && id ? `/api/patients/${id}` : null,
+    fetcher
+  )
+
+  const patient: PatientWithComputedFields | null = data ? {
+    ...data,
+    name: `${data.firstName} ${data.lastName}`,
+    age: Math.floor((new Date().getTime() - new Date(data.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)),
+    displayStatus: data.status.charAt(0).toUpperCase() + data.status.slice(1),
+    avatar: (data as any).avatarUrl,
+  } : null
+
+  const updatePatient = async (updateData: Partial<Patient>) => {
+    const response = await fetch(`/api/patients/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData),
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to update patient')
+    }
+    
+    const updated = await response.json()
+    await mutate()
+    return updated
+  }
+
+  return {
+    patient,
+    isLoading,
+    error,
+    updatePatient,
+  }
 }

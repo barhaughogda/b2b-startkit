@@ -13,6 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:apply-rls": "tsx src/lib/db/apply-rls.ts",
+    "db:seed": "tsx src/lib/db/seed.ts",
     "db:studio": "drizzle-kit studio",
     "convex:dev": "convex dev",
     "convex:deploy": "convex dev --once"
@@ -100,6 +101,7 @@
     "server-only": "^0.0.1",
     "sharp": "^0.33.5",
     "sonner": "^2.0.7",
+    "swr": "^2.3.8",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.0.3",
