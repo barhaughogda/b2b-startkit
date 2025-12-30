@@ -20,3 +20,10 @@ s3_medical_bucket_name = "zenthea-medical-images-staging"
 
 # Logging
 log_retention_days = 30
+
+# Database Configuration
+db_name              = "zenthea"
+db_username          = "zenthea_admin"
+db_password          = "your-secure-password-here"
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
