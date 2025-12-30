@@ -32,14 +32,14 @@ export function useFocusTrap(options: UseFocusTrapOptions = {}) {
   const focusFirstElement = useCallback(() => {
     const focusableElements = getFocusableElements();
     if (focusableElements.length > 0) {
-      focusableElements[0].focus();
+      focusableElements[0]!.focus();
     }
   }, [getFocusableElements]);
 
   const focusLastElement = useCallback(() => {
     const focusableElements = getFocusableElements();
     if (focusableElements.length > 0) {
-      focusableElements[focusableElements.length - 1].focus();
+      focusableElements[focusableElements.length - 1]!.focus();
     }
   }, [getFocusableElements]);
 
@@ -52,6 +52,9 @@ export function useFocusTrap(options: UseFocusTrapOptions = {}) {
 
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
+      
+      if (!firstElement || !lastElement) return;
+
       const activeElement = document.activeElement as HTMLElement;
 
       // Only trap focus if we're at the boundaries

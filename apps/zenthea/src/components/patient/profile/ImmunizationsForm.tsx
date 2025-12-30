@@ -106,13 +106,16 @@ export function ImmunizationsForm({ patientId, initialData }: ImmunizationsFormP
 
   const handleFieldChange = (index: number, field: string, value: string) => {
     const updated = [...immunizations];
-    updated[index] = {
-      ...updated[index],
-      [field]: value,
-    };
-    setImmunizations(updated);
-    if (editingIndex !== index) {
-      setEditingIndex(index);
+    const current = updated[index];
+    if (current) {
+      updated[index] = {
+        ...current,
+        [field]: value,
+      } as any;
+      setImmunizations(updated);
+      if (editingIndex !== index) {
+        setEditingIndex(index);
+      }
     }
   };
 

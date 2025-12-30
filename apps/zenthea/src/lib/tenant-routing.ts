@@ -65,7 +65,7 @@ export function extractTenantFromHost(
     }
 
     // Normalize hostname (remove port, handle IDN)
-    let normalizedHost = hostname.split(':')[0].toLowerCase();
+    let normalizedHost = (hostname.split(':')[0] || '').toLowerCase();
     
     // Basic validation - reject obviously invalid hostnames
     if (normalizedHost.length > 253) { // Max DNS hostname length
@@ -214,7 +214,7 @@ export function isPublicTenantRoute(pathname: string): boolean {
  * Check if hostname is a tenant domain (custom domain or subdomain)
  */
 export function isTenantDomain(hostname: string): boolean {
-  const normalizedHost = hostname.split(':')[0].toLowerCase();
+  const normalizedHost = (hostname.split(':')[0] || '').toLowerCase();
   
   // Check if custom domain
   const isMainDomain = MAIN_DOMAINS.some(domain => 

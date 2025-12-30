@@ -78,7 +78,7 @@ function cssVarToHex(cssVar: string): string {
         }
         // Try to parse RGB/RGBA
         const rgbMatch = computed.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-        if (rgbMatch) {
+        if (rgbMatch && rgbMatch[1] && rgbMatch[2] && rgbMatch[3]) {
           const r = parseInt(rgbMatch[1], 10).toString(16).padStart(2, '0');
           const g = parseInt(rgbMatch[2], 10).toString(16).padStart(2, '0');
           const b = parseInt(rgbMatch[3], 10).toString(16).padStart(2, '0');

@@ -36,11 +36,11 @@ export interface AccessibilityTestConfig {
 }
 
 export class AccessibilityTestRunner {
-  private page: import('playwright').Page;
+  private page: any;
   private config: AccessibilityTestConfig;
   private results: AccessibilityTestResult[] = [];
 
-  constructor(page: import('playwright').Page, config: AccessibilityTestConfig) {
+  constructor(page: any, config: AccessibilityTestConfig) {
     this.page = page;
     this.config = config;
   }

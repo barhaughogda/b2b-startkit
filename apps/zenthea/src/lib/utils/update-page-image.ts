@@ -20,7 +20,7 @@ export async function updatePageWithNewUrl(newUrl: string): Promise<string | nul
     // Extract the old URL before replacing
     const oldPattern = /backgroundImage: "url\('([^']*)'\)"/;
     const match = content.match(oldPattern);
-    const oldUrl = match ? match[1] : null;
+    const oldUrl = match && match[1] ? match[1] : null;
     
     // Replace the background image URL
     const newUrlString = `backgroundImage: "url('${newUrl}')"`;

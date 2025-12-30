@@ -26,10 +26,10 @@ export interface HealthcareAccessibilityTestSuite {
 }
 
 export class HealthcareAccessibilityTester {
-  private page: import('playwright').Page;
+  private page: any;
   private results: HealthcareAccessibilityTestResult[] = [];
 
-  constructor(page: import('playwright').Page) {
+  constructor(page: any) {
     this.page = page;
   }
 
@@ -56,7 +56,7 @@ export class HealthcareAccessibilityTester {
   /**
    * Test individual medical term accessibility
    */
-  async testMedicalTermAccessibility(term: import('playwright').ElementHandle): Promise<HealthcareAccessibilityTestResult> {
+  async testMedicalTermAccessibility(term: any): Promise<HealthcareAccessibilityTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -123,7 +123,7 @@ export class HealthcareAccessibilityTester {
   /**
    * Test individual patient data element
    */
-  async testPatientDataElement(element: import('playwright').ElementHandle): Promise<HealthcareAccessibilityTestResult> {
+  async testPatientDataElement(element: any): Promise<HealthcareAccessibilityTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -188,7 +188,7 @@ export class HealthcareAccessibilityTester {
   /**
    * Test individual status indicator
    */
-  async testStatusIndicator(element: import('playwright').ElementHandle): Promise<HealthcareAccessibilityTestResult> {
+  async testStatusIndicator(element: any): Promise<HealthcareAccessibilityTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -267,7 +267,7 @@ export class HealthcareAccessibilityTester {
   /**
    * Test individual healthcare form
    */
-  async testHealthcareForm(form: import('playwright').ElementHandle): Promise<HealthcareAccessibilityTestResult> {
+  async testHealthcareForm(form: any): Promise<HealthcareAccessibilityTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;

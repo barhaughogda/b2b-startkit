@@ -222,7 +222,9 @@ export function formatTimeRangeWithPrefs(
 ): string {
   // Parse HH:mm format
   const parseTime = (time: string): Date => {
-    const [hours, minutes] = time.split(':').map(Number);
+    const parts = time.split(':').map(Number);
+    const hours = parts[0] ?? 0;
+    const minutes = parts[1] ?? 0;
     const d = new Date();
     d.setHours(hours, minutes, 0, 0);
     return d;

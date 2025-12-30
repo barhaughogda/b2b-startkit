@@ -70,7 +70,7 @@ export class StaticImageManager {
       width,
       media: index === 0 
         ? '(min-width: 0px)' 
-        : `(min-width: ${sizes[index - 1] + 1}px)`
+        : `(min-width: ${(sizes[index - 1] ?? 0) + 1}px)`
     }));
   }
   

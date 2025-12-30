@@ -125,8 +125,8 @@ export function validateSessionToken(token: string): { valid: boolean; reason?: 
   
   try {
     // Decode header and payload (basic validation)
-    const header = JSON.parse(atob(parts[0]));
-    const payload = JSON.parse(atob(parts[1]));
+    const header = JSON.parse(atob(parts[0]!));
+    const payload = JSON.parse(atob(parts[1]!));
     
     // Check token expiration
     if (payload.exp && payload.exp < Date.now() / 1000) {

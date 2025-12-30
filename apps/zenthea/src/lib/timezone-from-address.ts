@@ -186,7 +186,7 @@ export function getTimezoneFromAddress(address: {
 export function getTimezoneDisplayName(timezone: string): string {
   // This is a simple version - the TimezoneSelector component has the full mapping
   const parts = timezone.split('/');
-  const location = parts[parts.length - 1].replace(/_/g, ' ');
+  const location = (parts[parts.length - 1] || timezone).replace(/_/g, ' ');
   
   try {
     const date = new Date();

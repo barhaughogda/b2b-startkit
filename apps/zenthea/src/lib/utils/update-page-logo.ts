@@ -24,7 +24,7 @@ export async function updatePageWithLogoUrl(newUrl: string): Promise<string | nu
     // Find and extract old URL
     for (const pattern of logoPatterns) {
       const match = content.match(pattern);
-      if (match) {
+      if (match && match[1]) {
         oldUrl = match[1];
         break;
       }

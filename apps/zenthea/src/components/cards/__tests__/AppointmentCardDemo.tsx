@@ -111,7 +111,7 @@ const mockBaseProps: Omit<BaseCardProps, 'id' | 'type' | 'content'> = {
   config: {
     type: 'appointment',
     color: 'bg-blue-50 border-blue-200',
-    icon: null,
+    icon: () => null,
     size: {
       min: 300,
       max: 800,

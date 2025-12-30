@@ -67,8 +67,6 @@ RUN adduser --system --uid 1001 nextjs
 # Copy built application
 # Next.js standalone output includes everything needed in .next/standalone
 COPY --from=builder --chown=nextjs:nodejs /app/apps/zenthea/.next/standalone ./
-
-# Redundant copy of static assets to handle both root and nested resolution
 COPY --from=builder --chown=nextjs:nodejs /app/apps/zenthea/.next/static ./apps/zenthea/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/zenthea/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/zenthea/public ./apps/zenthea/public

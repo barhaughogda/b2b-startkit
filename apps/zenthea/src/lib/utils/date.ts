@@ -32,18 +32,23 @@ export function formatDate(
       // If parsing fails, try to handle formats like "2024-01-15"
       const parts = dateString.split('-');
       if (parts.length === 3) {
-        const parsedDate = new Date(
-          parseInt(parts[0]),
-          parseInt(parts[1]) - 1,
-          parseInt(parts[2])
-        );
-        if (!isNaN(parsedDate.getTime())) {
-          return parsedDate.toLocaleDateString('en-US', {
-            month: options?.month || 'numeric',
-            day: options?.day || 'numeric',
-            year: options?.year || 'numeric',
-            weekday: options?.weekday,
-          });
+        const year = parts[0];
+        const month = parts[1];
+        const day = parts[2];
+        if (year && month && day) {
+          const parsedDate = new Date(
+            parseInt(year),
+            parseInt(month) - 1,
+            parseInt(day)
+          );
+          if (!isNaN(parsedDate.getTime())) {
+            return parsedDate.toLocaleDateString('en-US', {
+              month: options?.month || 'numeric',
+              day: options?.day || 'numeric',
+              year: options?.year || 'numeric',
+              weekday: options?.weekday,
+            });
+          }
         }
       }
       return dateString; // Return as-is if can't parse

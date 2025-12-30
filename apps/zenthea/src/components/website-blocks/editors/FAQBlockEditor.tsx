@@ -24,8 +24,11 @@ export default function FAQBlockEditor({ props, onChange }: BlockEditorProps) {
 
   const updateItem = (index: number, updates: Partial<FAQBlockProps['items'][0]>) => {
     const newItems = [...faqProps.items];
-    newItems[index] = { ...newItems[index], ...updates };
-    updateProp('items', newItems);
+    const current = newItems[index];
+    if (current) {
+      newItems[index] = { ...current, ...updates } as any;
+      updateProp('items', newItems);
+    }
   };
 
   const removeItem = (index: number) => {

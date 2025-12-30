@@ -187,7 +187,7 @@ export interface TenantPublicData {
 
 export function useTenantPublicData(slug: string | null) {
   const tenant = useQuery(
-    api.publicLanding.getTenantBySlug,
+    (api as any).publicLanding.getTenantBySlug,
     slug ? { slug } : "skip"
   );
 
@@ -200,7 +200,7 @@ export function useTenantPublicData(slug: string | null) {
 
 export function useTenantBySubdomain(subdomain: string | null) {
   const tenant = useQuery(
-    api.publicLanding.getTenantBySubdomain,
+    (api as any).publicLanding.getTenantBySubdomain,
     subdomain ? { subdomain } : "skip"
   );
 
@@ -213,7 +213,7 @@ export function useTenantBySubdomain(subdomain: string | null) {
 
 export function useTenantByCustomDomain(customDomain: string | null) {
   const tenant = useQuery(
-    api.publicLanding.getTenantByCustomDomain,
+    (api as any).publicLanding.getTenantByCustomDomain,
     customDomain ? { customDomain } : "skip"
   );
 
@@ -232,7 +232,7 @@ export function useTenantLandingPageCheck(options: {
   subdomain?: string | null;
   customDomain?: string | null;
 }) {
-  const result = useQuery(api.publicLanding.checkTenantLandingPage, {
+  const result = useQuery((api as any).publicLanding.checkTenantLandingPage, {
     slug: options.slug ?? undefined,
     subdomain: options.subdomain ?? undefined,
     customDomain: options.customDomain ?? undefined,

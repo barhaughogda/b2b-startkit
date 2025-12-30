@@ -115,9 +115,9 @@ export default function CareTeamBlock({
   const getInitials = (displayName: string) => {
     const parts = displayName.replace(/^(Dr\.\s*|Mr\.\s*|Mrs\.\s*|Ms\.\s*)/i, '').trim().split(' ');
     if (parts.length >= 2) {
-      return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+      return `${parts[0]!.charAt(0)}${parts[parts.length - 1]!.charAt(0)}`.toUpperCase();
     }
-    return parts[0].charAt(0).toUpperCase();
+    return parts[0] ? parts[0].charAt(0).toUpperCase() : '?';
   };
 
   // Get first name from display name for "Book with" button

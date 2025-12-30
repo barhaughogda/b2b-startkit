@@ -133,7 +133,7 @@ export async function verifySuperAdminSupportAccess(
 
     // Call Convex action to verify support access
     const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-    const ipAddress = request.ip || request.headers.get('x-forwarded-for') || undefined;
+    const ipAddress = (request as any).ip || request.headers.get('x-forwarded-for') || undefined;
     const userAgent = request.headers.get('user-agent') || undefined;
 
     const result = await convex.mutation(

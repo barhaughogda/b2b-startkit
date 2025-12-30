@@ -374,7 +374,7 @@ export function getSlotsForDate(slots: TimeSlot[], date: Date, timezone?: string
   
   // Debug logging
   if (process.env.NODE_ENV === 'development') {
-    const firstSlotDateString = slots.length > 0 ? getDateStringInTimezone(slots[0].date, timezone) : 'N/A';
+    const firstSlotDateString = slots.length > 0 ? getDateStringInTimezone(slots[0]!.date, timezone) : 'N/A';
     console.log('[getSlotsForDate] Date comparison:', {
       selectedDateISO: date.toISOString(),
       targetDateInDisplayTZ: targetDateString,
