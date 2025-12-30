@@ -69,3 +69,19 @@ export function useNotifications() {
     refreshNotifications: mutate,
   }
 }
+
+/**
+ * Specialty hook for calendar-related notifications
+ */
+export function useCalendarNotifications() {
+  const { notifications, unreadCount } = useNotifications()
+  const calendarNotifications = notifications.filter(n => 
+    n.type.startsWith('appointment_') || n.resourceType === 'appointment'
+  )
+  
+  return {
+    notifications: calendarNotifications,
+    count: calendarNotifications.filter(n => !n.isRead).length,
+    hasUnread: calendarNotifications.some(n => !n.isRead),
+  }
+}

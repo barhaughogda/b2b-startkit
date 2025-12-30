@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ProviderNavigationHeader } from '@/components/navigation/ProviderNavigationHeader';
-import { SessionProvider } from '@/lib/auth/react';
+import { SessionProvider } from '@/hooks/useZentheaSession';
 
 // Mock @/lib/auth
 const mockSession = {

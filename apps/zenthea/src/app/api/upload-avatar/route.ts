@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getToken } from '@/lib/auth/jwt';
-import { authOptions } from '@/lib/auth';
-import { NEXTAUTH_SESSION_COOKIE_NAME } from '@/lib/auth-constants';
+import { getZentheaServerSession } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { apiErrors } from '@/lib/api-errors';
 import { MAX_AVATAR_SIZE, ALLOWED_AVATAR_TYPES, AVATAR_CACHE_CONTROL } from '@/lib/avatar-constants';
@@ -13,67 +11,24 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication - use getToken for App Router compatibility
-    // Explicitly pass secret for production compatibility (Vercel sometimes needs this)
-    const secret = process.env.NEXTAUTH_SECRET;
-    if (!secret) {
-      logger.error('NEXTAUTH_SECRET not configured');
-      return apiErrors.configError('NEXTAUTH_SECRET is not configured.');
+    // Check authentication
+    const session = await getZentheaServerSession();
+
+    if (!session || !session.user || !session.user.id) {
+      logger.error('[Avatar Upload] Authentication failed: No session');
+      return apiErrors.unauthorized('Please sign in to upload an avatar.');
     }
 
-    const token = await getToken({
-      req: request,
-      secret: secret,
-      // Use same cookie name as auth config
-      cookieName: NEXTAUTH_SESSION_COOKIE_NAME
-    });
+    const userId = session.user.id;
+    const userRole = session.user.role || 'patient';
 
-    // Debug logging (only enabled in development or when ENABLE_DEBUG_LOGGING=true)
-    const cookieHeader = request.headers.get('cookie') || '';
-    const hasNextAuthCookie = cookieHeader.includes(NEXTAUTH_SESSION_COOKIE_NAME);
-
-    logger.debug('[Avatar Upload] Token check:', {
-      hasToken: !!token,
-      userId: token?.sub,
-      userRole: token?.role,
-      cookies: cookieHeader ? 'present' : 'missing',
-      hasNextAuthCookie,
-      cookieCount: cookieHeader ? cookieHeader.split(';').length : 0,
-      secretConfigured: !!secret,
-      environment: process.env.NODE_ENV,
-      vercelEnv: process.env.VERCEL_ENV,
-      ...(cookieHeader && {
-        cookieNames: cookieHeader.split(';').map(c => c.split('=')[0]?.trim() ?? '')
-      })
-    });
-
-    if (!token || !token.sub) {
-      // Enhanced error message for debugging
-      const hasAuthCookie = cookieHeader?.includes(NEXTAUTH_SESSION_COOKIE_NAME) ?? false;
-
-      logger.error('[Avatar Upload] Authentication failed:', {
-        hasToken: !!token,
-        hasSub: !!token?.sub,
-        hasAuthCookie,
-        cookieCount: cookieHeader?.split(';').length ?? 0,
-        secretConfigured: !!secret,
-        environment: process.env.NODE_ENV,
-        vercelEnv: process.env.VERCEL_ENV,
-        origin: request.headers.get('origin'),
-        referer: request.headers.get('referer'),
-      });
-
-      return apiErrors.unauthorized('Please sign in to upload an avatar.', {
-        hasToken: !!token,
-        hasAuthCookie,
-        cookiePresent: !!cookieHeader,
-        secretConfigured: !!secret,
-        environment: process.env.NODE_ENV,
-      });
-    }
-
-    // All authenticated users can upload avatars
-    // No role restriction - patients, providers, admins, owners, and clinic users can all upload avatars
+    // Normalize role for S3 path organization
+    const normalizedRole = 
+      userRole === 'clinic_user' || userRole === 'admin' || userRole === 'provider' 
+        ? 'clinic' 
+        : userRole === 'super_admin' 
+        ? 'admin' 
+        : 'patient';
 
     // Check AWS credentials
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
@@ -134,29 +89,6 @@ export async function POST(request: NextRequest) {
       return apiErrors.badRequest(`File too large. Maximum size is ${MAX_AVATAR_SIZE / (1024 * 1024)}MB.`);
     }
 
-    // Generate unique filename with user ID for better organization
-    const userId = token.sub || 'unknown';
-    const userRole = token.role || 'patient';
-    
-    // Normalize role for S3 path organization
-    // Map clinic_user, admin, and provider to 'clinic' for consistent organization
-    // Keep patient as 'patient' for separation
-    const normalizedRole = 
-      userRole === 'clinic_user' || userRole === 'admin' || userRole === 'provider' 
-        ? 'clinic' 
-        : userRole === 'super_admin' 
-        ? 'admin' 
-        : userRole || 'patient';
-    
-    // Log warning in development if role is missing (should be set by auth system)
-    // This helps identify authentication configuration issues during development
-    if (!token.role && process.env.NODE_ENV === 'development') {
-      logger.warn('[Avatar Upload] User role is undefined, defaulting to patient', {
-        userId,
-        hasToken: !!token,
-        tokenKeys: Object.keys(token || {}),
-      });
-    }
     const timestamp = Date.now();
     const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     // Organize avatars by normalized role for better S3 organization

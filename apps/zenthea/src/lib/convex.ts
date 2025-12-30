@@ -70,29 +70,11 @@ export const convex = isValidUrl
   ? new ConvexReactClient(convexUrl!)
   : null;
 
-// Log initialization status (always log in browser for debugging)
-if (typeof window !== 'undefined') {
+// Log initialization status (only log in development and only if client exists)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   if (convex) {
     console.log('[Convex] ✅ Client initialized successfully');
-    console.log('[Convex] URL:', convexUrl);
   } else {
-    console.error('[Convex] ❌ Client not initialized');
-    console.error('[Convex] NEXT_PUBLIC_CONVEX_URL:', convexUrl || 'NOT SET');
-    console.error('[Convex] URL validation result:', isValidUrl);
-    console.error('[Convex] typeof convexUrl:', typeof convexUrl);
-    console.error('[Convex] convexUrl === undefined:', convexUrl === undefined);
-    console.error('[Convex] convexUrl === null:', convexUrl === null);
-    console.error('[Convex] convexUrl === ""', convexUrl === '');
-    if (convexUrl) {
-      console.error('[Convex] URL value:', JSON.stringify(convexUrl));
-      console.error('[Convex] URL length:', convexUrl.length);
-      console.error('[Convex] URL trimmed:', JSON.stringify(convexUrl.trim()));
-      console.error('[Convex] URL starts with https:', convexUrl.trim().startsWith('https://'));
-      console.error('[Convex] URL ends with .convex.cloud:', convexUrl.trim().endsWith('.convex.cloud'));
-    } else {
-      console.error('[Convex] ⚠️ CRITICAL: NEXT_PUBLIC_CONVEX_URL is not embedded in the build!');
-      console.error('[Convex] ⚠️ This means the variable was not set in Vercel when the build happened.');
-      console.error('[Convex] ⚠️ Solution: Set NEXT_PUBLIC_CONVEX_URL in Vercel, then CLEAR BUILD CACHE and redeploy.');
-    }
+    console.info('[Convex] Client not initialized (Postgres migration active)');
   }
 }

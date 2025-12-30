@@ -17,7 +17,7 @@ import { render, screen } from '@testing-library/react';
 import { useZentheaSession } from '@/hooks/useZentheaSession';
 import ClinicSubscriptionPage from '@/app/company/settings/subscription/page';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockUseSession = vi.fn();
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: () => mockUseSession(),

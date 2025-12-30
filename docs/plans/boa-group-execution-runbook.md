@@ -148,8 +148,10 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
   - **Status**: Hardening in progress. Created `AuditService` for HIPAA-compliant logging and `access-control.ts` for relationship-based checks. Applied minimum-necessary filters to Patients API.
 
 ### 1.7 Billing/subscriptions (StartKit Stripe)
-- [ ] **T17 — Stripe account + products/prices + webhook endpoints (staging)** (Owner: Human, Depends on: T00)
-- [ ] **T18 — Replace Zenthea billing with StartKit Stripe subscriptions** (Owner: Agent, Depends on: T17)
+- [x] **T17 — Stripe account + products/prices + webhook endpoints (staging)** (Owner: Human, Depends on: T00)
+  - **Status**: Completed. Provisioned 3 plans (Free, Pro with AI at $350/user, Enterprise) using `apps/zenthea/scripts/setup-stripe.ts`. Price IDs added to `.env.local`.
+- [x] **T18 — Replace Zenthea billing with StartKit Stripe subscriptions** (Owner: Agent, Depends on: T17)
+  - **Status**: Completed. Implemented `SubscriptionService` with usage tracking (5 providers/500 patients limits). Created `/api/webhooks/stripe` and `/api/subscription/usage` routes. Updated Subscription Page UI to show real-time metrics.
 
 ### 1.8 Production cutover (AWS-only PHI)
 - [ ] **T19 — AWS production environment + smoke tests** (Owner: Agent + Human, Depends on: T15 + T16)

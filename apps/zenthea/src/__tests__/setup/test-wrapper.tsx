@@ -1,5 +1,5 @@
 import React from 'react';
-import { SessionProvider } from '@/lib/auth/react';
+import { SessionProvider } from '@/hooks/useZentheaSession';
 
 interface TestWrapperProps {
   children: React.ReactNode;

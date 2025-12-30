@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from '@/lib/auth/jwt';
+import { getZentheaServerSession } from '@/lib/auth';
 import { fetchQuery, fetchMutation } from 'convex/nextjs';
 import jwt from 'jsonwebtoken';
 import { api } from '@/lib/convex-api';
@@ -87,13 +87,13 @@ function generateRequestId() {
 
 export async function GET(request: NextRequest) {
   try {
-    // Try to get NextAuth token first
-    const token = await getToken({ req: request });
+    // Try to get session first
+    const session = await getZentheaServerSession();
     let providerId: string;
 
-    if (token?.sub) {
-      // Use NextAuth token
-      providerId = token.sub;
+    if (session?.user?.id) {
+      // Use session user ID
+      providerId = session.user.id;
     } else {
       // Fallback to JWT token for service-to-service calls
       const authHeader = request.headers.get('authorization');
@@ -168,13 +168,13 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    // Try to get NextAuth token first
-    const token = await getToken({ req: request });
+    // Try to get session first
+    const session = await getZentheaServerSession();
     let providerId: string;
 
-    if (token?.sub) {
-      // Use NextAuth token
-      providerId = token.sub;
+    if (session?.user?.id) {
+      // Use session user ID
+      providerId = session.user.id;
     } else {
       // Fallback to JWT token for service-to-service calls
       const authHeader = request.headers.get('authorization');
@@ -346,13 +346,13 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // Try to get NextAuth token first
-    const token = await getToken({ req: request });
+    // Try to get session first
+    const session = await getZentheaServerSession();
     let providerId: string;
 
-    if (token?.sub) {
-      // Use NextAuth token
-      providerId = token.sub;
+    if (session?.user?.id) {
+      // Use session user ID
+      providerId = session.user.id;
     } else {
       // Fallback to JWT token for service-to-service calls
       const authHeader = request.headers.get('authorization');

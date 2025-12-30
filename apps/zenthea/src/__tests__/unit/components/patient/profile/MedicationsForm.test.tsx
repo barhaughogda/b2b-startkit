@@ -29,7 +29,7 @@ vi.mock('convex/react', () => ({
   }),
 }));
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: vi.fn(() => ({
     data: {

@@ -19,7 +19,7 @@ import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import ClinicSettingsPage from '@/app/company/settings/page';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockUseSession = vi.fn();
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: () => mockUseSession(),

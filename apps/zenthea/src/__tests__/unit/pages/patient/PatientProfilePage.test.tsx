@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import PatientProfilePage from '@/app/patient/profile/page';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockUseSession = vi.fn();
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: () => mockUseSession(),

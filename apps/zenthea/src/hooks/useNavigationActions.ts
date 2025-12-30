@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOut } from '@/lib/auth/react';
+import { signOut } from '@/hooks/useZentheaSession';
 
 /**
  * Hook for navigation actions

@@ -26,7 +26,7 @@ import ProviderBillingPage from '@/app/company/billing/page';
 import type { ProviderRCMMetrics, InsuranceClaim, ClaimStatus } from '@/types/billing';
 import type { Id } from '@/convex/_generated/dataModel';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockUseSession = vi.fn();
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: () => mockUseSession(),

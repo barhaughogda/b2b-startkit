@@ -6,7 +6,7 @@ import PatientBillingPage from '@/app/patient/billing/page';
 import { Id } from '@/convex/_generated/dataModel';
 import { api } from '@/convex/_generated/api';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockUseSession = vi.fn();
 const mockUseRouter = vi.fn();
 

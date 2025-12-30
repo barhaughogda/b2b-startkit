@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PatientMessagesPage from '@/app/patient/messages/page';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockUseSession = vi.fn();
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: () => mockUseSession(),

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from '@/lib/auth/jwt';
+import { getZentheaServerSession } from '@/lib/auth';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import type { ActivityFeedResponse, ActivityType } from '@/types/superadmin';
@@ -7,9 +7,9 @@ import type { ActivityFeedResponse, ActivityType } from '@/types/superadmin';
 export async function GET(request: NextRequest) {
   try {
     // Verify superadmin role (middleware protects, but double-check for safety)
-    const token = await getToken({ req: request });
+    const session = await getZentheaServerSession();
     
-    if (!token || token.role !== 'super_admin') {
+    if (!session || session.user.role !== 'super_admin') {
       return NextResponse.json(
         { error: 'Forbidden: Superadmin access required' },
         { status: 403 }

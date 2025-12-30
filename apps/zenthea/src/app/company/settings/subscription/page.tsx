@@ -1,54 +1,36 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useZentheaSession } from "@/hooks/useZentheaSession";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, AlertTriangle, Loader2, Zap, Shield, Rocket } from "lucide-react";
 import { isOwner } from "@/lib/auth-utils";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/ui/back-button";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { useSubscriptionUsage } from "@/hooks/useSubscriptionUsage";
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Clinic Subscription Page
+ * Zenthea Subscription Page
  * 
- * Task 6.1: Move Clinic Subscription Page
- * Task 6.3: Add Access Control for Subscription Page
- * 
- * This page allows clinic owners/admins to manage their Zenthea subscription:
- * - View current subscription plan
- * - View billing history
- * - Manage payment methods
- * - Upgrade/downgrade plans
- * 
- * Access Control (Task 6.3):
- * - Only clinic owners (isOwner: true) and admins (role: 'admin') can access this page
- * - Unauthorized users see an access denied message
- * 
- * Note: This is a placeholder page. Full subscription management features
- * will be implemented in future tasks.
+ * Replaces legacy billing display with the new shared @startkit/billing system.
+ * Shows usage tracking for providers and patients.
  */
 export default function ClinicSubscriptionPage() {
   const { data: session, status } = useZentheaSession();
+  const { usage, isLoading: usageLoading } = useSubscriptionUsage();
 
-  // Get tenant subscription data (hooks must be called before conditional returns)
-  const tenantId = session?.user?.tenantId;
-  const tenantQueryArgs = useMemo(
-    () => (tenantId ? { tenantId } : "skip"),
-    [tenantId]
-  );
-  const tenant = useQuery(api.tenants.getTenant, tenantQueryArgs);
-
-  if (status === "loading") {
+  if (status === "loading" || usageLoading) {
     return (
       <ClinicLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-text-secondary">Loading...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-zenthea-teal" />
+          <p className="ml-3 text-text-secondary">Loading your subscription...</p>
         </div>
       </ClinicLayout>
     );
@@ -67,8 +49,6 @@ export default function ClinicSubscriptionPage() {
     );
   }
 
-  // Task 6.3: Restrict access to clinic owners only
-  // Note: All clinic staff now use 'clinic_user' role, ownership is determined by isOwner flag
   const userIsOwner = session?.user ? isOwner(session.user) : false;
 
   if (!userIsOwner) {
@@ -86,120 +66,125 @@ export default function ClinicSubscriptionPage() {
     );
   }
 
+  const planInfo = {
+    free: { name: "Zenthea Free", icon: Shield, color: "text-text-secondary" },
+    pro: { name: "Zenthea Pro with AI", icon: Zap, color: "text-zenthea-teal" },
+    enterprise: { name: "Zenthea Enterprise", icon: Rocket, color: "text-zenthea-purple" },
+  }[usage?.plan || "free"] || { name: usage?.plan, icon: Shield, color: "text-text-primary" };
+
   return (
     <ClinicLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <BackButton />
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-text-primary">Subscription</h1>
-          <p className="text-text-secondary mt-1">
-            View your clinic&apos;s subscription plan and limits
-          </p>
+        <div className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold text-text-primary">Subscription</h1>
+            <p className="text-text-secondary mt-1">
+              Manage your clinic&apos;s plan and monitor usage limits
+            </p>
+          </div>
+          {usage?.needsUpgrade && (
+            <Button className="bg-zenthea-teal hover:bg-zenthea-teal/90 text-white gap-2">
+              <Zap className="h-4 w-4" />
+              Upgrade Now
+            </Button>
+          )}
         </div>
 
-        {tenant === undefined ? (
-          <Card>
-            <CardContent className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-zenthea-teal" />
-              <span className="ml-3 text-text-secondary">Loading subscription information...</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Current Plan Card */}
+          <Card className="lg:col-span-1 border-zenthea-teal/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <planInfo.icon className={`h-5 w-5 ${planInfo.color}`} />
+                Current Plan
+              </CardTitle>
+              <CardDescription>You are currently on the {planInfo.name}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6">
+                <Badge variant="outline" className={`capitalize text-lg py-1 px-3 ${planInfo.color} border-current`}>
+                  {planInfo.name}
+                </Badge>
+              </div>
+              
+              {usage?.plan === 'free' && (
+                <div className="space-y-4">
+                  <p className="text-sm text-text-secondary">
+                    Basic clinic management for small practices.
+                  </p>
+                  <Button variant="outline" className="w-full border-zenthea-teal text-zenthea-teal hover:bg-zenthea-teal/5">
+                    View Plan Comparison
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
-        ) : tenant ? (
-          <>
-            <Card>
-              <CardHeader>
-                <CardTitle>Current Subscription</CardTitle>
-                <CardDescription>
-                  Your current Zenthea subscription plan and limits
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* Usage Monitoring Card */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Usage Limits</CardTitle>
+              <CardDescription>Track your resource consumption for this billing period</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {/* Provider Usage */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-end">
                   <div>
-                    <span className="text-text-secondary text-sm">Plan:</span>
-                    <div className="mt-1">
-                      <Badge variant="outline" className="capitalize text-base font-medium">
-                        {tenant.subscription?.plan || "N/A"}
-                      </Badge>
-                    </div>
+                    <p className="font-medium text-text-primary">Active Providers</p>
+                    <p className="text-xs text-text-secondary">Clinic staff and practitioners</p>
                   </div>
-                  <div>
-                    <span className="text-text-secondary text-sm">Status:</span>
-                    <div className="mt-1">
-                      <Badge 
-                        variant={tenant.subscription?.status === "active" ? "default" : "secondary"}
-                        className="capitalize text-base font-medium"
-                      >
-                        {tenant.subscription?.status || "N/A"}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-text-secondary text-sm">Maximum Users:</span>
-                    <p className="font-semibold text-text-primary text-lg mt-1">
-                      {tenant.subscription?.maxUsers?.toLocaleString() || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-text-secondary text-sm">Maximum Patients:</span>
-                    <p className="font-semibold text-text-primary text-lg mt-1">
-                      {tenant.subscription?.maxPatients?.toLocaleString() || "N/A"}
-                    </p>
-                  </div>
+                  <p className="text-sm font-medium">
+                    {usage?.activeProviders} / {usage?.providerLimit === Infinity ? 'Unlimited' : usage?.providerLimit}
+                  </p>
                 </div>
+                <Progress 
+                  value={usage?.providerLimit === Infinity ? 0 : (usage!.activeProviders / usage!.providerLimit) * 100} 
+                  className={usage?.activeProviders! >= usage!.providerLimit! ? 'bg-status-error/20' : ''}
+                />
+              </div>
 
-                {tenant.subscription?.startDate && (
-                  <div className="pt-4 border-t border-border-primary">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-text-secondary text-sm">Start Date:</span>
-                        <p className="font-medium text-text-primary mt-1">
-                          {new Date(tenant.subscription.startDate).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                      {tenant.subscription?.endDate && (
-                        <div>
-                          <span className="text-text-secondary text-sm">End Date:</span>
-                          <p className="font-medium text-text-primary mt-1">
-                            {new Date(tenant.subscription.endDate).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+              {/* Patient Usage */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="font-medium text-text-primary">Active Patients</p>
+                    <p className="text-xs text-text-secondary">Total patient records in organization</p>
                   </div>
-                )}
+                  <p className="text-sm font-medium">
+                    {usage?.activePatients} / {usage?.patientLimit === Infinity ? 'Unlimited' : usage?.patientLimit}
+                  </p>
+                </div>
+                <Progress 
+                  value={usage?.patientLimit === Infinity ? 0 : (usage!.activePatients / usage!.patientLimit) * 100}
+                  className={usage?.activePatients! >= usage!.patientLimit! ? 'bg-status-error/20' : ''}
+                />
+              </div>
 
-                <Alert className="mt-6 border-border-primary bg-surface-elevated">
-                  <AlertCircle className="h-4 w-4 text-text-secondary" />
-                  <AlertDescription className="text-text-secondary">
-                    To change your subscription plan or limits, please contact support.
+              {usage?.needsUpgrade && (
+                <Alert variant="destructive" className="bg-status-error/5 border-status-error/20">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Usage Limit Reached</AlertTitle>
+                  <AlertDescription>
+                    Your clinic has reached the maximum number of {usage.activeProviders >= usage.providerLimit ? 'providers' : 'patients'} allowed on your current plan. Please upgrade to continue adding records.
                   </AlertDescription>
                 </Alert>
-              </CardContent>
-            </Card>
-          </>
-        ) : (
-          <Card>
-            <CardContent className="py-12">
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  Unable to load subscription information. Please try again later.
-                </AlertDescription>
-              </Alert>
+              )}
+
+              {usage?.isNearLimit && !usage?.needsUpgrade && (
+                <Alert className="bg-status-warning/5 border-status-warning/20">
+                  <AlertCircle className="h-4 w-4 text-status-warning" />
+                  <AlertTitle className="text-status-warning">Approaching Limits</AlertTitle>
+                  <AlertDescription className="text-text-secondary">
+                    You are nearing your plan&apos;s capacity. Consider upgrading to the Pro plan to avoid any service interruption.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
-        )}
+        </div>
       </div>
     </ClinicLayout>
   );
 }
-

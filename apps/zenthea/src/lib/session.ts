@@ -12,7 +12,7 @@
  * - Clean session termination
  */
 
-import { signOut } from '@/lib/auth/react';
+import { signOut } from '@/hooks/useZentheaSession';
 
 /**
  * Configuration for session timeout

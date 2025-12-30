@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getToken } from '@/lib/auth/jwt';
-import { NEXTAUTH_SESSION_COOKIE_NAME } from '@/lib/auth-constants';
+import { getZentheaServerSession } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { apiErrors } from '@/lib/api-errors';
 import {
@@ -87,25 +86,16 @@ function isValidSvg(content: string): boolean {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const secret = process.env.NEXTAUTH_SECRET;
-    if (!secret) {
-      logger.error('NEXTAUTH_SECRET not configured');
-      return apiErrors.configError('NEXTAUTH_SECRET is not configured.');
-    }
+    const session = await getZentheaServerSession();
 
-    const token = await getToken({
-      req: request,
-      secret: secret,
-      cookieName: NEXTAUTH_SESSION_COOKIE_NAME
-    });
-
-    if (!token || !token.sub) {
+    if (!session || !session.user || !session.user.id) {
       return apiErrors.unauthorized('Please sign in to upload an icon.');
     }
 
     // Only admins and owners can upload service icons
     const allowedRoles = ['admin', 'super_admin', 'clinic_user'];
-    const userRole = token.role as string;
+    const userRole = session.user.role as string;
+    const userId = session.user.id;
     
     if (!allowedRoles.includes(userRole)) {
       return apiErrors.forbidden('You do not have permission to upload service icons.');

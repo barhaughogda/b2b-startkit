@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EnhancedProviderProfileEditor } from '@/components/provider/EnhancedProviderProfileEditor';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockSession = {
   user: {
     id: 'test-user-id',

@@ -10,6 +10,7 @@
     "./server": "./src/server.ts",
     "./schema": "./src/schema/index.ts",
     "./client": "./src/client.ts",
+    "./tenant": "./src/tenant.ts",
     "./migrations": "./src/migrations/index.ts"
   },
   "scripts": {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { SessionProvider } from '@/lib/auth/react';
+import { SessionProvider } from '@/hooks/useZentheaSession';
 import ProviderSettingsPage from '@/app/company/user/settings/page';
 
 // Mock @/lib/auth

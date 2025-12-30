@@ -32,13 +32,30 @@ function mapStripeStatus(status: Stripe.Subscription.Status): SubscriptionStatus
 /**
  * Map Stripe price ID to plan tier
  */
-function mapPriceIdToPlan(priceId: string | null | undefined): PlanTier {
-  if (!priceId) return 'free'
-  if (priceId.includes('free')) return 'free'
-  if (priceId.includes('starter')) return 'starter'
-  if (priceId.includes('pro')) return 'pro'
-  if (priceId.includes('enterprise')) return 'enterprise'
-  return 'free'
+function mapPriceIdToPlan(priceId: string | null | undefined, metadata?: Record<string, string>): PlanTier {
+  // 1. Check metadata (Zenthea uses this)
+  if (metadata?.tier) {
+    if (['free', 'starter', 'pro', 'enterprise'].includes(metadata.tier)) {
+      return metadata.tier as PlanTier;
+    }
+  }
+
+  // 2. Check env variables (StartKit template uses this)
+  if (priceId) {
+    if (priceId === process.env.STRIPE_PRICE_ID_FREE) return 'free';
+    if (priceId === process.env.STRIPE_PRICE_ID_STARTER) return 'starter';
+    if (priceId === process.env.STRIPE_PRICE_ID_PRO) return 'pro';
+    if (priceId === process.env.STRIPE_PRICE_ID_ENTERPRISE) return 'enterprise';
+
+    // 3. Fallback to substring matching
+    const id = priceId.toLowerCase();
+    if (id.includes('free')) return 'free';
+    if (id.includes('starter')) return 'starter';
+    if (id.includes('pro')) return 'pro';
+    if (id.includes('enterprise')) return 'enterprise';
+  }
+
+  return 'free';
 }
 
 /**
@@ -165,6 +182,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
   const stripe = getStripe()
   const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription)
   const priceId = stripeSubscription.items.data[0]?.price.id
+  const metadata = (stripeSubscription.items.data[0]?.price.metadata || {}) as Record<string, string>
 
   // Check if subscription already exists
   const [existing] = await superadminDb
@@ -179,7 +197,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
     stripeSubscriptionId: session.subscription,
     stripePriceId: priceId ?? null,
     status: mapStripeStatus(stripeSubscription.status),
-    plan: mapPriceIdToPlan(priceId),
+    plan: mapPriceIdToPlan(priceId, metadata),
     currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
     currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
     cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end
@@ -248,6 +266,7 @@ async function updateSubscriptionFromStripe(
   subscription: Stripe.Subscription
 ): Promise<void> {
   const priceId = subscription.items.data[0]?.price.id
+  const metadata = (subscription.items.data[0]?.price.metadata || {}) as Record<string, string>
 
   await superadminDb
     .update(subscriptions)
@@ -255,7 +274,7 @@ async function updateSubscriptionFromStripe(
       stripeSubscriptionId: subscription.id,
       stripePriceId: priceId ?? null,
       status: mapStripeStatus(subscription.status),
-      plan: mapPriceIdToPlan(priceId),
+      plan: mapPriceIdToPlan(priceId, metadata),
       currentPeriodStart: new Date(subscription.current_period_start * 1000),
       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end

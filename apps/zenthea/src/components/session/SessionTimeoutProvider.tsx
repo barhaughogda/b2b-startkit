@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useZentheaSessionTimeout } from '@/hooks/useZentheaSessionTimeout';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { SessionTimeoutWarning } from './SessionTimeoutWarning';
 import { useState, useEffect } from 'react';
 
@@ -36,7 +36,7 @@ export function SessionTimeoutProvider({
     isExpired,
     extendSession,
     logout,
-  } = useZentheaSessionTimeout({
+  } = useSessionTimeout({
     config: config
       ? {
           timeout: config.timeout,

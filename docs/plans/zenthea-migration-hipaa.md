@@ -435,15 +435,17 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
   - **Status**: Hardening started. Created `AuditService` and `access-control` utilities. Integrated with Patients vertical slice.
 
 ### 7) Billing/subscriptions (StartKit Stripe)
-- [ ] **T17 — Stripe account + products/prices + webhook endpoints** (1–3 SP)
+- [x] **T17 — Stripe account + products/prices + webhook endpoints** (1–3 SP)
   - **Owner**: Human
   - **Depends on**: T00
   - **Acceptance**: Stripe keys + webhook secret configured for staging.
+  - **Status**: Completed. Provisioned 3 plans (Free, Pro with AI at $350/user, Enterprise) using `apps/zenthea/scripts/setup-stripe.ts`. Price IDs added to `.env.local`.
 
-- [ ] **T18 — Replace Zenthea billing with StartKit Stripe subscriptions** (2–3 SP)
+- [x] **T18 — Replace Zenthea billing with StartKit Stripe subscriptions** (2–3 SP)
   - **Owner**: Agent
   - **Depends on**: T17
   - **Acceptance**: subscription lifecycle works; app enforces subscription state.
+  - **Status**: Completed. Implemented `SubscriptionService` with usage tracking (5 providers/500 patients limits). Created `/api/webhooks/stripe` and `/api/subscription/usage` routes. Updated Subscription Page UI to show real-time metrics.
 
 ### 8) Production cutover (AWS-only PHI)
 - [ ] **T19 — AWS production environment + smoke tests** (2–3 SP)

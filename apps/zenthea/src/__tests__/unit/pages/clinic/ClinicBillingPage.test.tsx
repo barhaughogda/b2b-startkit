@@ -19,7 +19,7 @@ import { api } from '@/convex/_generated/api';
 import ClinicBillingPage from '@/app/company/billing/page';
 import type { RCMMetrics } from '@/types/billing';
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 const mockUseSession = vi.fn();
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: () => mockUseSession(),

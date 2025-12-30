@@ -87,7 +87,7 @@ describe('SuperAdminHeader', () => {
 
     it('should have logout option', async () => {
       const user = userEvent.setup();
-      const { signOut } = await import('@/lib/auth/react');
+      const { signOut } = await import('@/hooks/useZentheaSession');
       
       render(<SuperAdminHeader />);
 

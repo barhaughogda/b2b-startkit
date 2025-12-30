@@ -15,7 +15,7 @@ vi.mock('convex/react', () => ({
   useMutation: () => mockUpdateProfile,
 }));
 
-// Mock @/lib/auth/react
+// Mock @/hooks/useZentheaSession
 vi.mock('@/hooks/useZentheaSession', () => ({
   useZentheaSession: vi.fn(() => ({
     data: {
