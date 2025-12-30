@@ -62,10 +62,12 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
     - `/Users/oystein/Desktop/Dev/Zenthea/.cursor/rules`
 
 ### 0.4 Optional: rename repo on disk / GitHub
-- [ ] **Rename repo folder + remote name (optional)** (Owner: Human, Depends on: none)
+- [x] **Rename repo folder + remote name (optional)** (Owner: Human, Depends on: none)
   - **Acceptance**:
-    - Repo is renamed to `boa-group-platform` (or chosen name) without changing package namespaces (`@startkit/*` stays).
+    - A `boa-group-platform` folder name is available without changing package namespaces (`@startkit/*` stays).
   - **Note**: avoid mass-renaming internal packages/import paths; it creates churn and complicates spin-outs.
+  - **Implementation note**:
+    - We used a **symlink alias**: `/Users/oystein/Desktop/Dev/boa-group-platform -> b2b-startkit` to avoid breaking existing git worktrees.
 
 **References**
 - `docs/plans/boa-group-monorepo-operating-plan.md`
