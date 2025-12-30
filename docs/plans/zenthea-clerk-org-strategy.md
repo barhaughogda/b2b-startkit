@@ -35,6 +35,10 @@ Zenthea uses a hierarchical `PermissionTree`. Instead of trying to replicate thi
 
 When a user is added to an organization, we will store their Zenthea-specific permissions in Clerk's `publicMetadata` or `privateMetadata` for that membership.
 
+**Guidance (HIPAA-friendly default):**
+- Prefer **`privateMetadata`** for anything that should not be visible client-side by default (permissions, department scoping, break-glass flags).
+- Only put values in **`publicMetadata`** if the client UI truly needs them and they are safe to expose.
+
 ```json
 {
   "role": "clinic_user", // The Zenthea-specific sub-role
@@ -87,6 +91,13 @@ For **T07**, the Human owner should perform the following in the Clerk Dashboard
   - `organizationMembership.updated`
   - `organizationMembership.deleted`
 
+**Important (repo alignment):**
+- This repo already implements the Clerk webhook handler in the template app at:
+  - `apps/web-template/src/app/api/webhooks/clerk/route.ts` (reference implementation)
+- Zenthea must implement the same endpoint at:
+  - `apps/zenthea/src/app/api/webhooks/clerk/route.ts`
+  - Recommendation: copy/adapt from `apps/web-template` and keep the event list identical.
+
 ### 4. Collect API Keys
 - Go to **API Keys**.
 - Copy `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
@@ -99,6 +110,10 @@ For **T07**, the Human owner should perform the following in the Clerk Dashboard
 | **Dev**     | Development    | `localhost:3000` |
 | **Staging** | Production (Test Mode) | `staging.zenthea.ai` |
 | **Prod**    | Production     | `app.zenthea.ai` |
+
+**Clarification:**
+- “Production (Test Mode)” means using a Clerk production instance but configuring staging-specific redirect URLs and webhooks.
+- If you want stricter separation later, use distinct Clerk instances per environment (Dev/Staging/Prod).
 
 ## RBAC Integration (StartKit)
 
@@ -119,3 +134,4 @@ if (!hasPermission(permissions, 'patients.features.create')) {
 - **Encryption**: Clerk handles encryption of user identity and PII in their systems (BAA required).
 - **Audit Logs**: Clerk provides audit logs for auth events (sign-in, org changes). Zenthea will also capture application-level audit logs in the database, keyed by `organization_id`.
 - **Session Security**: Use Clerk's recommended session settings (short-lived JWTs, CSRF protection).
+- **Secrets hygiene**: never store API keys/secrets in repo-tracked config files; use `.env.local` for dev and AWS Secrets Manager/SSM for staging/prod.
