@@ -8,6 +8,8 @@
   - ✅ T02: Scaffold apps/zenthea (completed)
   - ✅ T03: Import Zenthea code (completed - 1,241 files imported)
 
+**Start here (chronological runbook):** `docs/plans/boa-group-execution-runbook.md`
+
 ## Goals
 1. **Move Zenthea into this b2b-startkit monorepo** as an app under `apps/zenthea`.
 2. **Adopt StartKit strengths** in Zenthea (Clerk org auth, RBAC, Stripe subscriptions, shared UI, superadmin/control plane where applicable).
@@ -15,6 +17,7 @@
 
 ## Related specs (foundational)
 - `apps/zenthea/docs/hipaa-access-control.md` — HIPAA access control, minimum-necessary, break-glass, and audit logging requirements for Zenthea.
+- `docs/plans/boa-group-monorepo-operating-plan.md` — BOA Group monorepo operating plan (worktrees, Cursor/Claude setup, and carve-out guardrails that affect Zenthea and future forks).
 
 ## Definitions (practical)
 - **PHI**: any protected health information. Assume Zenthea will handle PHI.
@@ -75,6 +78,12 @@
 - Any AWS Postgres environment must run both:
   - schema migrations, and
   - the RLS policy application step (the `db:apply-rls` workflow).
+
+### Monorepo operating guardrails (BOA Group)
+These guardrails keep future “spin-out” exits realistic and reduce accidental coupling:
+- **No cross-app imports** (apps must not import code from other apps; only from `packages/*`).
+- **Product tables live in the app** (no Zenthea-specific tables added to shared `packages/database/*`).
+- **Per-app runtime boundaries**: each app owns its env/secrets/deploy target and DB project (even if BOA Group operates them initially).
 
 ### StartKit protected areas (DO NOT TOUCH without explicit approval)
 Do not modify these unless you explicitly approve:
@@ -173,6 +182,16 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
 ---
 
 ## Migration Phases (high level)
+
+### Phase 0 — Monorepo operating system (thin slice, fast)
+**Objective:** Make the monorepo + worktree + Cursor/Claude workflow smooth so all subsequent Zenthea migration work is faster and safer.
+
+**Acceptance criteria:**
+- Root `.cursor/commands` + `.cursor/rules` exist (ported from existing Zenthea worktree setup; deduped against `.cursorrules`).
+- Worktree convention documented and adopted (worktrees stored as a sibling directory; one Cursor window per worktree).
+- Guardrails documented and followed: no cross-app imports; product tables live in the app.
+
+**Reference:** `docs/plans/boa-group-monorepo-operating-plan.md`
 
 ### Phase A — Import Zenthea into StartKit (no behavior change)
 **Objective:** Zenthea runs inside the monorepo as `apps/zenthea` while still using Convex + existing auth/billing.
@@ -306,11 +325,10 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
     - ✅ Built and pushed Docker image to ECR
     - ✅ Triggered ECS service update
   - **Remaining Steps**:
-    - Add DNS record `staging.zenthea.ai` -> ALB DNS name in Vercel.
+    - (Completed) DNS + SSL configured for `staging.zenthea.ai`.
 
-- [ ] **T06 — Configure staging DNS and SSL** (1 SP)
-    7. Update ECS service to use new image
-    8. Verify deployment and health checks
+- [x] **T06 — Configure staging DNS and SSL** (1 SP)
+  - **Completed**: 2025-12-30 - `https://staging.zenthea.ai` resolves to AWS ALB and serves valid HTTPS.
   - **Resources**:
     - 📁 Infrastructure: `infra/aws/zenthea-staging/terraform/`
     - 🐳 Dockerfile: `infra/aws/zenthea-staging/Dockerfile`
@@ -354,9 +372,10 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
 
 ### 3) Auth + tenant identity (must exist before DB migration is meaningful)
 - [ ] **T07 — Create/configure Clerk apps (dev/staging/prod) + orgs strategy** (1–3 SP)
-  - **Owner**: Human
+  - **Owner**: Human + Agent
   - **Depends on**: T00
   - **Acceptance**: Clerk keys for staging + orgs enabled + org/role model documented.
+  - **Status**: Strategy documented in `docs/plans/zenthea-clerk-org-strategy.md`. Waiting for Human to provide keys.
 
 - [ ] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (2–3 SP)
   - **Owner**: Agent

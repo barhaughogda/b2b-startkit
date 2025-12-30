@@ -1,0 +1,174 @@
+# BOA Group Execution Runbook (Chronological)
+
+This is the **single step-by-step checklist** to execute BOA Group’s monorepo operating setup **and** complete the Zenthea → StartKit migration + HIPAA readiness work.
+
+## How to use this document
+- Work **top to bottom**.
+- Every step has: **Owner**, **Depends on**, **Acceptance**.
+- Where detailed implementation exists elsewhere, this runbook links to it, but keeps the “next action” here.
+
+## Owner legend
+- **Agent**: AI implements in-repo code/config changes.
+- **Human**: requires AWS/Clerk/Stripe/DNS access, contracts/BAAs, or approvals.
+- **Agent + Human**: pairing (Agent prepares; Human executes in consoles / provides keys / approves).
+
+---
+
+## Phase 0 — BOA Group monorepo operating system (thin slice, fast)
+
+### 0.1 Confirm monorepo boundaries (one-time)
+- [x] **Decide app profiles** (PHI vs non-PHI) (Owner: Human, Depends on: none)
+  - **Acceptance**:
+    - Written rule: any app that can view patient data is **PHI** (AWS-only profile).
+    - Marketing sites are **non-PHI** (may use Vercel/CDN/analytics with strict PHI exclusion).
+  - **Notes**:
+    - `apps/zenthea` is PHI by default (treat entire app as PHI unless proven otherwise).
+
+- [x] **Decide naming convention for future experiments** (Owner: Human, Depends on: none)
+  - **Acceptance**:
+    - Use a **vertical-first slug** for app folder names: `apps/<vertical>-<appname>`
+    - Keep the **human label** (can include spaces) for docs/branding, e.g. “SMB Medical Clinics — Zenthea”.
+  - **Example**:
+    - Label: “SMB Medical Clinics — Zenthea”
+    - Folder slug: `apps/smb-medical-clinics-zenthea`
+
+### 0.2 Set up git worktrees for parallel agents (recommended)
+- [ ] **Create worktrees folder (sibling to repo)** (Owner: Agent + Human, Depends on: none)
+  - **Acceptance**:
+    - Worktrees live in a sibling directory, e.g. `../boa-group-platform-worktrees/<name>`
+    - One Cursor window per worktree.
+  - **Why**: avoids nested checkouts that cause noisy indexing and “wrong checkout” edits.
+
+- [ ] **Create 2–3 standard worktrees** (Owner: Agent + Human, Depends on: 0.2)
+  - **Acceptance**:
+    - Example: `agent/claude-1`, `agent/claude-2`, `feature/<topic>`
+    - Each worktree can run `pnpm -w` commands without confusion.
+
+### 0.3 Install/standardize Cursor + Claude Code workflow helpers
+- [ ] **Port `.cursor/commands/*` into monorepo root** (Owner: Agent + Human, Depends on: 0.2)
+  - **Acceptance**:
+    - Root `.cursor/commands/` contains your prompting accelerators (e.g. `pr.md`, `fix.md`, `merge.md`, `review.md`).
+    - Files are committed so all worktrees get them automatically.
+
+- [ ] **Port `.cursor/rules/*` into monorepo root (dedupe with `.cursorrules`)** (Owner: Agent + Human, Depends on: 0.3)
+  - **Acceptance**:
+    - Root `.cursor/rules/` exists (workflow playbooks).
+    - No contradictory duplication of the existing root `.cursorrules`.
+
+### 0.4 Optional: rename repo on disk / GitHub
+- [ ] **Rename repo folder + remote name (optional)** (Owner: Human, Depends on: none)
+  - **Acceptance**:
+    - Repo is renamed to `boa-group-platform` (or chosen name) without changing package namespaces (`@startkit/*` stays).
+  - **Note**: avoid mass-renaming internal packages/import paths; it creates churn and complicates spin-outs.
+
+**References**
+- `docs/plans/boa-group-monorepo-operating-plan.md`
+
+---
+
+## Phase 1 — Zenthea migration + HIPAA readiness (execute in order)
+
+> This phase is executed from the Zenthea runbook, but listed here so you can operate from one document.
+> If a step is already done in `zenthea-migration-hipaa.md`, mark it done here too for clarity.
+
+### 1.0 Compliance + vendor gating (do first)
+- [ ] **T00 — Confirm BAAs and PHI boundaries across vendors** (Owner: Human, Depends on: none)
+  - **Acceptance**:
+    - Vendor inventory completed + PHI boundaries documented.
+    - BAA requirements confirmed and requests initiated.
+    - Decision recorded: allowed tooling for PHI (logs/APM/analytics, email/SMS, AI vendors).
+  - **Reference**:
+    - `docs/plans/zenthea-baa-questionnaire.md`
+    - `docs/plans/zenthea-baa-required-list.md`
+    - `docs/plans/zenthea-vendor-inventory.md`
+
+### 1.1 Monorepo landing zone (already completed)
+- [x] **T01 — Zenthea app-local env validation plan** (Owner: Agent)
+- [x] **T02 — Scaffold `apps/zenthea`** (Owner: Agent)
+- [x] **T03 — Import Zenthea code** (Owner: Agent)
+- [x] **T04 — Zenthea participates in Turbo tasks** (Owner: Agent)
+
+### 1.2 AWS staging target for PHI workloads (already mostly completed)
+- [x] **T05 — AWS staging compute (ECS/Fargate + ALB)** (Owner: Agent + Human)
+- [x] **T06 — Configure staging DNS + SSL** (Owner: Human)
+- [ ] **T06b — DNS control + rollback hostnames** (Owner: Human, Depends on: T05)
+  - **Acceptance**:
+    - `legacy.zenthea.ai` points to old Vercel/Convex deployment (rollback).
+    - `staging.zenthea.ai` points to AWS staging.
+
+### 1.3 Auth + tenant identity (must exist before DB migration is meaningful)
+- [ ] **T07 — Create/configure Clerk apps (dev/staging/prod) + org strategy** (Owner: Human + Agent, Depends on: T00)
+  - **Acceptance**:
+    - Clerk keys exist for environments.
+    - Orgs enabled and strategy confirmed.
+  - **Reference**: `docs/plans/zenthea-clerk-org-strategy.md`
+
+- [ ] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (Owner: Agent, Depends on: T07)
+- [ ] **T09 — Tenant mapping spec: Zenthea `tenantId` → Clerk org → DB `organization_id`** (Owner: Agent + Human, Depends on: T08)
+
+### 1.4 Database foundation (AWS Postgres + RLS)
+- [ ] **T10 — Provision AWS Postgres (RDS/Aurora) for staging** (Owner: Human, Depends on: T00)
+- [ ] **T11 — Apply StartKit migrations + RLS to AWS Postgres** (Owner: Agent + Human, Depends on: T10)
+- [ ] **T12 — Convex→Postgres schema mapping plan** (Owner: Agent, Depends on: T09 + T11)
+
+### 1.5 Feature migration off Convex (repeatable slices)
+- [ ] **T13 — Migrate first vertical slice (Patients / Appointments / Messages)** (Owner: Agent, Depends on: T12)
+- [ ] **T14 — Seed fresh demo data (Postgres) + remove Convex seeding dependency** (Owner: Agent, Depends on: T13)
+- [ ] **T15 — Repeat slices until Convex is removed** (Owner: Agent, Depends on: T13; repeating)
+
+### 1.6 RBAC + audit logging hardening
+- [ ] **T16 — Implement RBAC + minimum-necessary access per spec** (Owner: Agent, Depends on: T08 + T13)
+
+### 1.7 Billing/subscriptions (StartKit Stripe)
+- [ ] **T17 — Stripe account + products/prices + webhook endpoints (staging)** (Owner: Human, Depends on: T00)
+- [ ] **T18 — Replace Zenthea billing with StartKit Stripe subscriptions** (Owner: Agent, Depends on: T17)
+
+### 1.8 Production cutover (AWS-only PHI)
+- [ ] **T19 — AWS production environment + smoke tests** (Owner: Agent + Human, Depends on: T15 + T16)
+- [ ] **T20 — Cutover `app.zenthea.ai` to AWS + rollback drill** (Owner: Human, Depends on: T19 + T06b)
+
+**Primary reference**
+- `docs/plans/zenthea-migration-hipaa.md` (source-of-truth details)
+
+---
+
+## Phase 2 — Creating a new vertical (repeatable process)
+
+Use this when you decide to start the next experiment.
+
+- [ ] **Create new app folder** (Owner: Human + Agent, Depends on: Phase 0)
+  - **Acceptance**:
+    - App created under `apps/zenthea-<codename>` (PHI) or `apps/vertical-<codename>` (non-PHI/unknown).
+    - App has its own `env.template` and deployment target defined.
+
+- [ ] **Decide PHI posture early** (Owner: Human, Depends on: app creation)
+  - **Acceptance**:
+    - If PHI: AWS-only, PHI-safe vendor/tooling, separate DB project, strict logging/redaction.
+    - If non-PHI: allowed to use Vercel/CDN/analytics, but keep explicit “no PHI” constraints.
+
+- [ ] **Keep carve-out constraints** (Owner: Human + Agent, Depends on: app creation)
+  - **Acceptance**:
+    - No cross-app imports.
+    - Product tables live in the app.
+    - Per-app env/secrets/deploy/DB boundaries.
+
+---
+
+## Phase 3 — Spin-out checklist (when a vertical “wins”)
+
+This is the “exit readiness” path: separating code + accounts cleanly.
+
+- [ ] **Create a new repo and migrate the app** (Owner: Human + Agent)
+- [ ] **Provision new AWS account / environments** (Owner: Human)
+- [ ] **Provision new DB + keys; migrate data if needed** (Owner: Human + Agent)
+- [ ] **Create new auth tenant (Clerk) and migration plan** (Owner: Human + Agent)
+- [ ] **Create new Stripe account (or Connect strategy) and migrate customers** (Owner: Human + Agent)
+- [ ] **Run a security/compliance review and evidence collection** (Owner: Human)
+
+---
+
+## Notes (don’t screw this up)
+- **Don’t optimize the monorepo forever**. Phase 0 is a thin slice to reduce friction; then resume Zenthea work.
+- **Don’t “HIPAA-ify” marketing sites**. Keep PHI rules app-scoped.
+- **RLS + tenant context are the primary security boundary** for app data; don’t bypass.
+
