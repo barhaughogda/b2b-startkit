@@ -394,18 +394,19 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
   - **Owner**: Human
   - **Depends on**: T00
   - **Acceptance**: DB exists; networking/SGs correct; credentials stored safely.
-  - **Status**: Completed. RDS instance live at `staging-zenthea-db.ccr2iey8suev.us-east-1.rds.amazonaws.com:5432`.
+  - **Status**: Completed. RDS instance live. Secure Bastion created for SSM tunneling.
 
-- [ ] **T11 — Apply StartKit migrations + RLS to AWS Postgres** (2–3 SP)
+- [x] **T11 — Apply StartKit migrations + RLS to AWS Postgres** (2–3 SP)
   - **Owner**: Agent + Human
   - **Depends on**: T10
   - **Acceptance**: schema migrations applied and `db:apply-rls` applied successfully.
+  - **Status**: Completed. Core and Zenthea schemas migrated. RLS enabled on all product tables.
 
-- [🟡] **T12 — Convex→Postgres schema mapping (domain-by-domain plan)** (3 SP)
+- [x] **T12 — Convex→Postgres schema mapping (domain-by-domain plan)** (3 SP)
   - **Owner**: Agent
-  - **Depends on**: T09, T11
+  - **Depends on**: T00, T09, T11
   - **Acceptance**: prioritized mapping list from `convex/schema.ts` to relational tables with `organization_id`.
-  - **Status**: Initial Drizzle schema drafted in `apps/zenthea/src/lib/db/schema.ts` covering core entities (Clinics, Patients, Providers, Appointments, Medical Records, Messages, Invoices, etc.).
+  - **Status**: Completed. Schema implemented in `apps/zenthea/src/lib/db/schema.ts` and applied to staging.
 
 ### 5) Feature migration off Convex (repeatable slices)
 - [ ] **T13 — Migrate first vertical slice (pick one: Patients / Appointments / Messages)** (3 SP)

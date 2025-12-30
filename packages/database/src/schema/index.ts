@@ -9,6 +9,6 @@ export * from './users'
 export * from './organizations'
 export * from './subscriptions'
 export * from './audit-logs'
-export * from './feature-flags'
+// export * from './feature-flags' // Table not found
 export * from './kill-switches'
 export * from './control-plane'

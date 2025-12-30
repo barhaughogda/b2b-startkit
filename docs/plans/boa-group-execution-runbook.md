@@ -122,11 +122,15 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
 ### 1.4 Database foundation (AWS Postgres + RLS)
 - [x] **T10 — Provision AWS Postgres (RDS/Aurora) for staging** (Owner: Human, Depends on: T00)
   - **Acceptance**: DB exists; networking/SGs correct; credentials stored safely.
-  - **Status**: Completed. RDS instance live at `staging-zenthea-db.ccr2iey8suev.us-east-1.rds.amazonaws.com:5432`.
+  - **Status**: Completed. RDS instance live. Secure Bastion created for SSM tunneling.
 
-- [ ] **T11 — Apply StartKit migrations + RLS to AWS Postgres** (Owner: Agent + Human, Depends on: T10)
-- [🟡] **T12 — Convex→Postgres schema mapping plan** (Owner: Agent, Depends on: T09 + T11)
-  - **Status**: Core Drizzle schema drafted in `apps/zenthea/src/lib/db/schema.ts`.
+- [x] **T11 — Apply StartKit migrations + RLS to AWS Postgres** (Owner: Agent + Human, Depends on: T10)
+  - **Acceptance**: schema migrations applied and `db:apply-rls` applied successfully.
+  - **Status**: Completed. Core and Zenthea schemas migrated. RLS enabled on all product tables.
+
+- [x] **T12 — Convex→Postgres schema mapping plan** (Owner: Agent, Depends on: T09 + T11)
+  - **Acceptance**: prioritized mapping list from `convex/schema.ts` to relational tables with `organization_id`.
+  - **Status**: Completed. Schema implemented in `apps/zenthea/src/lib/db/schema.ts` and applied to staging.
 
 ### 1.5 Feature migration off Convex (repeatable slices)
 - [ ] **T13 — Migrate first vertical slice (Patients / Appointments / Messages)** (Owner: Agent, Depends on: T12)
