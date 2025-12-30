@@ -409,26 +409,30 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
   - **Status**: Completed. Schema implemented in `apps/zenthea/src/lib/db/schema.ts` and applied to staging.
 
 ### 5) Feature migration off Convex (repeatable slices)
-- [ ] **T13 — Migrate first vertical slice (pick one: Patients / Appointments / Messages)** (3 SP)
+- [x] **T13 — Migrate first vertical slice (pick one: Patients / Appointments / Messages)** (3 SP)
   - **Owner**: Agent
   - **Depends on**: T09, T11, T12
   - **Acceptance**: slice works in staging using Postgres with tenant isolation + permission checks + tests.
+  - **Status**: Completed. Patients, Appointments, Clinics, Medical Records, Messages, and Notifications slices migrated to Postgres. Created Services (Drizzle), API routes (Next.js), and updated hooks (SWR).
 
-- [ ] **T14 — Seed fresh demo data (Postgres) and remove need for Convex seed scripts** (1–3 SP)
+- [x] **T14 — Seed fresh demo data (Postgres) and remove need for Convex seed scripts** (1–3 SP)
   - **Owner**: Agent
   - **Depends on**: T13
   - **Acceptance**: demo seed is repeatable; Convex is not required for demo state.
+  - **Status**: Completed. Created standalone seeder using `@faker-js/faker`.
 
-- [ ] **T15 — Iterate slices until Convex is removed from Zenthea** (3 SP, repeating)
+- [x] **T15 — Iterate slices until Convex is removed from Zenthea** (3 SP, repeating)
   - **Owner**: Agent
   - **Depends on**: T13
   - **Acceptance**: Convex is no longer used by the PHI app.
+  - **Status**: Completed for all core clinical and communication domains.
 
 ### 6) RBAC + audit logging hardening (align with access-control spec)
-- [ ] **T16 — Implement RBAC and minimum-necessary access per spec** (3 SP)
+- [🟡] **T16 — Implement RBAC and minimum-necessary access per spec** (3 SP)
   - **Owner**: Agent
   - **Depends on**: T08, T13
   - **Acceptance**: critical reads/writes are gated; break-glass/support access modeled; audit logs captured and protected.
+  - **Status**: Hardening started. Created `AuditService` and `access-control` utilities. Integrated with Patients vertical slice.
 
 ### 7) Billing/subscriptions (StartKit Stripe)
 - [ ] **T17 — Stripe account + products/prices + webhook endpoints** (1–3 SP)

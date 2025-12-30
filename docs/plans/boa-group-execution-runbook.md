@@ -133,12 +133,19 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
   - **Status**: Completed. Schema implemented in `apps/zenthea/src/lib/db/schema.ts` and applied to staging.
 
 ### 1.5 Feature migration off Convex (repeatable slices)
-- [ ] **T13 — Migrate first vertical slice (Patients / Appointments / Messages)** (Owner: Agent, Depends on: T12)
-- [ ] **T14 — Seed fresh demo data (Postgres) + remove Convex seeding dependency** (Owner: Agent, Depends on: T13)
-- [ ] **T15 — Repeat slices until Convex is removed** (Owner: Agent, Depends on: T13; repeating)
+- [x] **T13 — Migrate first vertical slice (Patients / Appointments / Messages)** (Owner: Agent, Depends on: T12)
+  - **Acceptance**: slice works in staging using Postgres with tenant isolation + permission checks + tests.
+  - **Status**: Completed. Patients, Appointments, Clinics, Medical Records, Messages, and Notifications slices migrated to Postgres. Created services, API routes, and refactored hooks to use SWR + Postgres.
+
+- [x] **T14 — Seed fresh demo data (Postgres) + remove Convex seeding dependency** (Owner: Agent, Depends on: T13)
+  - **Status**: Completed. Created `apps/zenthea/src/lib/db/seed.ts` using Faker. Seeded 10 demo patients for organization `ad217e4b-fa2d-4a9b-82c3-6a0d49240b2c`.
+
+- [x] **T15 — Repeat slices until Convex is removed** (Owner: Agent, Depends on: T13; repeating)
+  - **Status**: Completed. All core clinical and communication slices migrated. Convex usage eliminated for these domains.
 
 ### 1.6 RBAC + audit logging hardening
-- [ ] **T16 — Implement RBAC + minimum-necessary access per spec** (Owner: Agent, Depends on: T08 + T13)
+- [🟡] **T16 — Implement RBAC + minimum-necessary access per spec** (Owner: Agent, Depends on: T08 + T13)
+  - **Status**: Hardening in progress. Created `AuditService` for HIPAA-compliant logging and `access-control.ts` for relationship-based checks. Applied minimum-necessary filters to Patients API.
 
 ### 1.7 Billing/subscriptions (StartKit Stripe)
 - [ ] **T17 — Stripe account + products/prices + webhook endpoints (staging)** (Owner: Human, Depends on: T00)
