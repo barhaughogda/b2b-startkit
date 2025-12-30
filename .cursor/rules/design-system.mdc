@@ -1,0 +1,5 @@
+- Ensure you always use our design-system
+- Use the Shadcn mcp to work effectively
+---
+alwaysApply: true
+---

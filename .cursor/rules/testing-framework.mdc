@@ -1,0 +1,218 @@
+---
+description: Enforce consistent Vitest usage and prevent Jest/Vitest mixing
+globs: src/**/*.test.{ts,tsx,js,jsx}, src/**/__tests__/**/*.{ts,tsx,js,jsx}, tests/**/*.{ts,tsx,js,jsx}
+alwaysApply: true
+---
+
+# Testing Framework Rules
+
+## **CRITICAL: Use Vitest Consistently**
+
+**❌ NEVER DO:**
+```typescript
+// Mixing Jest and Vitest
+import { vi } from 'vitest';
+jest.mock('next-auth/react');  // ❌ Wrong framework
+jest.fn();                     // ❌ Wrong framework
+jest.clearAllMocks();          // ❌ Wrong framework
+
+// Using Jest types
+import { jest } from '@jest/globals';
+const mockFn = jest.fn();      // ❌ Wrong framework
+```
+
+**✅ ALWAYS DO:**
+```typescript
+// Consistent Vitest usage
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+vi.mock('next-auth/react');     // ✅ Correct framework
+vi.fn();                        // ✅ Correct framework
+vi.clearAllMocks();             // ✅ Correct framework
+
+// Proper Vitest types
+import type { MockedFunction } from 'vitest';
+const mockFn: MockedFunction<typeof fetch> = vi.fn();  // ✅ Correct typing
+```
+
+## **Framework Conversion Rules**
+
+### **Mock Functions**
+```typescript
+// ❌ Jest
+jest.fn()
+jest.clearAllMocks()
+jest.resetAllMocks()
+
+// ✅ Vitest
+vi.fn()
+vi.clearAllMocks()
+vi.resetAllMocks()
+```
+
+### **Module Mocking**
+```typescript
+// ❌ Jest
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(),
+}));
+
+// ✅ Vitest
+vi.mock('next-auth/react', () => ({
+  useSession: vi.fn(),
+}));
+```
+
+### **Type Assertions**
+```typescript
+// ❌ Jest
+const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
+
+// ✅ Vitest
+import type { MockedFunction } from 'vitest';
+const mockUseSession = useSession as MockedFunction<typeof useSession>;
+// OR
+const mockUseSession = useSession as ReturnType<typeof vi.fn>;
+```
+
+### **Test Setup**
+```typescript
+// ❌ Jest
+import { jest } from '@jest/globals';
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+// ✅ Vitest
+import { vi, beforeEach } from 'vitest';
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+```
+
+## **Common Patterns**
+
+### **Session Mocking**
+```typescript
+// ✅ Complete session mock
+const mockSession = {
+  user: {
+    id: 'test-user-id',
+    email: 'test@example.com',
+    name: 'Test User',
+    role: 'provider',
+    tenantId: 'test-tenant',
+  },
+  expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+};
+
+vi.mock('next-auth/react', () => ({
+  useSession: vi.fn(() => ({
+    data: mockSession,
+    status: 'authenticated',
+    update: vi.fn(),
+  })),
+}));
+```
+
+### **API Mocking**
+```typescript
+// ✅ Proper fetch mocking
+import type { MockedFunction } from 'vitest';
+type MockFetch = MockedFunction<typeof fetch>;
+const mockFetch: MockFetch = vi.fn();
+
+global.fetch = mockFetch;
+```
+
+### **Component Mocking**
+```typescript
+// ✅ Component mocking
+vi.mock('@/components/navigation/ProviderNavigationLayout', () => ({
+  ProviderNavigationLayout: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="provider-navigation-layout">{children}</div>
+  ),
+}));
+```
+
+## **File Structure Requirements**
+
+### **Test File Imports**
+```typescript
+// ✅ Standard Vitest imports
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import userEvent from '@testing-library/user-event';
+```
+
+### **Mock Organization**
+```typescript
+// ✅ Group mocks at the top
+vi.mock('next-auth/react');
+vi.mock('next/navigation');
+vi.mock('@/lib/theme-context');
+
+// Then describe blocks
+describe('ComponentName', () => {
+  // Test implementation
+});
+```
+
+## **Error Prevention**
+
+### **Common Mistakes to Avoid**
+1. **Mixed Imports**: Never import both `jest` and `vi` in the same file
+2. **Wrong Mock Types**: Always use `MockedFunction` from vitest, not jest
+3. **Inconsistent Clearing**: Use `vi.clearAllMocks()` not `jest.clearAllMocks()`
+4. **Wrong Framework**: Never use `jest.mock()` when using vitest
+
+### **Validation Checklist**
+- [ ] All imports use `vi` from vitest
+- [ ] No `jest` imports or usage
+- [ ] Mock functions use `vi.fn()`
+- [ ] Mock clearing uses `vi.clearAllMocks()`
+- [ ] Type assertions use `MockedFunction` from vitest
+- [ ] Module mocking uses `vi.mock()`
+
+## **Migration Guide**
+
+### **Converting Jest to Vitest**
+1. Replace `jest` imports with `vi` from vitest
+2. Replace `jest.fn()` with `vi.fn()`
+3. Replace `jest.mock()` with `vi.mock()`
+4. Replace `jest.clearAllMocks()` with `vi.clearAllMocks()`
+5. Update type assertions to use `MockedFunction` from vitest
+6. Remove any `@jest/globals` imports
+
+### **Example Conversion**
+```typescript
+// Before (Jest)
+import { jest } from '@jest/globals';
+jest.mock('next-auth/react');
+const mockFn = jest.fn();
+jest.clearAllMocks();
+
+// After (Vitest)
+import { vi } from 'vitest';
+vi.mock('next-auth/react');
+const mockFn = vi.fn();
+vi.clearAllMocks();
+```
+
+## **Benefits of Consistent Vitest Usage**
+
+1. **No Framework Conflicts**: Prevents Jest/Vitest mixing errors
+2. **Better Performance**: Vitest is faster than Jest
+3. **Modern Features**: Better TypeScript support and modern APIs
+4. **Consistent Testing**: All tests use the same framework
+5. **Easier Maintenance**: Single testing framework to maintain
+
+## **Enforcement**
+
+- **Linting**: ESLint rules should catch Jest usage in Vitest projects
+- **Code Review**: Always check for Jest imports in test files
+- **CI/CD**: Tests should fail if Jest is used instead of Vitest
+- **Documentation**: Keep this rule updated as the project evolves
+
+---
+
+**Remember**: When in doubt, use Vitest. This project uses Vitest as the primary testing framework, and all test files should be consistent with this choice.

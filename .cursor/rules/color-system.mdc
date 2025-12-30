@@ -1,0 +1,379 @@
+---
+description: Enforce centralized color system usage - never hardcode colors
+globs: src/**/*.{ts,tsx,js,jsx,css,scss}
+alwaysApply: true
+---
+
+# Zenthea Color System Rules
+
+## **CRITICAL: Never Hardcode Colors**
+
+**❌ NEVER DO:**
+```tsx
+// Hardcoded hex colors
+<div className="bg-[#5FBFAF] text-white">
+<div style={{ backgroundColor: '#5FBFAF' }}>
+
+// Hardcoded RGB/HSL
+<div className="bg-[rgb(95,191,175)]">
+<div style={{ color: 'hsl(172, 60%, 60%)' }}>
+
+// Hardcoded color names
+<div className="bg-blue-500 text-red-600">
+<div style={{ color: 'green' }}>
+```
+
+**✅ ALWAYS DO:**
+```tsx
+// Use CSS variables
+<div className="bg-zenthea-teal text-white">
+<div style={{ backgroundColor: 'var(--zenthea-teal)' }}>
+
+// Use semantic color classes
+<div className="bg-background-primary text-text-primary">
+<div className="bg-interactive-primary hover:bg-interactive-primary-hover">
+
+// Use healthcare colors
+<PatientStatus status="active">Active Patient</PatientStatus>
+<VitalStatus status="normal">Normal Vitals</VitalStatus>
+```
+
+## **Color System Architecture**
+
+**Master Color System File**: `src/app/globals.css` contains ALL color definitions for the entire application.
+
+### **1. Brand Colors**
+```tsx
+// Zenthea brand colors - use these for brand elements
+<div className="bg-zenthea-teal">      // Primary brand color
+<div className="bg-zenthea-purple">    // Secondary brand color  
+<div className="bg-zenthea-coral">     // Accent brand color
+<div className="bg-zenthea-cream">    // Neutral brand color
+
+// Brand color variations
+<div className="bg-zenthea-teal-500">  // Base teal
+<div className="bg-zenthea-teal-600">  // Darker teal
+<div className="bg-zenthea-teal-400">  // Lighter teal
+```
+
+### **2. Semantic Colors**
+```tsx
+// Background colors
+<div className="bg-background-primary">    // Primary background
+<div className="bg-background-secondary">  // Secondary background
+<div className="bg-background-elevated">   // Elevated surfaces
+
+// Surface colors
+<div className="bg-surface-primary">       // Primary surfaces
+<div className="bg-surface-elevated">     // Elevated surfaces
+<div className="bg-surface-interactive">   // Interactive surfaces
+
+// Text colors
+<p className="text-text-primary">          // Primary text
+<span className="text-text-secondary">    // Secondary text
+<span className="text-text-tertiary">     // Tertiary text
+<span className="text-text-disabled">     // Disabled text
+
+// Border colors
+<div className="border-border-primary">    // Primary borders
+<div className="border-border-focus">      // Focus borders
+<div className="border-border-error">      // Error borders
+
+// Interactive colors
+<button className="bg-interactive-primary hover:bg-interactive-primary-hover">
+<button className="bg-interactive-secondary hover:bg-interactive-secondary-hover">
+```
+
+### **3. Healthcare Colors**
+```tsx
+// Patient status
+<PatientStatus status="active">Active Patient</PatientStatus>
+<PatientStatus status="inactive">Inactive Patient</PatientStatus>
+<PatientStatus status="discharged">Discharged</PatientStatus>
+
+// Appointment status
+<AppointmentStatus status="scheduled">Scheduled</AppointmentStatus>
+<AppointmentStatus status="confirmed">Confirmed</AppointmentStatus>
+<AppointmentStatus status="cancelled">Cancelled</AppointmentStatus>
+
+// Vital signs
+<VitalStatus status="normal">Normal</VitalStatus>
+<VitalStatus status="elevated">Elevated</VitalStatus>
+<VitalStatus status="critical">Critical</VitalStatus>
+
+// Lab results
+<LabStatus status="normal">Normal Results</LabStatus>
+<LabStatus status="abnormal">Abnormal Results</LabStatus>
+<LabStatus status="critical">Critical Results</LabStatus>
+
+// Alert severity
+<AlertSeverity severity="info">Info Alert</AlertSeverity>
+<AlertSeverity severity="warning">Warning Alert</AlertSeverity>
+<AlertSeverity severity="error">Error Alert</AlertSeverity>
+<AlertSeverity severity="critical">Critical Alert</AlertSeverity>
+```
+
+### **4. Status Colors**
+```tsx
+// General status colors
+<div className="bg-status-success">Success</div>
+<div className="bg-status-warning">Warning</div>
+<div className="bg-status-error">Error</div>
+<div className="bg-status-info">Info</div>
+<div className="bg-status-critical">Critical</div>
+```
+
+## **Theme Support**
+
+### **Theme-Aware Colors**
+```tsx
+// These colors automatically adapt to theme changes
+<div className="bg-background-primary text-text-primary">
+<div className="bg-surface-elevated border-border-primary">
+<div className="bg-interactive-primary hover:bg-interactive-primary-hover">
+```
+
+### **Theme Switching**
+```tsx
+import { useTheme } from '@/components/theme/ThemeProvider';
+
+function MyComponent() {
+  const { theme, setTheme, isDark, isHighContrast } = useTheme();
+  
+  return (
+    <div className="bg-background-primary text-text-primary">
+      <button onClick={() => setTheme('dark')}>
+        Switch to Dark Theme
+      </button>
+      {isDark && <div>Dark mode active</div>}
+      {isHighContrast && <div>High contrast mode active</div>}
+    </div>
+  );
+}
+```
+
+## **CSS Variables Usage**
+
+### **Direct CSS Variable Usage**
+```tsx
+// Use CSS variables directly when needed
+<div style={{ 
+  backgroundColor: 'var(--zenthea-teal)',
+  color: 'var(--color-text-primary)',
+  borderColor: 'var(--color-border-focus)'
+}}>
+
+// Healthcare colors
+<div style={{ 
+  backgroundColor: 'var(--healthcare-patient)',
+  color: 'var(--healthcare-patient-active)'
+}}>
+```
+
+### **CSS-in-JS with Variables**
+```tsx
+const styles = {
+  container: {
+    backgroundColor: 'var(--color-background-primary)',
+    color: 'var(--color-text-primary)',
+    border: '1px solid var(--color-border-primary)',
+  },
+  button: {
+    backgroundColor: 'var(--color-interactive-primary)',
+    color: 'var(--color-text-inverse)',
+    '&:hover': {
+      backgroundColor: 'var(--color-interactive-primary-hover)',
+    },
+  },
+};
+```
+
+## **Accessibility Requirements**
+
+### **Contrast Ratios**
+```tsx
+// Always use semantic colors that meet WCAG AA standards
+<div className="text-text-primary">        // 4.5:1 contrast ratio
+<div className="text-text-secondary">      // 4.5:1 contrast ratio
+<div className="bg-background-primary">    // Proper contrast
+
+// Healthcare colors are accessibility-tested
+<PatientStatus status="active">            // Green - accessible
+<VitalStatus status="critical">            // Red - accessible
+<AlertSeverity severity="critical">        // High contrast
+```
+
+### **High Contrast Support**
+```tsx
+// Colors automatically adapt to high contrast theme
+<div className="bg-background-primary text-text-primary">
+// Becomes high contrast colors in high-contrast theme
+```
+
+## **Common Patterns**
+
+### **Card Components**
+```tsx
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-surface-elevated border-border-primary rounded-lg p-4">
+      {children}
+    </div>
+  );
+}
+```
+
+### **Button Components**
+```tsx
+function Button({ variant = 'primary', children }: ButtonProps) {
+  const baseClasses = "px-4 py-2 rounded-md font-medium transition-colors";
+  
+  if (variant === 'primary') {
+    return (
+      <button className={`${baseClasses} bg-interactive-primary hover:bg-interactive-primary-hover text-text-inverse`}>
+        {children}
+      </button>
+    );
+  }
+  
+  if (variant === 'secondary') {
+    return (
+      <button className={`${baseClasses} bg-interactive-secondary hover:bg-interactive-secondary-hover text-text-inverse`}>
+        {children}
+      </button>
+    );
+  }
+}
+```
+
+### **Form Components**
+```tsx
+function Input({ ...props }) {
+  return (
+    <input 
+      className="bg-background-elevated border-border-primary text-text-primary focus:border-border-focus"
+      {...props}
+    />
+  );
+}
+```
+
+## **Error Prevention**
+
+### **What to Watch For**
+```tsx
+// ❌ NEVER - Hardcoded colors
+<div className="bg-[#5FBFAF]">           // Hardcoded hex
+<div style={{ color: '#5F284A' }}>       // Hardcoded hex
+<div className="bg-blue-500">            // Hardcoded Tailwind
+<div style={{ backgroundColor: 'red' }}> // Hardcoded color name
+
+// ❌ NEVER - Inline styles with hardcoded colors
+<div style={{ 
+  backgroundColor: '#5FBFAF',
+  color: '#FFFFFF',
+  borderColor: '#5F284A'
+}}>
+
+// ❌ NEVER - CSS with hardcoded colors
+.my-class {
+  background-color: #5FBFAF;
+  color: #FFFFFF;
+  border: 1px solid #5F284A;
+}
+```
+
+### **Correct Approaches**
+```tsx
+// ✅ ALWAYS - Use CSS variables
+<div className="bg-zenthea-teal text-white">
+<div style={{ backgroundColor: 'var(--zenthea-teal)' }}>
+
+// ✅ ALWAYS - Use semantic classes
+<div className="bg-background-primary text-text-primary">
+<div className="bg-interactive-primary hover:bg-interactive-primary-hover">
+
+// ✅ ALWAYS - Use healthcare components
+<PatientStatus status="active">Active Patient</PatientStatus>
+<VitalStatus status="normal">Normal Vitals</VitalStatus>
+
+// ✅ ALWAYS - CSS with variables
+.my-class {
+  background-color: var(--zenthea-teal);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-primary);
+}
+```
+
+## **Testing Color Usage**
+
+### **Validation Functions**
+```tsx
+import { validateColorSystem } from '@/lib/colors';
+
+// Check if color system is properly loaded from src/app/globals.css
+const { valid, errors } = validateColorSystem();
+if (!valid) {
+  console.error('Color system issues:', errors);
+}
+```
+
+### **Theme Testing**
+```tsx
+// Test all themes
+const themes = ['light', 'dark', 'high-contrast'] as const;
+themes.forEach(theme => {
+  applyTheme(theme);
+  // Test component rendering
+});
+```
+
+## **Migration from Hardcoded Colors**
+
+### **Step 1: Identify Hardcoded Colors**
+```bash
+# Search for hardcoded colors
+grep -r "#[0-9A-Fa-f]\{6\}" src/
+grep -r "rgb(" src/
+grep -r "hsl(" src/
+```
+
+### **Step 2: Replace with CSS Variables**
+```tsx
+// Before
+<div className="bg-[#5FBFAF] text-white">
+
+// After (using CSS variables from src/app/globals.css)
+<div className="bg-zenthea-teal text-white">
+```
+
+### **Step 3: Test Theme Switching**
+```tsx
+// Ensure colors work in all themes
+<ThemeProvider>
+  <MyComponent />
+</ThemeProvider>
+```
+
+## **Best Practices**
+
+1. **Always use CSS variables** - Never hardcode colors
+2. **Use semantic color classes** - They adapt to themes automatically
+3. **Use healthcare components** - They have built-in accessibility
+4. **Test in all themes** - Light, dark, and high contrast
+5. **Validate contrast ratios** - Ensure accessibility compliance
+6. **Use TypeScript support** - Get IntelliSense for color names
+7. **Follow naming conventions** - Use consistent color naming
+8. **Document color usage** - Explain why specific colors are used
+
+## **Resources**
+
+- **Color System**: `src/app/globals.css` (Master color system file)
+- **TypeScript Support**: `src/lib/colors.ts`
+- **Theme Provider**: `src/components/theme/ThemeProvider.tsx`
+- **Healthcare Components**: `src/components/ui/healthcare-status.tsx`
+- **Migration Guide**: `.taskmaster/completions/COLOR_SYSTEM_MIGRATION_GUIDE.md`
+
+---
+
+**Remember**: The centralized color system ensures consistency, accessibility, and easy maintenance. Always use CSS variables and semantic color classes instead of hardcoded colors!

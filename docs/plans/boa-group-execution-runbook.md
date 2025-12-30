@@ -33,27 +33,33 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
     - Folder slug: `apps/smb-medical-clinics-zenthea`
 
 ### 0.2 Set up git worktrees for parallel agents (recommended)
-- [ ] **Create worktrees folder (sibling to repo)** (Owner: Agent + Human, Depends on: none)
+- [x] **Create worktrees folder (sibling to repo)** (Owner: Agent + Human, Depends on: none)
   - **Acceptance**:
     - Worktrees live in a sibling directory, e.g. `../boa-group-platform-worktrees/<name>`
     - One Cursor window per worktree.
   - **Why**: avoids nested checkouts that cause noisy indexing and “wrong checkout” edits.
 
-- [ ] **Create 2–3 standard worktrees** (Owner: Agent + Human, Depends on: 0.2)
+- [x] **Create 2–3 standard worktrees** (Owner: Agent + Human, Depends on: 0.2)
   - **Acceptance**:
     - Example: `agent/claude-1`, `agent/claude-2`, `feature/<topic>`
     - Each worktree can run `pnpm -w` commands without confusion.
+  - **Created**:
+    - `feature/zenthea-appointments` → `../boa-group-platform-worktrees/zenthea-appointments`
+    - `feature/zenthea-encounters` → `../boa-group-platform-worktrees/zenthea-encounters`
+    - `feature/zenthea-patient` → `../boa-group-platform-worktrees/zenthea-patient`
 
-### 0.3 Install/standardize Cursor + Claude Code workflow helpers
-- [ ] **Port `.cursor/commands/*` into monorepo root** (Owner: Agent + Human, Depends on: 0.2)
+### 0.3 Install/standardize Cursor workflow helpers (Claude Code later)
+- [x] **Port `.cursor/commands/*` into monorepo root** (Owner: Agent + Human, Depends on: 0.2)
   - **Acceptance**:
     - Root `.cursor/commands/` contains your prompting accelerators (e.g. `pr.md`, `fix.md`, `merge.md`, `review.md`).
     - Files are committed so all worktrees get them automatically.
 
-- [ ] **Port `.cursor/rules/*` into monorepo root (dedupe with `.cursorrules`)** (Owner: Agent + Human, Depends on: 0.3)
+- [x] **Port `.cursor/rules/*` into monorepo root (dedupe with `.cursorrules`)** (Owner: Agent + Human, Depends on: 0.3)
   - **Acceptance**:
     - Root `.cursor/rules/` exists (workflow playbooks).
     - No contradictory duplication of the existing root `.cursorrules`.
+  - **Imported from**:
+    - `/Users/oystein/Desktop/Dev/Zenthea/.cursor/rules`
 
 ### 0.4 Optional: rename repo on disk / GitHub
 - [ ] **Rename repo folder + remote name (optional)** (Owner: Human, Depends on: none)

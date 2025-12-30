@@ -1,0 +1,68 @@
+---
+description: Guidelines for managing completion documentation and preventing duplicate files
+globs: **/*.md, .taskmaster/completions/**/*
+alwaysApply: true
+---
+
+- **Documentation Completion Management:**
+  - **Always place completion documentation** in `.taskmaster/completions/` folder
+  - **Never create duplicate documentation** in project root
+  - **Use descriptive filenames** that indicate the completion type
+  - **Include timestamp or version** in completion documentation
+
+- **File Organization:**
+  - **Completion docs go in**: `.taskmaster/completions/`
+  - **Project docs stay in**: `Docs/`, `src/`, or root as appropriate
+  - **Avoid duplicates**: Check for existing files before creating new ones
+  - **Use consistent naming**: `FEATURE_NAME_COMPLETION.md` or `TASK_NAME_SUMMARY.md`
+
+- **Documentation Standards:**
+  ```markdown
+  <!-- ✅ DO: Place in completions folder -->
+  .taskmaster/completions/COLOR_SYSTEM_MIGRATION_GUIDE.md
+  .taskmaster/completions/ACCESSIBILITY_IMPROVEMENTS.md
+  
+  <!-- ❌ DON'T: Create duplicates in root -->
+  COLOR_SYSTEM_MIGRATION_GUIDE.md  <!-- Duplicate! -->
+  ```
+
+- **Completion Documentation Structure:**
+  - **Overview**: What was completed
+  - **Changes Made**: Specific modifications
+  - **Files Updated**: List of changed files
+  - **Next Steps**: Follow-up actions
+  - **Resources**: Links to related documentation
+
+- **Prevention of Duplicates:**
+  - **Check existing files** before creating new documentation
+  - **Use descriptive names** to avoid confusion
+  - **Consolidate similar documentation** into single files
+  - **Reference existing docs** instead of duplicating content
+
+- **Examples:**
+  ```markdown
+  <!-- ✅ Good completion doc structure -->
+  # 🎨 Color System Migration - Completion Summary
+  
+  ## What Was Completed
+  - Centralized color system implementation
+  - Removed 48+ duplicate color definitions
+  - Updated all components to use CSS variables
+  
+  ## Files Updated
+  - `src/styles/colors.css` - New centralized system
+  - `src/lib/colors.ts` - TypeScript utilities
+  - `tailwind.config.js` - Updated configuration
+  - 45+ component files - Removed hardcoded colors
+  
+  ## Next Steps
+  - Test theme switching across all components
+  - Update remaining documentation files
+  - Train team on new color system
+  ```
+
+- **Maintenance:**
+  - **Regular cleanup** of completion documentation
+  - **Archive old completions** when no longer relevant
+  - **Update references** when moving or renaming files
+  - **Keep completions organized** by date or feature
