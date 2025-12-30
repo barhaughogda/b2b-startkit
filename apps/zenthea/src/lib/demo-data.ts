@@ -86,7 +86,7 @@ export function generateDemoPatients(count: number = 20): DemoPatient[] {
     name: faker.person.fullName(),
     email: faker.internet.email(),
     phone: faker.phone.number(),
-    dateOfBirth: faker.date.birthdate({ min: 18, max: 80, mode: 'age' }).toISOString().split('T')[0],
+    dateOfBirth: faker.date.birthdate({ min: 18, max: 80, mode: 'age' }).toISOString().split('T')[0]!,
     address: {
       street: faker.location.streetAddress(),
       city: faker.location.city(),
@@ -163,7 +163,7 @@ export function generateDemoAppointments(patients: DemoPatient[], providers: Dem
       id: `demo-appointment-${i + 1}`,
       patientId: patient.id,
       providerId: provider.id,
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split('T')[0]!,
       time: faker.helpers.arrayElement(['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM']),
       duration: faker.helpers.arrayElement([30, 45, 60]),
       type: faker.helpers.arrayElement(types),

@@ -881,8 +881,10 @@ export function SystemSettings({ className }: SystemSettingsProps) {
                               checked={webhook.active}
                               onCheckedChange={(checked) => {
                                 const newWebhooks = [...settings.webhooks];
-                                newWebhooks[index].active = checked;
-                                setSettings((prev) => ({ ...prev, webhooks: newWebhooks }));
+                                if (newWebhooks[index]) {
+                                  newWebhooks[index].active = checked;
+                                  setSettings((prev) => ({ ...prev, webhooks: newWebhooks }));
+                                }
                                 if (error) setError(null);
                                 if (success) setSuccess(null);
                               }}

@@ -100,9 +100,13 @@ export function CareTeamProviderSelector({
 
   // Get initials from name
   const getInitials = (name: string) => {
-    const parts = name.split(' ');
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2 && parts[0] && parts[parts.length - 1]) {
+      const first = parts[0];
+      const last = parts[parts.length - 1];
+      if (first && last && first[0] && last[0]) {
+        return `${first[0]}${last[0]}`.toUpperCase();
+      }
     }
     return name.substring(0, 2).toUpperCase();
   };
@@ -261,7 +265,7 @@ export function CareTeamProviderSelector({
 
       {/* Helper text showing number of care team members */}
       <p className="text-xs text-text-tertiary">
-        {careTeam.length} provider{careTeam.length !== 1 ? 's' : ''} in your care team
+        {careTeam?.length || 0} provider{careTeam?.length !== 1 ? 's' : ''} in your care team
       </p>
     </div>
   );

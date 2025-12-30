@@ -28,7 +28,7 @@ interface FormattedAppointment {
 // Store format (from appointmentsStore)
 interface StoreAppointment {
   id: string;
-  date: string;
+  date: string | undefined;
   time: string;
   provider: {
     id: string;
@@ -176,18 +176,18 @@ function parseTimeToMinutes(timeString: string): number {
   try {
     // Match patterns like "9:00 AM", "10:30 PM", "2:15 PM"
     const match = timeString.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (!match) {
-      // Fallback: try to extract just the hour if format is unexpected
-      const hourMatch = timeString.match(/(\d{1,2})/);
-      if (hourMatch) {
-        return parseInt(hourMatch[1]) * 60; // Approximate to minutes
-      }
-      return 0;
+    if (!match || !match[1] || !match[2] || !match[3]) {
+    // Fallback: try to extract just the hour if format is unexpected
+    const hourMatch = timeString.match(/(\d{1,2})/);
+    if (hourMatch && hourMatch[1]) {
+      return parseInt(hourMatch[1], 10) * 60; // Approximate to minutes
     }
-    
-    let hours = parseInt(match[1]);
-    const minutes = parseInt(match[2]);
-    const period = match[3].toUpperCase();
+    return 0;
+  }
+  
+  let hours = parseInt(match[1] || '0', 10);
+  const minutes = parseInt(match[2] || '0', 10);
+  const period = (match[3] || '').toUpperCase();
     
     // Convert to 24-hour format
     if (period === 'PM' && hours !== 12) {
@@ -264,7 +264,7 @@ function formatDate(dateString: string): string {
     if (isNaN(date.getTime())) {
       // If parsing fails, try to handle formats like "2024-01-15"
       const parts = dateString.split('-');
-      if (parts.length === 3) {
+      if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
         const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
         return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
       }
@@ -302,15 +302,15 @@ function transformAppointment(appointment: StoreAppointment | FormattedAppointme
   
   // Validate and normalize status to prevent runtime errors
   const status = validateStatus(storeAppointment.status);
-  const appointmentType = getAppointmentType(storeAppointment.date, status);
-  const formattedDate = formatDate(storeAppointment.date);
+  const appointmentType = getAppointmentType(storeAppointment.date ?? '', status);
+  const formattedDate = formatDate(storeAppointment.date ?? '');
   
   return {
     id: storeAppointment.id,
     title: storeAppointment.title || storeAppointment.type || 'Appointment',
     provider: providerName,
     date: formattedDate,
-    originalDate: storeAppointment.date, // Preserve original for sorting
+    originalDate: storeAppointment.date ?? '', // Preserve original for sorting
     time: storeAppointment.time,
     status: status,
     type: appointmentType,
@@ -414,7 +414,7 @@ export function PatientAppointmentsList({
     const parseDuration = (duration?: string): number => {
       if (!duration) return 30; // Default 30 minutes
       const match = duration.match(/(\d+)/);
-      return match ? parseInt(match[1], 10) : 30;
+      return (match && match[1]) ? parseInt(match[1], 10) : 30;
     };
 
     // Extract providerId if available from StoreAppointment format

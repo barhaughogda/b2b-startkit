@@ -43,8 +43,8 @@ export const labResultTemplate: CardTemplate = {
       // Test Information
       testName: props.title || 'Comprehensive Metabolic Panel',
       testType: 'routine' as const,
-      collectionDate: new Date().toISOString().split('T')[0],
-      resultsDate: new Date().toISOString().split('T')[0],
+      collectionDate: new Date().toISOString().split('T')[0]!!,
+      resultsDate: new Date().toISOString().split('T')[0]!!,
       status: 'reviewed' as const,
       
       // Lab Categories and Panels

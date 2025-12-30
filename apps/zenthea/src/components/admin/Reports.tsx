@@ -144,8 +144,8 @@ export function Reports({ className }: ReportsProps) {
 
       if (startDate && endDate) {
         requestBody.dateRange = {
-          startDate: startDate.toISOString().split('T')[0],
-          endDate: endDate.toISOString().split('T')[0],
+          startDate: startDate.toISOString().split('T')[0]!!,
+          endDate: endDate.toISOString().split('T')[0]!!,
         };
       }
 

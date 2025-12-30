@@ -77,7 +77,7 @@ export const getAnalytics = query({
       cumulativePatients += dayPatients.length;
 
       patientGrowth.push({
-        date: new Date(dayStart).toISOString().split("T")[0],
+        date: new Date(dayStart).toISOString().split("T")[0]!,
         count: dayPatients.length,
         cumulative: cumulativePatients,
       });
@@ -100,7 +100,7 @@ export const getAnalytics = query({
       );
 
       appointmentTrends.push({
-        date: new Date(dayStart).toISOString().split("T")[0],
+        date: new Date(dayStart).toISOString().split("T")[0]!,
         scheduled: dayAppointments.length,
         completed: dayAppointments.filter((a) => a.status === "completed").length,
         cancelled: dayAppointments.filter((a) => a.status === "cancelled").length,
@@ -133,7 +133,7 @@ export const getAnalytics = query({
         .reduce((sum, inv) => sum + inv.amount, 0);
 
       dailyRevenue.push({
-        date: new Date(dayStart).toISOString().split("T")[0],
+        date: new Date(dayStart).toISOString().split("T")[0]!,
         amount: dayAmount,
       });
     }
@@ -165,7 +165,7 @@ export const getAnalytics = query({
       const dayLogins = dayActiveUsers > 0 ? Math.max(dayActiveUsers, dayNewUsers) : 0;
 
       userActivity.push({
-        date: new Date(dayStart).toISOString().split("T")[0],
+        date: new Date(dayStart).toISOString().split("T")[0]!,
         activeUsers: dayActiveUsers,
         newUsers: dayNewUsers,
         logins: dayLogins,

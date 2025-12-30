@@ -42,11 +42,13 @@ export function SuperAdminHeader() {
 
     if (paths.length > 1) {
       const section = paths[1];
-      const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1).replace(/-/g, ' ');
-      breadcrumbs.push({
-        label: sectionLabel,
-        href: `/superadmin/${section}`,
-      });
+      if (section) {
+        const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1).replace(/-/g, ' ');
+        breadcrumbs.push({
+          label: sectionLabel,
+          href: `/superadmin/${section}`,
+        });
+      }
     }
 
     return breadcrumbs;

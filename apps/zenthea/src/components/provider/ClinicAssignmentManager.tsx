@@ -131,7 +131,7 @@ export function ClinicAssignmentManager({ userId, tenantId }: ClinicAssignmentMa
   }
 
   // Check if the user's first clinic is the default
-  const defaultClinicId = userClinics && userClinics.length > 0 ? userClinics[0]._id : null;
+  const defaultClinicId = userClinics && userClinics.length > 0 ? userClinics[0]?._id : null;
 
   return (
     <div className="space-y-6">

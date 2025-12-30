@@ -98,6 +98,7 @@ function ServiceIconRenderer({
   
   // Fallback to auto-detected icon
   const FallbackIcon = getFallbackIcon(service.name);
+  if (!FallbackIcon) return null;
   return <FallbackIcon className={className} style={{ color: primaryColor }} />;
 }
 

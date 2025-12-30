@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { isClinicUser } from '@/lib/auth-utils';
 import { isPublicTenantRoute } from '@/lib/tenant-routing';
 import { isPublicAuthRoute } from '@/lib/routing';
@@ -101,7 +101,9 @@ export function ElevenLabsWidget() {
       {/* ElevenLabs AI Agent Widget - Only render after script is loaded */}
       {/* Double-check that custom element is defined before rendering */}
       {scriptLoaded && typeof window !== 'undefined' && customElements.get('elevenlabs-convai') && (
-        <elevenlabs-convai agent-id="agent_6701k71ydkvpezzbn04m50mn57f1"></elevenlabs-convai>
+        React.createElement('elevenlabs-convai' as any, { 
+          'agent-id': "agent_6701k71ydkvpezzbn04m50mn57f1" 
+        })
       )}
     </>
   );

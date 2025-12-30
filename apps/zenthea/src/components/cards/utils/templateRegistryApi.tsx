@@ -39,7 +39,7 @@ const cardTemplates: Record<CardType, CardTemplate> = {
         id: props.id,
         patientId: props.patientId || '',
         patientName: props.patientName || '',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0]!!!,
         time: new Date().toLocaleTimeString(),
         readings: {
           bloodPressure: {
@@ -117,7 +117,7 @@ const cardTemplates: Record<CardType, CardTemplate> = {
         patientId: props.patientId || '',
         patientName: props.patientName || '',
         provider: 'Dr. Smith',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0]!!!,
         subjective: {
           chiefComplaint: 'Patient reports feeling well.',
           historyOfPresentIllness: 'No acute concerns at this time.',
@@ -196,7 +196,7 @@ const cardTemplates: Record<CardType, CardTemplate> = {
           quantity: 30,
           refills: 3,
           daysSupply: 30,
-          startDate: new Date().toISOString().split('T')[0],
+          startDate: new Date().toISOString().split('T')[0]!!,
           endDate: null,
           instructions: 'Take with food',
           indication: 'Sample indication'
@@ -338,9 +338,9 @@ const cardTemplates: Record<CardType, CardTemplate> = {
           category: 'Endocrine',
           severity: 'moderate' as const,
           status: 'active' as const,
-          onsetDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 6 months ago
-          diagnosisDate: new Date(Date.now() - 175 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 5.8 months ago
-          confirmedDate: new Date(Date.now() - 170 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 5.6 months ago
+          onsetDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!!, // 6 months ago
+          diagnosisDate: new Date(Date.now() - 175 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!!, // 5.8 months ago
+          confirmedDate: new Date(Date.now() - 170 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!!, // 5.6 months ago
           icd10Code: 'E11.9',
           snomedCode: '44054006'
         },

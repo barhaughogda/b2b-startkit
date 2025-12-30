@@ -294,7 +294,7 @@ function ClinicCalendarPageContent() {
       patientId: '',
       patientName: '',
       time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split('T')[0]!,
       duration: 30,
       type: 'consultation',
       status: 'scheduled',

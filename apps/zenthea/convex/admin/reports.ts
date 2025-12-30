@@ -77,7 +77,7 @@ export const generateReport = query({
         return {
           type: "csv" as const,
           data: csvData,
-          filename: `user-activity-report-${new Date().toISOString().split("T")[0]}.csv`,
+          filename: `user-activity-report-${new Date().toISOString().split("T")[0]!}.csv`,
           generatedAt: now,
         };
       } else {
@@ -100,7 +100,7 @@ export const generateReport = query({
         return {
           type: "pdf" as const,
           data: base64Data,
-          filename: `user-activity-report-${new Date().toISOString().split("T")[0]}.pdf`,
+          filename: `user-activity-report-${new Date().toISOString().split("T")[0]!}.pdf`,
           generatedAt: now,
         };
       }
@@ -144,7 +144,7 @@ export const generateReport = query({
         return {
           type: "csv" as const,
           data: csvData,
-          filename: `compliance-report-${new Date().toISOString().split("T")[0]}.csv`,
+          filename: `compliance-report-${new Date().toISOString().split("T")[0]!}.csv`,
           generatedAt: now,
         };
       } else {
@@ -166,7 +166,7 @@ export const generateReport = query({
         return {
           type: "pdf" as const,
           data: base64Data,
-          filename: `compliance-report-${new Date().toISOString().split("T")[0]}.pdf`,
+          filename: `compliance-report-${new Date().toISOString().split("T")[0]!}.pdf`,
           generatedAt: now,
         };
       }
@@ -200,7 +200,7 @@ export const generateReport = query({
         return {
           type: "csv" as const,
           data: csvData,
-          filename: `financial-report-${new Date().toISOString().split("T")[0]}.csv`,
+          filename: `financial-report-${new Date().toISOString().split("T")[0]!}.csv`,
           generatedAt: now,
         };
       } else {
@@ -227,7 +227,7 @@ export const generateReport = query({
         return {
           type: "pdf" as const,
           data: base64Data,
-          filename: `financial-report-${new Date().toISOString().split("T")[0]}.pdf`,
+          filename: `financial-report-${new Date().toISOString().split("T")[0]!}.pdf`,
           generatedAt: now,
         };
       }
@@ -270,7 +270,7 @@ export const generateReport = query({
         return {
           type: "csv" as const,
           data: csvData,
-          filename: `security-report-${new Date().toISOString().split("T")[0]}.csv`,
+          filename: `security-report-${new Date().toISOString().split("T")[0]!}.csv`,
           generatedAt: now,
         };
       } else {
@@ -292,7 +292,7 @@ export const generateReport = query({
         return {
           type: "pdf" as const,
           data: base64Data,
-          filename: `security-report-${new Date().toISOString().split("T")[0]}.pdf`,
+          filename: `security-report-${new Date().toISOString().split("T")[0]!}.pdf`,
           generatedAt: now,
         };
       }

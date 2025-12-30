@@ -53,7 +53,7 @@ export interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInput
  * <DateInput
  *   value={dateOfBirth}
  *   onChange={(isoDate) => setDateOfBirth(isoDate)}
- *   max={new Date().toISOString().split('T')[0]}
+ *   max={new Date().toISOString().split('T')[0]!}
  * />
  * ```
  */

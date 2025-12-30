@@ -278,6 +278,7 @@ export default function MediaBlock({
 
     // Single image or gallery view
     const currentImage = displayGalleryImages[currentSlide];
+    if (!currentImage) return null;
 
     return (
       <>

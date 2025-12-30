@@ -43,19 +43,19 @@ export async function POST(request: NextRequest) {
       environment: process.env.NODE_ENV,
       vercelEnv: process.env.VERCEL_ENV,
       ...(cookieHeader && {
-        cookieNames: cookieHeader.split(';').map(c => c.split('=')[0].trim())
+        cookieNames: cookieHeader.split(';').map(c => c.split('=')[0]?.trim() ?? '')
       })
     });
 
     if (!token || !token.sub) {
       // Enhanced error message for debugging
-      const hasAuthCookie = cookieHeader.includes(NEXTAUTH_SESSION_COOKIE_NAME);
+      const hasAuthCookie = cookieHeader?.includes(NEXTAUTH_SESSION_COOKIE_NAME) ?? false;
 
       logger.error('[Avatar Upload] Authentication failed:', {
         hasToken: !!token,
         hasSub: !!token?.sub,
         hasAuthCookie,
-        cookieCount: cookieHeader.split(';').length,
+        cookieCount: cookieHeader?.split(';').length ?? 0,
         secretConfigured: !!secret,
         environment: process.env.NODE_ENV,
         vercelEnv: process.env.VERCEL_ENV,

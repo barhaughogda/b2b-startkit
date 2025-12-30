@@ -35,21 +35,25 @@ export function MobileModalAdapter({ children }: MobileModalAdapterProps) {
   // Handle swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
-    setSwipeStart({ x: touch.clientX, y: touch.clientY });
-    setSwipeDelta(0);
+    if (touch) {
+      setSwipeStart({ x: touch.clientX, y: touch.clientY });
+      setSwipeDelta(0);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!swipeStart) return;
     
     const touch = e.touches[0];
-    const deltaX = touch.clientX - swipeStart.x;
-    const deltaY = touch.clientY - swipeStart.y;
-    
-    // Only handle horizontal swipes
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      e.preventDefault();
-      setSwipeDelta(deltaX);
+    if (touch) {
+      const deltaX = touch.clientX - swipeStart.x;
+      const deltaY = touch.clientY - swipeStart.y;
+      
+      // Only handle horizontal swipes
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        e.preventDefault();
+        setSwipeDelta(deltaX);
+      }
     }
   };
 

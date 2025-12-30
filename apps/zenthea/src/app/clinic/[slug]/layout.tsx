@@ -4,11 +4,6 @@ import React from "react";
 import { ConvexProvider } from "convex/react";
 import { convex } from "@/lib/convex";
 
-interface PublicTenantLayoutProps {
-  children: React.ReactNode;
-  params: { slug: string };
-}
-
 /**
  * Layout for public tenant pages (landing page, booking, providers, etc.)
  * 
@@ -17,7 +12,7 @@ interface PublicTenantLayoutProps {
  */
 export default function PublicTenantLayout({
   children,
-}: PublicTenantLayoutProps) {
+}: any) {
   // If Convex is not configured, render children without provider
   if (!convex) {
     return (

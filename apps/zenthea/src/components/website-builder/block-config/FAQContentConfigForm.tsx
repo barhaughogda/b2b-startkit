@@ -59,7 +59,10 @@ export function FAQContentConfigForm({
   // Update an existing FAQ item
   const handleUpdateItem = (index: number, updates: Partial<FAQItem>) => {
     const newItems = [...items];
-    const updatedItem = { ...newItems[index], ...updates };
+    const existing = newItems[index];
+    if (!existing) return;
+    
+    const updatedItem = { ...existing, ...updates };
     
     // Validate question and answer are not empty (allow whitespace during editing)
     // Only prevent saving completely empty items
@@ -68,7 +71,7 @@ export function FAQContentConfigForm({
       return;
     }
     
-    newItems[index] = updatedItem;
+    newItems[index] = updatedItem as FAQItem;
     onUpdate({ ...props, items: newItems });
   };
 

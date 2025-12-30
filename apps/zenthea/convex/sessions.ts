@@ -689,7 +689,7 @@ export const getSessionAnalytics = query({
         analytics.activityByHour[hour] = (analytics.activityByHour[hour] || 0) + 1;
         
         // Count by day
-        const day = new Date(activity.timestamp).toISOString().split('T')[0];
+        const day = new Date(activity.timestamp).toISOString().split('T')[0]!;
         analytics.activityByDay[day] = (analytics.activityByDay[day] || 0) + 1;
         
         // Count significant actions

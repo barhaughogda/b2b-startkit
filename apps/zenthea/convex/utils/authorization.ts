@@ -449,6 +449,7 @@ export async function checkPermission(
 
   for (let i = 0; i < pathParts.length; i++) {
     const part = pathParts[i];
+    if (part === undefined) continue;
     checkedPath.push(part);
 
     // Validate current level

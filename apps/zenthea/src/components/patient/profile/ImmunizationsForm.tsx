@@ -46,7 +46,7 @@ export function ImmunizationsForm({ patientId, initialData }: ImmunizationsFormP
         patientId,
         immunization: {
           vaccine: '',
-          dateAdministered: new Date().toISOString().split('T')[0],
+          dateAdministered: new Date().toISOString().split('T')[0]!,
           lotNumber: '',
           administeredBy: '',
           location: '',

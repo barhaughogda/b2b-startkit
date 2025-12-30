@@ -1,0 +1,13 @@
+node_modules
+.next
+.turbo
+dist
+build
+*.log
+.git
+.env
+.env.local
+apps/*/node_modules
+apps/*/.next
+packages/*/node_modules
+packages/*/dist

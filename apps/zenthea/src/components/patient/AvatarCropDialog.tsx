@@ -174,7 +174,7 @@ export function AvatarCropDialog({
               min={MIN_AVATAR_ZOOM}
               max={MAX_AVATAR_ZOOM}
               step={0.1}
-              onValueChange={(value) => setZoom(value[0])}
+              onValueChange={(value) => setZoom(value[0] ?? 1)}
               className="w-full"
             />
           </div>

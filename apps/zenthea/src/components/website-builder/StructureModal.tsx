@@ -267,9 +267,12 @@ export function StructureModal({
 
       if (fromIndex !== -1 && fromIndex !== toIndex) {
         const newBlocks = [...blocks];
-        const [removed] = newBlocks.splice(fromIndex, 1);
-        newBlocks.splice(toIndex, 0, removed);
-        onBlocksChange(newBlocks);
+        const removed = newBlocks[fromIndex];
+        if (removed) {
+          newBlocks.splice(fromIndex, 1);
+          newBlocks.splice(toIndex, 0, removed);
+          onBlocksChange(newBlocks);
+        }
       }
     }
     setDragState({ draggingId: null, overIndex: null });

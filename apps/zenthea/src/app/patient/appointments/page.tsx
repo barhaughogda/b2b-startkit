@@ -19,7 +19,7 @@ import Link from 'next/link';
 
 interface Appointment {
   id: string;
-  date: string;
+  date: string | undefined;
   time: string;
   scheduledAt?: number;
   provider: {
@@ -74,7 +74,7 @@ export default function PatientAppointmentsPage() {
 
     return convexAppointments.map((apt: ConvexAppointment) => {
       const scheduledDate = new Date(apt.scheduledAt);
-      const dateStr = scheduledDate.toISOString().split('T')[0];
+      const dateStr = scheduledDate.toISOString().split('T')[0]!;
       const timeStr = scheduledDate.toLocaleTimeString('en-US', { 
         hour: 'numeric', 
         minute: '2-digit',
@@ -148,7 +148,7 @@ export default function PatientAppointmentsPage() {
       patientId: patientId || '',
       patientName: session?.user?.name || '',
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0]!,
       duration: 30,
       type: 'consultation',
       status: 'scheduled',

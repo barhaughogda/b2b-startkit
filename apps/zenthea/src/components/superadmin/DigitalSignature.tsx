@@ -102,9 +102,11 @@ export function DigitalSignature({
 
     const rect = canvas.getBoundingClientRect();
     const clientX =
-      "touches" in e ? e.touches[0].clientX : e.clientX;
+      "touches" in e ? e.touches[0]?.clientX : e.clientX;
     const clientY =
-      "touches" in e ? e.touches[0].clientY : e.clientY;
+      "touches" in e ? e.touches[0]?.clientY : e.clientY;
+
+    if (clientX === undefined || clientY === undefined) return null;
 
     return {
       x: clientX - rect.left,

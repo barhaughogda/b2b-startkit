@@ -136,13 +136,19 @@ export function TenantConfigWizard({
 
   const handleNext = () => {
     if (currentStepIndex < STEPS.length - 1) {
-      setCurrentStep(STEPS[currentStepIndex + 1].id as WizardStep);
+      const nextStep = STEPS[currentStepIndex + 1];
+      if (nextStep) {
+        setCurrentStep(nextStep.id as WizardStep);
+      }
     }
   };
 
   const handlePrevious = () => {
     if (currentStepIndex > 0) {
-      setCurrentStep(STEPS[currentStepIndex - 1].id as WizardStep);
+      const prevStep = STEPS[currentStepIndex - 1];
+      if (prevStep) {
+        setCurrentStep(prevStep.id as WizardStep);
+      }
     }
   };
 
@@ -579,8 +585,8 @@ export function TenantConfigWizard({
       <CardHeader>
         <CardTitle>Tenant Configuration Wizard</CardTitle>
         <CardDescription>
-          Step {currentStepIndex + 1} of {STEPS.length}:{" "}
-          {STEPS[currentStepIndex].title}
+          Step {currentStepIndex + 1} of {STEPS.length}
+          {STEPS[currentStepIndex] && `: ${STEPS[currentStepIndex].title}`}
         </CardDescription>
         <div className="w-full bg-surface-elevated rounded-full h-2 mt-4">
           <div

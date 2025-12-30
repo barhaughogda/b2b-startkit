@@ -213,7 +213,7 @@ export function AppointmentCard({
   const [formData, setFormData] = useState<AppointmentFormData>({
     patientId: appointmentData.patientId || '',
     patientName: patientName || '',
-    date: prefilledDate ? prefilledDate.toISOString().split('T')[0] : date || new Date().toISOString().split('T')[0],
+    date: prefilledDate ? prefilledDate.toISOString().split('T')[0]!! : date || new Date().toISOString().split('T')[0]!!,
     time: prefilledTime || time || '09:00',
     duration: duration || 30,
     type: (type as AppointmentFormData['type']) || 'consultation',
@@ -496,7 +496,7 @@ export function AppointmentCard({
       setFormData({
         patientId: appointmentData.patientId || '',
         patientName: patientName || '',
-        date: date || new Date().toISOString().split('T')[0],
+        date: date || new Date().toISOString().split('T')[0]!!,
         time: time || '09:00',
         duration: duration || 30,
         type: (type as AppointmentFormData['type']) || 'consultation',
@@ -559,7 +559,7 @@ export function AppointmentCard({
     // Check if it's already in 24-hour format (HH:mm or HH:mm:ss)
     const time24Regex = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
     const match24 = timeStr.match(time24Regex);
-    if (match24) {
+    if (match24 && match24[1] && match24[2]) {
       // Already in 24-hour format
       const hours = parseInt(match24[1], 10);
       const minutes = match24[2];
@@ -569,7 +569,7 @@ export function AppointmentCard({
     // Parse 12-hour format (e.g., "9:00 AM", "2:30 PM")
     const time12Regex = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i;
     const match12 = timeStr.match(time12Regex);
-    if (match12) {
+    if (match12 && match12[1] && match12[2] && match12[3]) {
       let hours = parseInt(match12[1], 10);
       const minutes = match12[2];
       const ampm = match12[3].toUpperCase();

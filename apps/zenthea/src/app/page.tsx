@@ -268,20 +268,24 @@ function HomePageContent() {
           <div className="max-w-md text-center">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20">
               <div className="text-white">
-                <p className="text-lg mb-6 italic">
-                  &ldquo;{testimonials[currentTestimonial].quote}&rdquo;
-                </p>
-                
-                <div className="flex items-center justify-center mb-4">
-                  {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-current text-status-warning" />
-                  ))}
-                </div>
-                
-                <div className="mb-4">
-                  <p className="font-semibold text-lg">{testimonials[currentTestimonial].author}</p>
-                  <p className="text-white/80 text-sm">{testimonials[currentTestimonial].title}</p>
-                </div>
+                {testimonials?.[currentTestimonial] && (
+                  <>
+                    <p className="text-lg mb-6 italic">
+                      &ldquo;{testimonials[currentTestimonial]!.quote}&rdquo;
+                    </p>
+                    
+                    <div className="flex items-center justify-center mb-4">
+                      {[...Array(testimonials[currentTestimonial]!.rating)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-current text-status-warning" />
+                      ))}
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="font-semibold text-lg">{testimonials[currentTestimonial]!.author}</p>
+                      <p className="text-white/80 text-sm">{testimonials[currentTestimonial]!.title}</p>
+                    </div>
+                  </>
+                )}
                 
                 {/* Navigation Arrows */}
                 <div className="flex items-center justify-center space-x-4">

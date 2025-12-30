@@ -132,7 +132,7 @@ export function DiagnosisHistoryBodyMap({
     const matchesSearch = diagnosis.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       diagnosis.icdCode.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const diagnosisYear = parseInt(diagnosis.latestUpdate.split('-')[0]);
+    const diagnosisYear = parseInt(diagnosis.latestUpdate.split('-')[0] || '0');
     
     const matchesYear = selectedYear === null || 
       diagnosis.latestUpdate.includes(selectedYear.toString());

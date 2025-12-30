@@ -44,7 +44,7 @@ export function LanguageSelector() {
           <DropdownMenuItem key={language.code} className="flex items-center gap-2">
             <span className="text-lg">{language.flag}</span>
             <span>{language.name}</span>
-            {language.code === currentLanguage.code && (
+            {currentLanguage && language.code === currentLanguage.code && (
               <span className="ml-auto text-xs text-muted-foreground">✓</span>
             )}
           </DropdownMenuItem>

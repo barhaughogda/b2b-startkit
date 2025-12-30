@@ -11,7 +11,7 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: any
 ) {
   try {
     const { token } = params;

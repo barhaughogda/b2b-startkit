@@ -53,7 +53,7 @@ export function CareTeamCard() {
       patientId: '',
       patientName: '',
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0]!,
       duration: 30,
       type: 'consultation',
       status: 'scheduled',

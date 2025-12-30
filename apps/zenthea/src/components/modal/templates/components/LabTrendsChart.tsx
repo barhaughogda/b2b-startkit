@@ -22,22 +22,25 @@ interface LabTrendsChartProps {
 export function LabTrendsChart({ results }: LabTrendsChartProps) {
   // Group results by test name and sort by date
   const groupedResults = results.reduce((acc, result) => {
-    if (!acc[result.testName]) {
-      acc[result.testName] = [];
+    const testName = result.testName;
+    if (!acc[testName]) {
+      acc[testName] = [];
     }
-    acc[result.testName].push(result);
+    acc[testName]!.push(result);
     return acc;
   }, {} as Record<string, LabResult[]>);
 
   // Sort each group by date
   Object.keys(groupedResults).forEach(testName => {
-    groupedResults[testName].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    groupedResults[testName]!.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   });
 
   // Create chart data
   const chartData = Object.keys(groupedResults).map(testName => {
     const testResults = groupedResults[testName];
+    if (!testResults) return null;
     const latestResult = testResults[testResults.length - 1];
+    if (!latestResult) return null;
     
     return {
       testName,
@@ -46,9 +49,9 @@ export function LabTrendsChart({ results }: LabTrendsChartProps) {
       status: latestResult.status,
       date: latestResult.date,
       trend: testResults.length > 1 ? 
-        (parseFloat(testResults[testResults.length - 1].value) - parseFloat(testResults[0].value)) : 0
+        (parseFloat(testResults[testResults.length - 1]!.value) - parseFloat(testResults[0]!.value)) : 0
     };
-  });
+  }).filter((d): d is Exclude<typeof d, null> => d !== null);
 
   const colors = {
     normal: '#10b981',
@@ -61,8 +64,10 @@ export function LabTrendsChart({ results }: LabTrendsChartProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.keys(groupedResults).map(testName => {
-          const testResults = groupedResults[testName];
+          const testResults = groupedResults[testName]!;
           const latestResult = testResults[testResults.length - 1];
+          
+          if (!latestResult) return null;
           
           if (testResults.length < 2) {
             return (
@@ -123,7 +128,7 @@ export function LabTrendsChart({ results }: LabTrendsChartProps) {
                     />
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip 
-                      formatter={(value: any, name: string, props: any) => [
+                      formatter={(value: any, name: any, props: any) => [
                         `${value} ${props.payload.unit}`,
                         testName
                       ]}

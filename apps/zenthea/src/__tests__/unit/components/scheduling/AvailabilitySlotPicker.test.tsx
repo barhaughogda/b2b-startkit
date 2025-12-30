@@ -25,23 +25,23 @@ vi.mock('convex/react', () => ({
 vi.mock('@/hooks/useProviderAvailability', () => ({
   useProviderAvailability: vi.fn(),
   getSlotsForDate: vi.fn((slots: TimeSlot[], date: Date) => {
-    const targetDateString = date.toISOString().split('T')[0];
+    const targetDateString = date.toISOString().split('T')[0]!;
     return slots.filter((slot: TimeSlot) => {
-      const slotDateString = slot.date.toISOString().split('T')[0];
+      const slotDateString = slot.date.toISOString().split('T')[0]!;
       return slotDateString === targetDateString;
     });
   }),
   hasAvailableSlotsOnDate: vi.fn((slots: TimeSlot[], date: Date) => {
-    const targetDateString = date.toISOString().split('T')[0];
+    const targetDateString = date.toISOString().split('T')[0]!;
     return slots.some((slot: TimeSlot) => {
-      const slotDateString = slot.date.toISOString().split('T')[0];
+      const slotDateString = slot.date.toISOString().split('T')[0]!;
       return slotDateString === targetDateString && slot.available;
     });
   }),
   getAvailabilityLevel: vi.fn((slots: TimeSlot[], date: Date) => {
-    const targetDateString = date.toISOString().split('T')[0];
+    const targetDateString = date.toISOString().split('T')[0]!;
     const dateSlots = slots.filter((slot: TimeSlot) => {
-      const slotDateString = slot.date.toISOString().split('T')[0];
+      const slotDateString = slot.date.toISOString().split('T')[0]!;
       return slotDateString === targetDateString;
     });
     const count = dateSlots.filter((slot: TimeSlot) => slot.available).length;
@@ -117,18 +117,18 @@ describe('AvailabilitySlotPicker', () => {
     
     // Mock hasAvailableSlotsOnDate to check against our mock data
     mockHasAvailableSlotsOnDate.mockImplementation((slots: TimeSlot[], date: Date) => {
-      const targetDateString = date.toISOString().split('T')[0];
+      const targetDateString = date.toISOString().split('T')[0]!;
       return slots.some((slot: TimeSlot) => {
-        const slotDateString = slot.date.toISOString().split('T')[0];
+        const slotDateString = slot.date.toISOString().split('T')[0]!;
         return slotDateString === targetDateString && slot.available;
       });
     });
     
     // Mock getAvailabilityLevel to check against our mock data
     mockGetAvailabilityLevel.mockImplementation((slots: TimeSlot[], date: Date) => {
-      const targetDateString = date.toISOString().split('T')[0];
+      const targetDateString = date.toISOString().split('T')[0]!;
       const dateSlots = slots.filter((slot: TimeSlot) => {
-        const slotDateString = slot.date.toISOString().split('T')[0];
+        const slotDateString = slot.date.toISOString().split('T')[0]!;
         return slotDateString === targetDateString;
       });
       const count = dateSlots.filter((slot: TimeSlot) => slot.available).length;

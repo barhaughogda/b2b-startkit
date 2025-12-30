@@ -3,17 +3,8 @@ import { verifyAdminAuth } from "@/lib/admin-auth";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
-// Force dynamic rendering - this route uses verifyAdminAuth which requires headers
-export const dynamic = 'force-dynamic';
-
-/**
- * GET /api/admin/user-metrics
- * Returns user-related metrics for admin dashboard
- * Requires admin role
- */
 export async function GET(request: NextRequest) {
+  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
   try {
     // Verify admin authorization
     const authResult = await verifyAdminAuth(request);

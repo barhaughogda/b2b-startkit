@@ -69,8 +69,11 @@ export function MediaContentConfigForm({
     updates: Partial<GalleryImage>
   ) => {
     const newImages = [...galleryImages];
-    newImages[index] = { ...newImages[index], ...updates };
-    onUpdate({ ...props, galleryImages: newImages });
+    const existing = newImages[index];
+    if (existing) {
+      newImages[index] = { ...existing, ...updates } as GalleryImage;
+      onUpdate({ ...props, galleryImages: newImages });
+    }
   };
 
   const handleRemoveGalleryImage = (index: number) => {

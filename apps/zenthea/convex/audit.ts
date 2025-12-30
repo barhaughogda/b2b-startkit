@@ -578,7 +578,7 @@ export const getPHIAccessStats = query({
       stats.uniquePatientsAccessed.add(patientId);
 
       // Count daily accesses
-      const date = new Date(log.timestamp).toISOString().split('T')[0];
+      const date = new Date(log.timestamp).toISOString().split('T')[0]!;
       stats.dailyAccesses[date] = (stats.dailyAccesses[date] || 0) + 1;
     });
 
@@ -995,7 +995,7 @@ export const getPermissionChangeStats = query({
       stats.changesByAction[action] = (stats.changesByAction[action] || 0) + 1;
 
       // Count daily changes
-      const date = new Date(log.timestamp).toISOString().split('T')[0];
+      const date = new Date(log.timestamp).toISOString().split('T')[0]!;
       stats.dailyChanges[date] = (stats.dailyChanges[date] || 0) + 1;
     });
 

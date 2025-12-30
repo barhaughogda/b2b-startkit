@@ -253,7 +253,7 @@ export const getPatientBilling = query({
 
       return {
         id: invoice.invoiceNumber,
-        date: new Date(invoice.createdAt).toISOString().split("T")[0],
+        date: new Date(invoice.createdAt).toISOString().split("T")[0]!,
         amount: `$${(invoice.amount / 100).toFixed(2)}`,
         amountCents: invoice.amount,
         status: displayStatus,
@@ -374,7 +374,7 @@ export const getPatientInvoices = query({
         return {
           _id: invoice._id,
           invoiceNumber: invoice.invoiceNumber,
-          date: new Date(invoice.createdAt).toISOString().split("T")[0],
+          date: new Date(invoice.createdAt).toISOString().split("T")[0]!,
           createdAt: invoice.createdAt,
           total,
           patientResponsibility,

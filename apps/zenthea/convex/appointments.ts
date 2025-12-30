@@ -28,7 +28,7 @@ function getDateStringInTimezone(timestamp: number, timezone: string): string {
     return formatted; // Returns YYYY-MM-DD
   } catch {
     // Fallback to UTC if timezone is invalid
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split('T')[0]!;
   }
 }
 
@@ -46,7 +46,7 @@ function getDayOfWeekInTimezone(timestamp: number, timezone: string): string {
   } catch {
     // Fallback to UTC
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    return days[date.getUTCDay()];
+    return days[date.getUTCDay()]!;
   }
 }
 
@@ -180,7 +180,7 @@ async function checkOpeningHours(
   // Check if appointment falls within opening hours
   const parseTime = (time: string) => {
     const [h, m] = time.split(':').map(Number);
-    return h * 60 + m;
+    return (h ?? 0) * 60 + (m ?? 0);
   };
 
   const openStart = parseTime(openingHours.startTime);
@@ -264,11 +264,17 @@ async function checkProviderAvailability(
     }
     // Check if time falls within override window
     const [startHours, startMinutes] = override.startTime.split(':').map(Number);
+    const startHoursSafe = startHours ?? 0;
+    const startMinutesSafe = startMinutes ?? 0;
     const [endHours, endMinutes] = override.endTime.split(':').map(Number);
+    const endHoursSafe = endHours ?? 0;
+    const endMinutesSafe = endMinutes ?? 0;
     const [checkHours, checkMinutes] = timeString.split(':').map(Number);
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
-    const checkTotalMinutes = checkHours * 60 + checkMinutes;
+    const checkHoursSafe = checkHours ?? 0;
+    const checkMinutesSafe = checkMinutes ?? 0;
+    const startTotalMinutes = startHoursSafe * 60 + startMinutesSafe;
+    const endTotalMinutes = endHoursSafe * 60 + endMinutesSafe;
+    const checkTotalMinutes = checkHoursSafe * 60 + checkMinutesSafe;
 
     if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes < endTotalMinutes) {
       return { available: true };
@@ -303,11 +309,17 @@ async function checkProviderAvailability(
 
   // Check if time falls within recurring window
   const [startHours, startMinutes] = recurring.startTime.split(':').map(Number);
+    const startHoursSafe = startHours ?? 0;
+    const startMinutesSafe = startMinutes ?? 0;
   const [endHours, endMinutes] = recurring.endTime.split(':').map(Number);
+    const endHoursSafe = endHours ?? 0;
+    const endMinutesSafe = endMinutes ?? 0;
   const [checkHours, checkMinutes] = timeString.split(':').map(Number);
-  const startTotalMinutes = startHours * 60 + startMinutes;
-  const endTotalMinutes = endHours * 60 + endMinutes;
-  const checkTotalMinutes = checkHours * 60 + checkMinutes;
+    const checkHoursSafe = checkHours ?? 0;
+    const checkMinutesSafe = checkMinutes ?? 0;
+  const startTotalMinutes = startHoursSafe * 60 + startMinutesSafe;
+  const endTotalMinutes = endHoursSafe * 60 + endMinutesSafe;
+  const checkTotalMinutes = checkHoursSafe * 60 + checkMinutesSafe;
 
   if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes < endTotalMinutes) {
     return { available: true };
@@ -524,8 +536,9 @@ export const createAppointment = mutation({
 
     if (patientConflicts.length > 0) {
       const conflict = patientConflicts[0];
-      const conflictStart = new Date(conflict.scheduledAt);
-      const conflictEnd = new Date(conflict.scheduledAt + conflict.duration * 60 * 1000);
+      if (!conflict) return;
+      const conflictStart = new Date(conflict.scheduledAt ?? 0);
+      const conflictEnd = new Date((conflict.scheduledAt ?? 0) + (conflict.duration ?? 0) * 60 * 1000);
       throw new Error(
         `You already have an appointment scheduled from ${conflictStart.toLocaleString()} to ${conflictEnd.toLocaleString()}`
       );
@@ -583,8 +596,9 @@ export const createAppointment = mutation({
       // Handle internal appointment conflicts
       if (hasInternalConflicts) {
         const conflict = conflictingAppointments[0];
-        const conflictStart = new Date(conflict.scheduledAt);
-        const conflictEnd = new Date(conflict.scheduledAt + conflict.duration * 60 * 1000);
+        if (!conflict) return;
+        const conflictStart = new Date(conflict.scheduledAt ?? 0);
+        const conflictEnd = new Date((conflict.scheduledAt ?? 0) + (conflict.duration ?? 0) * 60 * 1000);
         conflictMessages.push(`existing appointment from ${conflictStart.toLocaleString()} to ${conflictEnd.toLocaleString()}`);
 
         // Find available slots near the requested time using availability logic
@@ -651,9 +665,10 @@ export const createAppointment = mutation({
       // Handle external calendar conflicts
       if (hasExternalConflicts) {
         const externalConflict = externalConflicts[0];
-        const externalStart = new Date(externalConflict.start);
-        const externalEnd = new Date(externalConflict.end);
-        conflictMessages.push(`external calendar event "${externalConflict.summary}" from ${externalStart.toLocaleString()} to ${externalEnd.toLocaleString()}`);
+        if (!externalConflict) return;
+        const externalStart = new Date(externalConflict.start ?? 0);
+        const externalEnd = new Date(externalConflict.end ?? 0);
+        conflictMessages.push(`external calendar event "${externalConflict.summary ?? 'Unknown'}" from ${externalStart.toLocaleString()} to ${externalEnd.toLocaleString()}`);
       }
 
       // If we don't have enough suggestions, try finding slots using availability windows
@@ -694,8 +709,10 @@ export const createAppointment = mutation({
         
         if (dayAvailability) {
           const [startHours, startMinutes] = dayAvailability.startTime.split(':').map(Number);
+    const startHoursSafe = startHours ?? 0;
+    const startMinutesSafe = startMinutes ?? 0;
           const availabilityStart = new Date(requestDate);
-          availabilityStart.setHours(startHours, startMinutes, 0, 0);
+          availabilityStart.setHours(startHoursSafe, startMinutesSafe, 0, 0);
           
           if (availabilityStart.getTime() > now && suggestions.length < 3) {
             suggestions.push(availabilityStart.toLocaleString());
@@ -1073,66 +1090,68 @@ export const updateAppointment = mutation({
         // Handle internal appointment conflicts
         if (hasInternalConflicts) {
           const conflict = conflictingAppointments[0];
-          const conflictStart = new Date(conflict.scheduledAt);
-          const conflictEnd = new Date(conflict.scheduledAt + conflict.duration * 60 * 1000);
-          conflictMessages.push(`existing appointment from ${conflictStart.toLocaleString()} to ${conflictEnd.toLocaleString()}`);
+          if (conflict) {
+            const conflictStart = new Date(conflict.scheduledAt ?? 0);
+            const conflictEnd = new Date((conflict.scheduledAt ?? 0) + (conflict.duration ?? 0) * 60 * 1000);
+            conflictMessages.push(`existing appointment from ${conflictStart.toLocaleString()} to ${conflictEnd.toLocaleString()}`);
 
-          // Find available slots near the requested time using availability logic
-          const searchStart = Math.max(now, conflictStart.getTime() - (2 * 60 * 60 * 1000));
-          const searchEnd = conflictEnd.getTime() + (2 * 60 * 60 * 1000);
-          
-          // Get all appointments in the search window for availability calculation
-          const searchWindowAppointments = existingAppointment.providerId
-            ? await ctx.db
-                .query("appointments")
-                .withIndex("by_provider_date", (q) => 
-                  q.eq("providerId", existingAppointment.providerId!)
-                    .gte("scheduledAt", searchStart)
-                    .lte("scheduledAt", searchEnd)
-                )
-                .filter((q) => 
-                  q.and(
-                    q.eq(q.field("tenantId"), existingAppointment.tenantId),
-                    q.neq(q.field("status"), "cancelled"),
-                    q.neq(q.field("_id"), id), // Exclude the appointment being updated
-                    q.neq(q.field("_id"), conflict._id) // Exclude the conflicting appointment
+            // Find available slots near the requested time using availability logic
+            const searchStart = Math.max(now, conflictStart.getTime() - (2 * 60 * 60 * 1000));
+            const searchEnd = conflictEnd.getTime() + (2 * 60 * 60 * 1000);
+            
+            // Get all appointments in the search window for availability calculation
+            const searchWindowAppointments = existingAppointment.providerId
+              ? await ctx.db
+                  .query("appointments")
+                  .withIndex("by_provider_date", (q) => 
+                    q.eq("providerId", existingAppointment.providerId!)
+                      .gte("scheduledAt", searchStart)
+                      .lte("scheduledAt", searchEnd)
                   )
-                )
-                .collect()
-            : [];
-          
-          // Try to find available slots before and after conflict
-          const checkSlots = [
-            conflictStart.getTime() - (slotDuration * 60 * 1000) - (30 * 60 * 1000), // 30 min before
-            conflictStart.getTime() - (slotDuration * 60 * 1000), // Right before
-            conflictEnd.getTime() + (30 * 60 * 1000), // Right after
-            conflictEnd.getTime() + (60 * 60 * 1000), // 1 hour after
-          ];
-          
-          for (const slotTime of checkSlots) {
-            if (slotTime < now) continue; // Skip past times
+                  .filter((q) => 
+                    q.and(
+                      q.eq(q.field("tenantId"), existingAppointment.tenantId),
+                      q.neq(q.field("status"), "cancelled"),
+                      q.neq(q.field("_id"), id), // Exclude the appointment being updated
+                      q.neq(q.field("_id"), conflict._id) // Exclude the conflicting appointment
+                    )
+                  )
+                  .collect()
+              : [];
             
-            // Check if this slot conflicts with any appointment
-            const hasConflict = searchWindowAppointments.some((apt) => {
-              const aptStart = apt.scheduledAt;
-              const aptEnd = aptStart + (apt.duration * 60 * 1000);
-              const slotEnd = slotTime + (slotDuration * 60 * 1000);
-              
-              return (slotTime < aptEnd && slotEnd > aptStart);
-            });
+            // Try to find available slots before and after conflict
+            const checkSlots = [
+              conflictStart.getTime() - (slotDuration * 60 * 1000) - (30 * 60 * 1000), // 30 min before
+              conflictStart.getTime() - (slotDuration * 60 * 1000), // Right before
+              conflictEnd.getTime() + (30 * 60 * 1000), // Right after
+              conflictEnd.getTime() + (60 * 60 * 1000), // 1 hour after
+            ];
             
-            // Check if provider is available at this time (only if providerId exists)
-            if (!hasConflict && existingAppointment.providerId) {
-              const slotAvailability = await checkProviderAvailability(
-                ctx,
-                existingAppointment.providerId,
-                slotTime,
-                locationId,
-                existingAppointment.tenantId
-              );
+            for (const slotTime of checkSlots) {
+              if (slotTime < now) continue; // Skip past times
               
-              if (slotAvailability.available && suggestions.length < 3) {
-                suggestions.push(new Date(slotTime).toLocaleString());
+              // Check if this slot conflicts with any appointment
+              const hasConflict = searchWindowAppointments.some((apt) => {
+                const aptStart = apt.scheduledAt;
+                const aptEnd = aptStart + (apt.duration * 60 * 1000);
+                const slotEnd = slotTime + (slotDuration * 60 * 1000);
+                
+                return (slotTime < aptEnd && slotEnd > aptStart);
+              });
+              
+              // Check if provider is available at this time (only if providerId exists)
+              if (!hasConflict && existingAppointment.providerId) {
+                const slotAvailability = await checkProviderAvailability(
+                  ctx,
+                  existingAppointment.providerId,
+                  slotTime,
+                  locationId,
+                  existingAppointment.tenantId
+                );
+                
+                if (slotAvailability.available && suggestions.length < 3) {
+                  suggestions.push(new Date(slotTime).toLocaleString());
+                }
               }
             }
           }
@@ -1141,9 +1160,11 @@ export const updateAppointment = mutation({
         // Handle external calendar conflicts
         if (hasExternalConflicts) {
           const externalConflict = externalConflicts[0];
-          const externalStart = new Date(externalConflict.start);
-          const externalEnd = new Date(externalConflict.end);
-          conflictMessages.push(`external calendar event "${externalConflict.summary}" from ${externalStart.toLocaleString()} to ${externalEnd.toLocaleString()}`);
+          if (externalConflict) {
+            const externalStart = new Date(externalConflict.start ?? 0);
+            const externalEnd = new Date(externalConflict.end ?? 0);
+            conflictMessages.push(`external calendar event "${externalConflict.summary ?? 'Unknown'}" from ${externalStart.toLocaleString()} to ${externalEnd.toLocaleString()}`);
+          }
         }
 
         // If we don't have enough suggestions, try finding slots using availability windows
@@ -1184,8 +1205,10 @@ export const updateAppointment = mutation({
           
           if (dayAvailability) {
             const [startHours, startMinutes] = dayAvailability.startTime.split(':').map(Number);
+    const startHoursSafe = startHours ?? 0;
+    const startMinutesSafe = startMinutes ?? 0;
             const availabilityStart = new Date(requestDate);
-            availabilityStart.setHours(startHours, startMinutes, 0, 0);
+            availabilityStart.setHours(startHoursSafe, startMinutesSafe, 0, 0);
             
             if (availabilityStart.getTime() > now && suggestions.length < 3) {
               suggestions.push(availabilityStart.toLocaleString());

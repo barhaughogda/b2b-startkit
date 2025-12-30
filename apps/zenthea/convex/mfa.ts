@@ -245,6 +245,7 @@ export const verifyBackupCode = action({
 
     for (let i = 0; i < user.mfaSettings.backupCodes.length; i++) {
       const hashedCode = user.mfaSettings.backupCodes[i];
+      if (!hashedCode) continue;
       const matches = await bcrypt.compare(args.code, hashedCode);
       
       if (matches) {
