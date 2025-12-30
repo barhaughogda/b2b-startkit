@@ -88,16 +88,16 @@ export function VersionHistory({
   const [newSnapshotNote, setNewSnapshotNote] = useState('');
 
   // Queries
-  const versions = useQuery(api.websiteBuilder.getVersionHistory, {
+  const versions = useQuery((api as any).websiteBuilder.getVersionHistory, {
     tenantId,
     limit: 50,
   });
 
   // Mutations
-  const createSnapshot = useMutation(api.websiteBuilder.createVersionSnapshot);
-  const restoreVersion = useMutation(api.websiteBuilder.restoreVersion);
-  const updateMetadata = useMutation(api.websiteBuilder.updateVersionMetadata);
-  const deleteVersion = useMutation(api.websiteBuilder.deleteVersion);
+  const createSnapshot = useMutation((api as any).websiteBuilder.createVersionSnapshot);
+  const restoreVersion = useMutation((api as any).websiteBuilder.restoreVersion);
+  const updateMetadata = useMutation((api as any).websiteBuilder.updateVersionMetadata);
+  const deleteVersion = useMutation((api as any).websiteBuilder.deleteVersion);
 
   const handleCreateSnapshot = async () => {
     try {
@@ -266,7 +266,7 @@ export function VersionHistory({
                   </CardContent>
                 </Card>
               ) : (
-                versions.map((version) => (
+                versions.map((version: any) => (
                   <Card 
                     key={version._id}
                     className={cn(

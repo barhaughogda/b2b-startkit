@@ -75,10 +75,10 @@ export function useSlotLock(options: UseSlotLockOptions) {
   const sessionId = options.sessionId || generateSessionId();
   
   // Mutations
-  const acquireLockMutation = useMutation(api.slotLocks.acquireLock);
-  const releaseLockMutation = useMutation(api.slotLocks.releaseLock);
-  const extendLockMutation = useMutation(api.slotLocks.extendLock);
-  const releaseSessionLocksMutation = useMutation(api.slotLocks.releaseSessionLocks);
+  const acquireLockMutation = useMutation((api as any).slotLocks.acquireLock);
+  const releaseLockMutation = useMutation((api as any).slotLocks.releaseLock);
+  const extendLockMutation = useMutation((api as any).slotLocks.extendLock);
+  const releaseSessionLocksMutation = useMutation((api as any).slotLocks.releaseSessionLocks);
   
   // State
   const [lockState, setLockState] = useState<SlotLockState>({

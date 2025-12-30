@@ -53,8 +53,8 @@ export default function CareTeamBlockEditor({ props, onChange }: BlockEditorProp
       <div className="space-y-2">
         <Label>Max Providers: {careTeamProps.maxProviders}</Label>
         <Slider
-          value={[careTeamProps.maxProviders]}
-          onValueChange={([value]) => updateProp('maxProviders', value)}
+          value={[careTeamProps.maxProviders ?? 4]}
+          onValueChange={([value]) => value !== undefined && updateProp('maxProviders', value)}
           min={1}
           max={12}
           step={1}

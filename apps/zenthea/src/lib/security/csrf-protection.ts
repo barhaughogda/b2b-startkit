@@ -50,6 +50,7 @@ class CSRFProtection {
     try {
       const payload = Buffer.from(token, 'base64').toString();
       const [timestamp] = payload.split(':');
+      if (!timestamp) return false;
       const tokenAge = Date.now() - parseInt(timestamp);
       
       if (tokenAge > this.config.maxAge) {
@@ -65,8 +66,8 @@ class CSRFProtection {
   /**
    * Set CSRF token cookie
    */
-  setCSRFCookie(token: string): void {
-    const cookieStore = cookies();
+  async setCSRFCookie(token: string): Promise<void> {
+    const cookieStore = await cookies();
     cookieStore.set(this.config.cookieName, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -79,8 +80,8 @@ class CSRFProtection {
   /**
    * Get CSRF token from cookie
    */
-  getCSRFCookie(): string | null {
-    const cookieStore = cookies();
+  async getCSRFCookie(): Promise<string | null> {
+    const cookieStore = await cookies();
     return cookieStore.get(this.config.cookieName)?.value || null;
   }
 
@@ -104,7 +105,7 @@ class CSRFProtection {
       }
 
       // Get token from cookie
-      const cookieToken = this.getCSRFCookie();
+      const cookieToken = await this.getCSRFCookie();
       if (!cookieToken) {
         return { 
           valid: false, 
@@ -145,9 +146,9 @@ const csrfProtection = new CSRFProtection(defaultConfig);
 /**
  * Generate and set CSRF token
  */
-export function generateCSRFToken(): string {
+export async function generateCSRFToken(): Promise<string> {
   const token = csrfProtection.generateToken();
-  csrfProtection.setCSRFCookie(token);
+  await csrfProtection.setCSRFCookie(token);
   return token;
 }
 
@@ -189,7 +190,7 @@ export async function withCSRFProtection(
 /**
  * Get CSRF token for client-side use
  */
-export function getCSRFToken(): string | null {
+export async function getCSRFToken(): Promise<string | null> {
   return csrfProtection.getCSRFCookie();
 }
 

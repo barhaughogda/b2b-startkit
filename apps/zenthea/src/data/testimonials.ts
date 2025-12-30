@@ -66,7 +66,7 @@ export const testimonials: Testimonial[] = [
  */
 export function getRandomTestimonial(): Testimonial {
   const randomIndex = Math.floor(Math.random() * testimonials.length);
-  return testimonials[randomIndex];
+  return testimonials[randomIndex]!;
 }
 
 /**

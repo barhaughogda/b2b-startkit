@@ -112,7 +112,7 @@ export function getCorrectLoginUrl(
 export function isTenantPortal(hostname: string): boolean {
   // Check for subdomain pattern
   const mainDomains = ['zenthea.ai', 'zenthea.com', 'localhost', 'vercel.app'];
-  const normalizedHost = hostname.split(':')[0].toLowerCase();
+  const normalizedHost = (hostname.split(':')[0] || '').toLowerCase();
 
   // If it's not a main domain, it's a custom domain (tenant portal)
   const isMainDomain = mainDomains.some(domain => 
@@ -143,7 +143,7 @@ export function isTenantPortal(hostname: string): boolean {
  * Returns subdomain or null if on main domain
  */
 export function extractTenantFromHostname(hostname: string): string | null {
-  const normalizedHost = hostname.split(':')[0].toLowerCase();
+  const normalizedHost = (hostname.split(':')[0] || '').toLowerCase();
   const mainDomains = ['zenthea.ai', 'zenthea.com', 'localhost', 'vercel.app'];
 
   // Check for custom domain (not a zenthea domain)

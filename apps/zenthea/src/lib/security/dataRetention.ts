@@ -207,8 +207,13 @@ export class DataRetentionService {
   }
 
   private anonymizeEmail(email: string): string {
-    const [local, domain] = email.split('@');
-    return `${local.charAt(0)}***@${domain}`;
+    const parts = email.split('@');
+    const local = parts[0];
+    const domain = parts[1];
+    if (local && domain) {
+      return `${local.charAt(0)}***@${domain}`;
+    }
+    return '***@***';
   }
 
   private anonymizePhone(phone: string): string {

@@ -82,7 +82,7 @@ export default function ContactBlock({
     }
     
     // Parse lines like "Mon-Fri: 9:00 AM - 5:00 PM" into { day, hours } format
-    return openingHoursSummary.lines.map(line => {
+    return openingHoursSummary.lines.map((line: string) => {
       const colonIndex = line.indexOf(':');
       if (colonIndex === -1) {
         return { day: line, hours: '' };
@@ -301,7 +301,7 @@ export default function ContactBlock({
                     <div className="min-w-0 flex-1">
                       <p className="text-xs sm:text-sm mb-1" style={{ color: secondaryTextColor }}>Hours</p>
                       <div className="space-y-1">
-                        {hours.map((h, i) => (
+                        {hours.map((h: { day: string; hours: string }, i: number) => (
                           <div key={i} className="text-xs sm:text-sm">
                             <span className="font-medium" style={{ color: primaryTextColor }}>{h.day}:</span>{' '}
                             <span style={{ color: secondaryTextColor }}>{h.hours}</span>

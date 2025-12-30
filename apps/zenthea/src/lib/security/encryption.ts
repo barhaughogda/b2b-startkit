@@ -43,7 +43,7 @@ export class EncryptionService {
     try {
       const key = this.getEncryptionKey();
       const iv = crypto.randomBytes(this.ivLength);
-      const cipher = crypto.createCipher(this.algorithm, key);
+      const cipher = crypto.createCipheriv(this.algorithm, key, iv);
       
       // Set additional authenticated data (AAD) for extra security
       const aad = Buffer.from(`zenthea-phi-${patientId || 'system'}`, 'utf8');
@@ -80,7 +80,7 @@ export class EncryptionService {
       const iv = Buffer.from(encryptedPHI.iv, 'hex');
       const authTag = Buffer.from(encryptedPHI.authTag, 'hex');
       
-      const decipher = crypto.createDecipher(this.algorithm, key);
+      const decipher = crypto.createDecipheriv(this.algorithm, key, iv);
       
       // Set additional authenticated data (AAD) for extra security
       const aad = Buffer.from(`zenthea-phi-${patientId || encryptedPHI.patientId || 'system'}`, 'utf8');
@@ -284,7 +284,9 @@ export function encryptPHISync(data: string): string {
   // In production, this should be replaced with proper encryption
   const key = process.env.PHI_ENCRYPTION_KEY || 'default-key-for-development';
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipher('aes-256-cbc', key);
+  // Hash the key to ensure it's the correct length for AES-256-CBC
+  const keyBuffer = crypto.createHash('sha256').update(key).digest();
+  const cipher = crypto.createCipheriv('aes-256-cbc', keyBuffer, iv);
   
   let encrypted = cipher.update(data, 'utf8', 'hex');
   encrypted += cipher.final('hex');
@@ -301,8 +303,9 @@ export function decryptPHISync(encryptedData: string): string {
     const parsed = JSON.parse(encryptedData);
     const key = process.env.PHI_ENCRYPTION_KEY || 'default-key-for-development';
     const iv = Buffer.from(parsed.iv, 'hex');
+    const keyBuffer = crypto.createHash('sha256').update(key).digest();
     
-    const decipher = crypto.createDecipher('aes-256-cbc', key);
+    const decipher = crypto.createDecipheriv('aes-256-cbc', keyBuffer, iv);
     let decrypted = decipher.update(parsed.encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     

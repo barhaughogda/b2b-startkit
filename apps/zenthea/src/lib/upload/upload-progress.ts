@@ -255,6 +255,7 @@ export class ChunkedUploadHandler {
     additionalData: Record<string, any>
   ): Promise<void> {
     const chunk = this.chunks[chunkIndex];
+    if (!chunk) throw new Error(`Chunk ${chunkIndex} not found`);
     const formData = new FormData();
     
     formData.append('chunk', chunk);

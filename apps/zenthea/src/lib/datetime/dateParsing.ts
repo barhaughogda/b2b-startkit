@@ -33,29 +33,39 @@ export function parseDateFromFormat(dateString: string, dateFormat: DateFormat):
         const parts = trimmed.split('/');
         if (parts.length !== 3) return '';
         if (dateFormat === 'MM/DD/YYYY') {
-          [month, day, year] = parts;
+          month = parts[0]!;
+          day = parts[1]!;
+          year = parts[2]!;
         } else {
-          [day, month, year] = parts;
+          day = parts[0]!;
+          month = parts[1]!;
+          year = parts[2]!;
         }
         break;
       }
       case 'YYYY-MM-DD': {
         const parts = trimmed.split('-');
         if (parts.length !== 3) return '';
-        [year, month, day] = parts;
+        year = parts[0]!;
+        month = parts[1]!;
+        day = parts[2]!;
         break;
       }
       case 'DD.MM.YYYY': {
         const parts = trimmed.split('.');
         if (parts.length !== 3) return '';
-        [day, month, year] = parts;
+        day = parts[0]!;
+        month = parts[1]!;
+        year = parts[2]!;
         break;
       }
       case 'DD MMM YYYY': {
         // Parse format like "31 Dec 2024"
         const parts = trimmed.split(' ');
         if (parts.length !== 3) return '';
-        const [dayPart, monthName, yearPart] = parts;
+        const dayPart = parts[0]!;
+        const monthName = parts[1]!;
+        const yearPart = parts[2]!;
         day = dayPart;
         year = yearPart;
         

@@ -236,7 +236,7 @@ export function hasPermission(
   const checkedPath: string[] = [];
 
   for (let i = 0; i < pathParts.length; i++) {
-    const part = pathParts[i];
+    const part = pathParts[i]!;
     checkedPath.push(part);
 
     // Validate current level
@@ -271,7 +271,7 @@ export function hasPermission(
     if (part === 'features') {
       if (!current.features || typeof current.features !== 'object') {
         return createErrorResult(
-          `Section "${checkedPath[0]}" has no features`,
+          `Section "${checkedPath[0]!}" has no features`,
           checkedPath.join('.')
         );
       }
@@ -283,7 +283,7 @@ export function hasPermission(
     if (part === 'components') {
       if (!current.components || typeof current.components !== 'object') {
         return createErrorResult(
-          `Feature "${checkedPath[checkedPath.length - 2]}" has no components`,
+          `Feature "${checkedPath[checkedPath.length - 2]!}" has no components`,
           checkedPath.join('.')
         );
       }
@@ -295,7 +295,7 @@ export function hasPermission(
     if (part === 'tabs') {
       if (!current.tabs || typeof current.tabs !== 'object') {
         return createErrorResult(
-          `Component "${checkedPath[checkedPath.length - 2]}" has no tabs`,
+          `Component "${checkedPath[checkedPath.length - 2]!}" has no tabs`,
           checkedPath.join('.')
         );
       }

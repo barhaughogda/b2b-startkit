@@ -126,7 +126,7 @@ function ToolbarButton({ onClick, isActive, disabled, tooltip, children }: Toolb
             type="button"
             onMouseDown={handleMouseDown}
             disabled={disabled}
-            aria-label={tooltip.split('(')[0].trim()}
+            aria-label={tooltip.split('(')[0]?.trim() || ''}
             aria-keyshortcuts={ariaKeyshortcuts}
             aria-pressed={isActive}
             className={cn(

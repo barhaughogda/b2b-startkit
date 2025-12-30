@@ -52,7 +52,7 @@ export function useProviderRegistration({ tenantId, redirectTo = '/company/dashb
     const result = validateStep1({ firstName, lastName, email, phone });
     
     if (!result.isValid) {
-      setError(result.errors[0]); // Show first error
+      setError(result.errors[0] || 'Invalid input'); // Show first error
       return false;
     }
     
@@ -65,7 +65,7 @@ export function useProviderRegistration({ tenantId, redirectTo = '/company/dashb
     const result = validateStep2({ specialty, licenseNumber, npi });
     
     if (!result.isValid) {
-      setError(result.errors[0]); // Show first error
+      setError(result.errors[0] || 'Invalid input'); // Show first error
       return false;
     }
     
@@ -78,7 +78,7 @@ export function useProviderRegistration({ tenantId, redirectTo = '/company/dashb
     const result = validateStep3({ password, confirmPassword, acceptTerms, acceptPrivacy });
     
     if (!result.isValid) {
-      setError(result.errors[0]); // Show first error
+      setError(result.errors[0] || 'Invalid input'); // Show first error
       return false;
     }
     

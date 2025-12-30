@@ -189,17 +189,17 @@ export default function FAQBlock({
                   if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     const nextIndex = (index + 1) % displayItems.length;
-                    setSelectedQuestionId(displayItems[nextIndex].id);
+                    setSelectedQuestionId(displayItems[nextIndex]!.id);
                   } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     const prevIndex = (index - 1 + displayItems.length) % displayItems.length;
-                    setSelectedQuestionId(displayItems[prevIndex].id);
+                    setSelectedQuestionId(displayItems[prevIndex]!.id);
                   } else if (e.key === 'Home') {
                     e.preventDefault();
-                    setSelectedQuestionId(displayItems[0].id);
+                    setSelectedQuestionId(displayItems[0]!.id);
                   } else if (e.key === 'End') {
                     e.preventDefault();
-                    setSelectedQuestionId(displayItems[displayItems.length - 1].id);
+                    setSelectedQuestionId(displayItems[displayItems.length - 1]!.id);
                   } else if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     setSelectedQuestionId(item.id);

@@ -53,8 +53,9 @@ export function extractClientIP(
   }
 
   // Fallback to request.ip (direct connection)
-  if (request.ip) {
-    return request.ip;
+  const ip = (request as any).ip;
+  if (ip) {
+    return ip;
   }
 
   // Final fallback

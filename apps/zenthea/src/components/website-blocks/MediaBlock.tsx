@@ -39,7 +39,7 @@ function getVideoEmbedUrl(url: string): string | null {
   const youtubeMatch = url.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
   );
-  if (youtubeMatch) {
+  if (youtubeMatch && youtubeMatch[1]) {
     const videoId = youtubeMatch[1];
     // Validate video ID format (alphanumeric, hyphens, underscores only)
     if (!/^[a-zA-Z0-9_-]+$/.test(videoId)) {
@@ -50,7 +50,7 @@ function getVideoEmbedUrl(url: string): string | null {
 
   // Vimeo
   const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) {
+  if (vimeoMatch && vimeoMatch[1]) {
     const videoId = vimeoMatch[1];
     // Validate video ID is numeric
     if (!/^\d+$/.test(videoId)) {

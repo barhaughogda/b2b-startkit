@@ -29,7 +29,7 @@ interface TouchState {
 export function useTouchGestures(
   onGesture: (gesture: TouchGesture) => void,
   options: TouchGestureOptions = {}
-): React.RefObject<HTMLDivElement> {
+): React.RefObject<HTMLDivElement | null> {
   const {
     swipeThreshold = 50,
     longPressDelay = 500,
@@ -52,6 +52,7 @@ export function useTouchGestures(
     }
 
     const touch = e.touches[0];
+    if (!touch) return;
     const now = Date.now();
     
     touchState.current = {
@@ -91,6 +92,7 @@ export function useTouchGestures(
     }
 
     const touch = e.touches[0];
+    if (!touch) return;
     const deltaX = touch.clientX - touchState.current.startX;
     const deltaY = touch.clientY - touchState.current.startY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -124,19 +126,21 @@ export function useTouchGestures(
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
       
-      const distance = Math.sqrt(
-        Math.pow(touch2.clientX - touch1.clientX, 2) +
-        Math.pow(touch2.clientY - touch1.clientY, 2)
-      );
+      if (touch1 && touch2) {
+        const distance = Math.sqrt(
+          Math.pow(touch2.clientX - touch1.clientX, 2) +
+          Math.pow(touch2.clientY - touch1.clientY, 2)
+        );
 
-      onGesture({
-        type: 'pinch',
-        distance,
-        center: {
-          x: (touch1.clientX + touch2.clientX) / 2,
-          y: (touch1.clientY + touch2.clientY) / 2
-        }
-      });
+        onGesture({
+          type: 'pinch',
+          distance,
+          center: {
+            x: (touch1.clientX + touch2.clientX) / 2,
+            y: (touch1.clientY + touch2.clientY) / 2
+          }
+        });
+      }
     }
 
   }, [onGesture, swipeThreshold, preventDefault]);
@@ -154,6 +158,7 @@ export function useTouchGestures(
 
     const now = Date.now();
     const touch = e.changedTouches[0];
+    if (!touch) return;
     const deltaX = touch.clientX - touchState.current.startX;
     const deltaY = touch.clientY - touchState.current.startY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);

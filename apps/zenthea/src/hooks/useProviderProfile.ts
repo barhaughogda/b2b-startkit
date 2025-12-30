@@ -21,7 +21,7 @@ export function useProviderProfile(profileId?: string) {
   
   // Get profile by user ID (for provider editing their own profile)
   const profileData = useQuery(
-    api.providerProfiles.getProviderProfileByUserId,
+    (api as any).providerProfiles.getProviderProfileByUserId,
     canQueryByUserId
       ? {
           userId: session!.user!.id as Id<'users'>,
@@ -36,7 +36,7 @@ export function useProviderProfile(profileId?: string) {
   
   // Get specific profile by ID (for viewing)
   const specificProfile = useQuery(
-    api.providerProfiles.getProviderProfile,
+    (api as any).providerProfiles.getProviderProfile,
     canQueryByProfileId
       ? {
           profileId: profileId as Id<'providerProfiles'>,
@@ -46,8 +46,8 @@ export function useProviderProfile(profileId?: string) {
       : 'skip'
   );
   
-  const updateProfile = useMutation(api.providerProfiles.updateProviderProfile);
-  const createProfile = useMutation(api.providerProfiles.createProviderProfile);
+  const updateProfile = useMutation((api as any).providerProfiles.updateProviderProfile);
+  const createProfile = useMutation((api as any).providerProfiles.createProviderProfile);
   
   const profile = profileId ? specificProfile : profileData;
   

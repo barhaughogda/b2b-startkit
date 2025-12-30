@@ -24,11 +24,11 @@ export interface KeyboardTestSuite {
 }
 
 export class KeyboardTester {
-  private page: import('playwright').Page;
+  private page: any;
   private results: KeyboardTestResult[] = [];
-  private focusableElements: import('playwright').ElementHandle[] = [];
+  private focusableElements: any[] = [];
 
-  constructor(page: import('playwright').Page) {
+  constructor(page: any) {
     this.page = page;
   }
 
@@ -180,7 +180,7 @@ export class KeyboardTester {
   /**
    * Test tab trapping for a specific modal
    */
-  async testModalTabTrappingForModal(modal: import('playwright').ElementHandle): Promise<KeyboardTestResult> {
+  async testModalTabTrappingForModal(modal: any): Promise<KeyboardTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -203,7 +203,7 @@ export class KeyboardTester {
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       ).all();
       
-      const modalFocusableElements: import('playwright').ElementHandle[] = [];
+      const modalFocusableElements: any[] = [];
       for (const locator of modalLocators) {
         const elementHandle = await locator.elementHandle();
         if (elementHandle) {
@@ -287,7 +287,7 @@ export class KeyboardTester {
   /**
    * Test tab navigation within a specific form
    */
-  async testSingleFormTabNavigation(form: import('playwright').ElementHandle): Promise<KeyboardTestResult> {
+  async testSingleFormTabNavigation(form: any): Promise<KeyboardTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -295,7 +295,7 @@ export class KeyboardTester {
     try {
       const formInputLocators = await this.page.locator('input, select, textarea, button').all();
       
-      const formInputs: import('playwright').ElementHandle[] = [];
+      const formInputs: any[] = [];
       for (const locator of formInputLocators) {
         const elementHandle = await locator.elementHandle();
         if (elementHandle) {
@@ -379,7 +379,7 @@ export class KeyboardTester {
   /**
    * Test arrow key navigation for menus
    */
-  async testMenuArrowNavigation(menu: import('playwright').ElementHandle): Promise<KeyboardTestResult> {
+  async testMenuArrowNavigation(menu: any): Promise<KeyboardTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -387,7 +387,7 @@ export class KeyboardTester {
     try {
       const menuItemLocators = await this.page.locator('[role="menuitem"], [role="tab"], [role="option"]').all();
       
-      const menuItems: import('playwright').ElementHandle[] = [];
+      const menuItems: any[] = [];
       for (const locator of menuItemLocators) {
         const elementHandle = await locator.elementHandle();
         if (elementHandle) {
@@ -458,7 +458,7 @@ export class KeyboardTester {
   /**
    * Test arrow key navigation for lists
    */
-  async testListArrowNavigation(list: import('playwright').ElementHandle): Promise<KeyboardTestResult> {
+  async testListArrowNavigation(list: any): Promise<KeyboardTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -466,7 +466,7 @@ export class KeyboardTester {
     try {
       const listItemLocators = await this.page.locator('[role="option"], [role="treeitem"], [role="gridcell"]').all();
       
-      const listItems: import('playwright').ElementHandle[] = [];
+      const listItems: any[] = [];
       for (const locator of listItemLocators) {
         const elementHandle = await locator.elementHandle();
         if (elementHandle) {
@@ -551,7 +551,7 @@ export class KeyboardTester {
   /**
    * Test escape key on modal
    */
-  async testModalEscapeKey(modal: import('playwright').ElementHandle): Promise<KeyboardTestResult> {
+  async testModalEscapeKey(modal: any): Promise<KeyboardTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -601,7 +601,7 @@ export class KeyboardTester {
   /**
    * Test escape key on dropdown
    */
-  async testDropdownEscapeKey(dropdown: import('playwright').ElementHandle): Promise<KeyboardTestResult> {
+  async testDropdownEscapeKey(dropdown: any): Promise<KeyboardTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;
@@ -665,7 +665,7 @@ export class KeyboardTester {
   /**
    * Test focus indicator for a specific element
    */
-  async testElementFocusIndicator(element: import('playwright').ElementHandle): Promise<KeyboardTestResult> {
+  async testElementFocusIndicator(element: any): Promise<KeyboardTestResult> {
     const issues: string[] = [];
     const details: string[] = [];
     let passed = true;

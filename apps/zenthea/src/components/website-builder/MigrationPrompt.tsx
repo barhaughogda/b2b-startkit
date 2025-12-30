@@ -68,12 +68,12 @@ export function MigrationPrompt({
   } | null>(null);
 
   // Check migration status
-  const migrationStatus = useQuery(api.websiteBuilder.checkMigrationStatus, {
+  const migrationStatus = useQuery((api as any).websiteBuilder.checkMigrationStatus, {
     tenantId,
   });
 
   // Migration mutation
-  const migrate = useMutation(api.websiteBuilder.migrateFromLandingPage);
+  const migrate = useMutation((api as any).websiteBuilder.migrateFromLandingPage);
 
   // Don't show if already migrated or no legacy config
   if (!migrationStatus || !migrationStatus.needsMigration) {

@@ -326,7 +326,11 @@ export class MedicalImageManager {
     // Simple XOR encryption (NOT for production use)
     const key = new TextEncoder().encode(this.ENCRYPTION_KEY || 'default-key');
     for (let i = 0; i < encryptedBuffer.length; i++) {
-      encryptedBuffer[i] ^= key[i % key.length];
+      const currentByte = encryptedBuffer[i];
+      const keyByte = key[i % key.length];
+      if (currentByte !== undefined && keyByte !== undefined) {
+        encryptedBuffer[i] = currentByte ^ keyByte;
+      }
     }
     
     return new Blob([encryptedBuffer], { type: file.type });

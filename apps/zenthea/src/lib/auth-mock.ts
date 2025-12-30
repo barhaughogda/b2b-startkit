@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
             : originalRole;
           
           return {
-            id: user.email.split('@')[0], // Use email prefix as ID
+            id: user.email.split('@')[0]!, // Use email prefix as ID
             email: user.email,
             name: user.name,
             role: normalizedRole, // Use normalized role (clinic_user for admin/provider)
@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
             departments: [], // Mock: empty departments array
             permissions: undefined, // Mock: no permissions for now
             image: null,
-          };
+          } as any;
         }
         
         return null;
