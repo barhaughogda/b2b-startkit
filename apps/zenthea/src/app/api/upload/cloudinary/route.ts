@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession, type Session } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import {
   uploadToCloudinary,
   getCloudinaryFolder,
@@ -53,7 +53,7 @@ function validateFile(file: File): { valid: boolean; error?: string } {
 /**
  * Check if user has permission to upload images
  */
-function hasUploadPermission(session: Session | null): boolean {
+function hasUploadPermission(session: any): boolean {
   if (!session?.user) {
     return false;
   }
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Authenticate user
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     if (!session?.user) {
       logger.warn('Unauthenticated upload attempt', {
         endpoint: '/api/upload/cloudinary',

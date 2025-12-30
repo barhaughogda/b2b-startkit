@@ -6,12 +6,12 @@ import PatientBillingPage from '@/app/patient/billing/page';
 import { Id } from '@/convex/_generated/dataModel';
 import { api } from '@/convex/_generated/api';
 
-// Mock next-auth/react
+// Mock @/lib/auth/react
 const mockUseSession = vi.fn();
 const mockUseRouter = vi.fn();
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => mockUseSession(),
 }));
 
 vi.mock('next/navigation', () => ({

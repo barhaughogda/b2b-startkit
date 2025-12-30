@@ -7,9 +7,9 @@ import { PatientAvatarUpload } from '@/components/patient/PatientAvatarUpload';
 // Mock fetch
 global.fetch = vi.fn();
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: () => ({
+// Mock @/lib/auth
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => ({
     data: { user: { id: 'test-user-id', email: 'test@example.com' } },
     status: 'authenticated',
   }),

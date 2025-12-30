@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getToken } from 'next-auth/jwt';
+import { getToken } from '@/lib/auth/jwt';
 import { authOptions } from '@/lib/auth';
 import { NEXTAUTH_SESSION_COOKIE_NAME } from '@/lib/auth-constants';
 import { logger } from '@/lib/logger';

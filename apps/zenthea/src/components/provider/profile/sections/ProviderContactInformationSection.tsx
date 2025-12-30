@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,7 @@ interface ProviderContactInformationSectionProps {
 export function ProviderContactInformationSection({
   userData,
 }: ProviderContactInformationSectionProps) {
-  const { data: session, update: updateSession } = useSession();
+  const { data: session, update: updateSession } = useZentheaSession();
   const updateUser = useMutation(api.users.updateUser);
   const updateProvider = useMutation(api.providers.updateProvider);
   const [isSaving, setIsSaving] = useState(false);

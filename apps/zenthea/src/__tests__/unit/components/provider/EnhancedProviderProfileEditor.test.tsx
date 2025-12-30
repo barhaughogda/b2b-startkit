@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EnhancedProviderProfileEditor } from '@/components/provider/EnhancedProviderProfileEditor';
 
-// Mock next-auth/react
+// Mock @/lib/auth/react
 const mockSession = {
   user: {
     id: 'test-user-id',
@@ -16,8 +16,8 @@ const mockSession = {
   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
 };
 
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(() => ({
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(() => ({
     data: mockSession,
     status: 'authenticated',
   })),

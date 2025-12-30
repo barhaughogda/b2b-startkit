@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ProviderProfile, PatientTestimonial } from '@/types';
@@ -22,7 +22,7 @@ import Link from 'next/link';
 export default function PatientProviderProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const providerId = params.providerId as string;
   
   const [profile, setProfile] = useState<ProviderProfile | null>(null);

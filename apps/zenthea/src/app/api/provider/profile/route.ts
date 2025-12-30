@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getToken } from '@/lib/auth/jwt';
 import { fetchQuery, fetchMutation } from 'convex/nextjs';
 import jwt from 'jsonwebtoken';
 import { api } from '@/lib/convex-api';

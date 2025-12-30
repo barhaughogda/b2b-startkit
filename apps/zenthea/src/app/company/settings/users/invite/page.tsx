@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
@@ -36,7 +36,7 @@ interface InvitationFormData {
 }
 
 export default function InviteUserPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
   const tenantId = session?.user?.tenantId;
 

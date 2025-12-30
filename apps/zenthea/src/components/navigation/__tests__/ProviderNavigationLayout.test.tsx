@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { SessionProvider } from 'next-auth/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ProviderNavigationLayout } from '../ProviderNavigationLayout';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(() => ({
+// Mock hook
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(() => ({
     data: {
       user: {
         name: 'Test User',
@@ -15,8 +15,7 @@ vi.mock('next-auth/react', () => ({
     },
     status: 'authenticated',
     update: vi.fn(),
-  })),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  }))
 }));
 
 // Mock theme context
@@ -43,14 +42,12 @@ vi.mock('@/components/auth/AuthGuard', () => ({
 describe('ProviderNavigationLayout', () => {
   it('renders children with navigation header', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationLayout 
-          pageTitle="Today" 
-          pagePath="/provider/today"
-        >
-          <div>Test Content</div>
-        </ProviderNavigationLayout>
-      </SessionProvider>
+      <ProviderNavigationLayout 
+        pageTitle="Today" 
+        pagePath="/provider/today"
+      >
+        <div>Test Content</div>
+      </ProviderNavigationLayout>
     );
 
     expect(screen.getByText('Test Content')).toBeInTheDocument();
@@ -58,17 +55,15 @@ describe('ProviderNavigationLayout', () => {
 
   it('renders with custom navigation props', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationLayout 
-          pageTitle="Messages" 
-          pagePath="/provider/messages"
-          showSearch={true}
-          showNotifications={true}
-          notificationCount={3}
-        >
-          <div>Messages Content</div>
-        </ProviderNavigationLayout>
-      </SessionProvider>
+      <ProviderNavigationLayout 
+        pageTitle="Messages" 
+        pagePath="/provider/messages"
+        showSearch={true}
+        showNotifications={true}
+        notificationCount={3}
+      >
+        <div>Messages Content</div>
+      </ProviderNavigationLayout>
     );
 
     expect(screen.getByText('Messages Content')).toBeInTheDocument();
@@ -80,15 +75,13 @@ describe('ProviderNavigationLayout', () => {
 
   it('renders with minimal layout when showFullLayout is false', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationLayout 
-          pageTitle="Today" 
-          pagePath="/provider/today"
-          showFullLayout={false}
-        >
-          <div>Minimal Content</div>
-        </ProviderNavigationLayout>
-      </SessionProvider>
+      <ProviderNavigationLayout 
+        pageTitle="Today" 
+        pagePath="/provider/today"
+        showFullLayout={false}
+      >
+        <div>Minimal Content</div>
+      </ProviderNavigationLayout>
     );
 
     expect(screen.getByText('Minimal Content')).toBeInTheDocument();
@@ -96,11 +89,9 @@ describe('ProviderNavigationLayout', () => {
 
   it('should display search icon on all pages', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationLayout pageTitle="Test Page" pagePath="/test">
-          <div>Test Content</div>
-        </ProviderNavigationLayout>
-      </SessionProvider>
+      <ProviderNavigationLayout pageTitle="Test Page" pagePath="/test">
+        <div>Test Content</div>
+      </ProviderNavigationLayout>
     );
 
     // Search icon should be visible on all pages
@@ -109,15 +100,13 @@ describe('ProviderNavigationLayout', () => {
 
   it('should display search icon on individual patient pages', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationLayout 
-          pageTitle="Patient Profile" 
-          pagePath="/provider/patients"
-          showSearch={true}
-        >
-          <div>Patient Content</div>
-        </ProviderNavigationLayout>
-      </SessionProvider>
+      <ProviderNavigationLayout 
+        pageTitle="Patient Profile" 
+        pagePath="/provider/patients"
+        showSearch={true}
+      >
+        <div>Patient Content</div>
+      </ProviderNavigationLayout>
     );
 
     // Search icon should be visible on individual patient pages
@@ -126,14 +115,12 @@ describe('ProviderNavigationLayout', () => {
 
   it('should have bottom padding to account for AI agent widget', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationLayout 
-          pageTitle="Test Page" 
-          pagePath="/provider/test"
-        >
-          <div data-testid="main-content">Test Content</div>
-        </ProviderNavigationLayout>
-      </SessionProvider>
+      <ProviderNavigationLayout 
+        pageTitle="Test Page" 
+        pagePath="/provider/test"
+      >
+        <div data-testid="main-content">Test Content</div>
+      </ProviderNavigationLayout>
     );
 
     // Main content should have bottom padding to prevent overlap with AI agent widget

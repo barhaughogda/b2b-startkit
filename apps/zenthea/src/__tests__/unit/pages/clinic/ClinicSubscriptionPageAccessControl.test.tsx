@@ -14,13 +14,13 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import ClinicSubscriptionPage from '@/app/company/settings/subscription/page';
 
-// Mock next-auth/react
+// Mock @/lib/auth/react
 const mockUseSession = vi.fn();
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => mockUseSession(),
 }));
 
 // Mock ClinicLayout

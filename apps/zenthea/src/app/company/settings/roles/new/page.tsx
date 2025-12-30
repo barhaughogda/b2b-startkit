@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useMutation } from "convex/react";
@@ -23,7 +23,7 @@ import { BackButton } from "@/components/ui/back-button";
 export const dynamic = 'force-dynamic';
 
 export default function CreateRolePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
   const createRole = useMutation((api as any).customRoles?.createCustomRole as any);
 

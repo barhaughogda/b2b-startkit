@@ -1,7 +1,7 @@
 /// <reference types="@testing-library/jest-dom" />
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@/__tests__/utils/test-wrapper';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from 'convex/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 // Mock Next.js modules
 // Note: @/convex/_generated/api is already mocked globally in src/__tests__/setup.ts
-vi.mock('next-auth/react');
+vi.mock('@/hooks/useZentheaSession');
 vi.mock('next/navigation');
 vi.mock('convex/react');
 vi.mock('sonner');
@@ -205,7 +205,7 @@ vi.mock('@/lib/convexIdValidation', () => ({
   canUseConvexQuery: vi.fn(() => true),
 }));
 
-const mockUseSession = useSession as any;
+const mockUseSession = useZentheaSession as any;
 const mockUseSearchParams = useSearchParams as any;
 const mockUseRouter = useRouter as any;
 const mockUseQuery = useQuery as any;

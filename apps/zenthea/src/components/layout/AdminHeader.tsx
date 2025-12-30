@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
+import { useClerk } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -34,11 +35,12 @@ export function AdminHeader({
   isSidebarOpen = false,
   className,
 }: AdminHeaderProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
+  const { signOut } = useClerk();
 
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: '/' });
+      await signOut({ redirectUrl: '/' });
     } catch (error) {
       toast.error('Failed to sign out. Please try again.');
       console.error('Sign out error:', error);

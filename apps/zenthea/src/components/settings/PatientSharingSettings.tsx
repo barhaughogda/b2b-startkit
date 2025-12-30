@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,7 +26,7 @@ interface PatientSharingSettingsProps {
  * Mirrors the CalendarSharingSettings pattern.
  */
 export function PatientSharingSettings({ userId, tenantId }: PatientSharingSettingsProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   // Patient selection state
   const [selectedPatientId, setSelectedPatientId] = useState<string>('');

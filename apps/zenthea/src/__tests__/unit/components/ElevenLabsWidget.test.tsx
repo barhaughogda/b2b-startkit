@@ -10,8 +10,8 @@ vi.mock('next/navigation', () => ({
   usePathname: () => mockUsePathname(),
 }));
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => mockUseSession(),
 }));
 
 vi.mock('@/lib/auth-utils', () => ({

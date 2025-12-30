@@ -1,11 +1,11 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ClinicReportsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
 
   if (status === "loading") {
     return (

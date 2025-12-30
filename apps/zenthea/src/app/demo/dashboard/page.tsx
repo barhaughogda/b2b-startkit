@@ -1,11 +1,11 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession"; import { useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function DemoDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
 
   if (status === "loading") {
     return <div className="p-8">Loading...</div>;
@@ -23,7 +23,7 @@ export default function DemoDashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Demo Dashboard</h1>
             <p className="text-gray-600">Welcome to the Zenthea demo, {session?.user?.name}</p>
           </div>
-          <Button onClick={() => signOut({ callbackUrl: '/' })} variant="outline">
+          <Button onClick={() => signOut({ redirectUrl: '/' })} variant="outline">
             Sign Out
           </Button>
         </div>

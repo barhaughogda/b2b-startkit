@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import { 
   NavigationItem,
   QuickActionItem,
@@ -30,7 +30,7 @@ import { useNavigationActions } from './useNavigationActions';
  */
 export function useProviderNavigation() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   // Use focused hooks
   const navigationState = useNavigationState();

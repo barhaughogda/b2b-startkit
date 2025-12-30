@@ -3,11 +3,11 @@ import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { BaseCardComponent } from '../BaseCard';
 import { BaseCardProps, CardEventHandlers } from '../types';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 
-// Mock next-auth/react
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(() => ({
+// Mock hook
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(() => ({
     data: { user: { role: 'provider' } },
     status: 'authenticated'
   }))
@@ -187,7 +187,7 @@ describe('BaseCard', () => {
   describe('Patient Role Behavior', () => {
     beforeEach(() => {
       // Mock patient role
-      vi.mocked(useSession).mockReturnValue({
+      vi.mocked(useZentheaSession).mockReturnValue({
         data: { user: { role: 'patient' } },
         status: 'authenticated'
       } as any);
@@ -233,7 +233,7 @@ describe('BaseCard', () => {
   describe('Provider Role Behavior', () => {
     beforeEach(() => {
       // Mock provider role (default)
-      vi.mocked(useSession).mockReturnValue({
+      vi.mocked(useZentheaSession).mockReturnValue({
         data: { user: { role: 'provider' } },
         status: 'authenticated'
       } as any);

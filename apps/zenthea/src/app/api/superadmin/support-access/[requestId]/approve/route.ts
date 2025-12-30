@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getZentheaServerSession } from "@/lib/auth";
+
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../../../convex/_generated/api";
 import { Id } from "../../../../../../../convex/_generated/dataModel";
@@ -20,7 +20,7 @@ export async function POST(
 ) {
   try {
     // Verify user is authenticated
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     if (!session || !session.user || !session.user.email) {
       return NextResponse.json(
         {

@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -21,7 +21,7 @@ interface CalendarSharingSettingsProps {
 }
 
 export function CalendarSharingSettings({ userId, tenantId }: CalendarSharingSettingsProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [selectedPermission, setSelectedPermission] = useState<'view' | 'edit'>('view');
   const [searchEmail, setSearchEmail] = useState('');

@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "./useZentheaSession";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { canUseConvexQuery } from "@/lib/convexIdValidation";
@@ -230,7 +230,7 @@ const mockPatients: PatientWithComputedFields[] = [
  * ```
  */
 export function usePatients() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   // Get tenant ID from session or use demo tenant
   const tenantId = session?.user?.tenantId || 'demo-tenant';

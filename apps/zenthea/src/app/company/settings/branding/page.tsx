@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useForm } from "react-hook-form";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ interface BrandingFormData {
  * - Favicon configuration
  */
 export default function BrandingSettingsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const { 
     tenantData, 
     tenantId, 

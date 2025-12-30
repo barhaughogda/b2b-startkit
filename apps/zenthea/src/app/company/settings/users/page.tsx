@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useRouter } from "next/navigation";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
 import { ClinicUserManagement } from "@/components/clinic/ClinicUserManagement";
@@ -13,7 +13,7 @@ import { BackButton } from "@/components/ui/back-button";
 export const dynamic = 'force-dynamic';
 
 export default function ClinicUsersPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
 
   if (status === "loading") {

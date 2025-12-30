@@ -3,7 +3,7 @@
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import { useCallback } from 'react';
 
 /**
@@ -13,7 +13,7 @@ export function useNotifications(options?: {
   limit?: number;
   includeRead?: boolean;
 }) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const userId = session?.user?.id as Id<'users'> | undefined;
   const tenantId = session?.user?.tenantId;
 
@@ -96,7 +96,7 @@ export function useNotifications(options?: {
  * Hook specifically for calendar/appointment notifications
  */
 export function useCalendarNotifications() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const userId = session?.user?.id as Id<'users'> | undefined;
   const tenantId = session?.user?.tenantId;
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -19,7 +19,7 @@ import { ErrorState, InvoicesEmptyState } from '@/components/billing/BillingStat
 import type { ClaimStatus } from '@/types/billing';
 
 export default function PatientBillingPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
   
   // Task 5.3: State for claim details drawer

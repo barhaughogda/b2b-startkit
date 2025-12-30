@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQuery } from 'convex/react';
 import { Button } from '@/components/ui/button';
@@ -114,7 +114,7 @@ const DRAFT_STORAGE_KEY = 'patient_intake_draft';
 function PatientIntakePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const { patientId, patientProfile, isLoading: profileLoading } = usePatientProfileData();
   const updateProfile = useMutation((api as any).patientProfile?.updatePatientProfile);
   const updatePatient = useMutation((api as any).patients?.updatePatient);

@@ -1,11 +1,11 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function DashboardRedirect() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
 
   useEffect(() => {

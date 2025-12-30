@@ -4,8 +4,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockSignIn = vi.fn();
 const mockGetSession = vi.fn();
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => ({
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => ({
     data: null,
     status: 'unauthenticated',
   }),

@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+// Mock hook
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
+  authOptions: {},
 }));
 
 // Mock Convex
@@ -65,7 +66,7 @@ vi.mock('bcryptjs', () => ({
 // Mock environment variable
 process.env.NEXT_PUBLIC_CONVEX_URL = 'https://test-convex-url';
 
-const mockGetServerSession = getServerSession as ReturnType<typeof vi.fn>;
+const mockGetZentheaServerSession = getZentheaServerSession as ReturnType<typeof vi.fn>;
 
 // Import routes after mocks are set up
 let POST: typeof import('@/app/api/admin/users/route').POST;
@@ -83,7 +84,7 @@ describe('POST /api/admin/users', () => {
 
   describe('Authentication & Authorization', () => {
     it('should return 401 if user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockGetZentheaServerSession.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/admin/users', {
         method: 'POST',
@@ -103,7 +104,7 @@ describe('POST /api/admin/users', () => {
     });
 
     it('should return 403 if user is not admin', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'provider@example.com',
@@ -132,7 +133,7 @@ describe('POST /api/admin/users', () => {
 
   describe('User Creation', () => {
     beforeEach(() => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -282,7 +283,7 @@ describe('PUT /api/admin/users/[id]', () => {
 
   describe('Authentication & Authorization', () => {
     it('should return 401 if user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockGetZentheaServerSession.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/admin/users/user-1', {
         method: 'PUT',
@@ -299,7 +300,7 @@ describe('PUT /api/admin/users/[id]', () => {
     });
 
     it('should return 403 if user is not admin', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'provider@example.com',
@@ -325,7 +326,7 @@ describe('PUT /api/admin/users/[id]', () => {
 
   describe('User Update', () => {
     beforeEach(() => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -466,7 +467,7 @@ describe('DELETE /api/admin/users/[id]', () => {
 
   describe('Authentication & Authorization', () => {
     it('should return 401 if user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockGetZentheaServerSession.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/admin/users/user-1', {
         method: 'DELETE',
@@ -480,7 +481,7 @@ describe('DELETE /api/admin/users/[id]', () => {
     });
 
     it('should return 403 if user is not admin', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'provider@example.com',
@@ -503,7 +504,7 @@ describe('DELETE /api/admin/users/[id]', () => {
 
   describe('User Deletion', () => {
     beforeEach(() => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',

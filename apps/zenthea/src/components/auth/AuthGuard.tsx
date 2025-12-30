@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { useEffect, ReactNode } from 'react';
 
@@ -15,7 +15,7 @@ export function AuthGuard({
   loadingMessage = 'Loading...',
   requireAuth = true 
 }: AuthGuardProps) {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
 
   useEffect(() => {

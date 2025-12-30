@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,7 +44,7 @@ interface AllergiesFormProps {
 }
 
 export function AllergiesForm({ patientId, initialData }: AllergiesFormProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const addAllergy = useMutation((api as any).patientProfile?.addAllergy);
   const removeAllergy = useMutation((api as any).patientProfile?.removeAllergy);
   const [isSaving, setIsSaving] = useState(false);

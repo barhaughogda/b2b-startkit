@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 
 /**
  * Google Calendar OAuth Initiation Route
@@ -19,7 +19,7 @@ import { authOptions } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     // Verify user is authenticated
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session || !session.user) {
       return NextResponse.json(

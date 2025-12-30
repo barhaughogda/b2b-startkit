@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
+import { useClerk } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
@@ -45,7 +46,8 @@ export function PatientNavigationHeader({
   className = "",
 }: PatientNavigationHeaderProps) {
   const router = useRouter();
-  const { data: session, status: sessionStatus } = useSession();
+  const { data: session, status: sessionStatus } = useZentheaSession();
+  const { signOut } = useClerk();
   
   // Navigation state
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -101,7 +103,7 @@ export function PatientNavigationHeader({
 
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: '/patient/login' });
+      await signOut({ redirectUrl: '/patient/login' });
     } catch (error) {
       console.error('Sign out error:', error);
     }

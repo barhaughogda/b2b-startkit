@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+// Mock hook
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
 }));
 
 // Mock Convex
@@ -32,7 +32,7 @@ vi.mock('../../../../../convex/_generated/api', () => ({
 // Mock environment variable
 process.env.NEXT_PUBLIC_CONVEX_URL = 'https://test-convex-url';
 
-const mockGetServerSession = getServerSession as ReturnType<typeof vi.fn>;
+const mockGetZentheaServerSession = getZentheaServerSession as ReturnType<typeof vi.fn>;
 
 // Import route after mocks are set up
 let GET: typeof import('@/app/api/admin/users/route').GET;
@@ -48,7 +48,7 @@ describe('GET /api/admin/users', () => {
 
   describe('Authentication & Authorization', () => {
     it('should return 401 if user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockGetZentheaServerSession.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/admin/users');
       const response = await GET(request);
@@ -59,7 +59,7 @@ describe('GET /api/admin/users', () => {
     });
 
     it('should return 403 if user is not admin', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'provider@example.com',
@@ -77,7 +77,7 @@ describe('GET /api/admin/users', () => {
     });
 
     it('should allow admin users to access endpoint', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -103,7 +103,7 @@ describe('GET /api/admin/users', () => {
 
   describe('Pagination', () => {
     beforeEach(() => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -157,7 +157,7 @@ describe('GET /api/admin/users', () => {
 
   describe('Filtering', () => {
     beforeEach(() => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -245,7 +245,7 @@ describe('GET /api/admin/users', () => {
 
   describe('Tenant Isolation', () => {
     it('should filter users by tenantId from session', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -274,7 +274,7 @@ describe('GET /api/admin/users', () => {
     });
 
     it('should use default tenantId if not in session', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -305,7 +305,7 @@ describe('GET /api/admin/users', () => {
 
   describe('Response Format', () => {
     beforeEach(() => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -396,7 +396,7 @@ describe('GET /api/admin/users', () => {
 
   describe('Error Handling', () => {
     beforeEach(() => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',

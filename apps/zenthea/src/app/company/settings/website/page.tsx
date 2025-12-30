@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { ClinicLayout } from '@/components/layout/ClinicLayout';
@@ -66,7 +66,7 @@ interface PendingChanges {
 // =============================================================================
 
 export default function WebsiteBuilderPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const tenantId = session?.user?.tenantId;
 
   // Queries

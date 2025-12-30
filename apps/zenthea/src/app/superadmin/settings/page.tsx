@@ -1,10 +1,10 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { PlatformSettings } from "@/components/superadmin/PlatformSettings";
 
 export default function SuperAdminSettingsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
 
   if (status === "loading") {
     return (

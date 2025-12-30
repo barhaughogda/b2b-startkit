@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
@@ -37,7 +37,7 @@ interface InsurancePaymentFormProps {
 }
 
 export function InsurancePaymentForm({ onSuccess, onCancel }: InsurancePaymentFormProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const userEmail = session?.user?.email;
   const tenantId = session?.user?.tenantId;
 

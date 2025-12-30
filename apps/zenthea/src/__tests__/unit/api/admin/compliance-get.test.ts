@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+// Mock hook
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
 }));
 
 // Mock Convex
@@ -35,7 +35,7 @@ vi.mock('@/lib/admin-auth', () => ({
 // Mock environment variable
 process.env.NEXT_PUBLIC_CONVEX_URL = 'https://test-convex-url';
 
-const mockGetServerSession = getServerSession as ReturnType<typeof vi.fn>;
+const mockGetZentheaServerSession = getZentheaServerSession as ReturnType<typeof vi.fn>;
 
 // Import route after mocks are set up
 let GET: typeof import('@/app/api/admin/compliance/route').GET;

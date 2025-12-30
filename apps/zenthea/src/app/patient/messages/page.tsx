@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Id } from '../../../../convex/_generated/dataModel';
@@ -77,7 +77,7 @@ interface Conversation {
 }
 
 export default function PatientMessagesPage() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const { openCard } = useCardSystem();
   
   // Bulk selection state

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { api } from '../../../../../convex/_generated/api';
 import { ConvexHttpClient } from 'convex/browser';
 
@@ -8,7 +8,7 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session || session.user.role !== 'patient') {
       return NextResponse.json(
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session || session.user.role !== 'patient') {
       return NextResponse.json(

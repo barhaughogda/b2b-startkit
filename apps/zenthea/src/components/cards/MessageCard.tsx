@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useMutation } from 'convex/react';
 
 // Type import for Id (always available at compile time)
@@ -213,7 +213,7 @@ export function MessageCard({
   onTabChange,
   ...props 
 }: MessageCardProps & { handlers: CardEventHandlers }) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   // Safely handle useMutation - ensure API exists before calling
   // This prevents the "Cannot read properties of undefined (reading 'Symbol(functionName)')" error
   // in production when the API might not be fully generated

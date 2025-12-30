@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import React from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { useQuery } from 'convex/react';
 import { ConvexHttpClient } from 'convex/browser';
@@ -81,7 +81,7 @@ interface Conversation {
 }
 
 export default function MessagesPage() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const router = useRouter();
   const { openCard } = useCardSystem();
   

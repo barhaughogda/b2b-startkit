@@ -11,13 +11,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { ConvexHttpClient } from 'convex/browser';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+// Mock lib/auth
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
 }));
 
 // Mock Convex client
@@ -51,7 +51,7 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
         tenantId: 'tenant-a',
       },
     };
-    (getServerSession as any).mockResolvedValue(mockSession);
+    (getZentheaServerSession as any).mockResolvedValue(mockSession);
   });
 
   describe('Session Context Flow', () => {
@@ -73,7 +73,7 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
       ];
 
       for (const _route of routes) {
-        const session = await getServerSession(authOptions);
+        const session = await getZentheaServerSession();
         expect(session?.user?.tenantId).toBe('tenant-a');
       }
     });
@@ -87,9 +87,9 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
           // tenantId missing
         },
       };
-      (getServerSession as any).mockResolvedValueOnce(sessionWithoutTenant);
+      (getZentheaServerSession as any).mockResolvedValueOnce(sessionWithoutTenant);
 
-      const session = await getServerSession(authOptions);
+      const session = await getZentheaServerSession();
       expect(session?.user?.tenantId).toBeUndefined();
     });
   });
@@ -116,9 +116,9 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
           // tenantId missing
         },
       };
-      (getServerSession as any).mockResolvedValueOnce(sessionWithoutTenant);
+      (getZentheaServerSession as any).mockResolvedValueOnce(sessionWithoutTenant);
 
-      const session = await getServerSession(authOptions);
+      const session = await getZentheaServerSession();
       
       // API route should reject this request
       expect(session?.user?.tenantId).toBeUndefined();
@@ -146,13 +146,13 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
       };
 
       // When Tenant A user makes API request, they should only get Tenant A data
-      (getServerSession as any).mockResolvedValueOnce(tenantAUser);
-      const sessionA = await getServerSession(authOptions);
+      (getZentheaServerSession as any).mockResolvedValueOnce(tenantAUser);
+      const sessionA = await getZentheaServerSession();
       expect(sessionA?.user?.tenantId).toBe('tenant-a');
 
       // When Tenant B user makes API request, they should only get Tenant B data
-      (getServerSession as any).mockResolvedValueOnce(tenantBUser);
-      const sessionB = await getServerSession(authOptions);
+      (getZentheaServerSession as any).mockResolvedValueOnce(tenantBUser);
+      const sessionB = await getZentheaServerSession();
       expect(sessionB?.user?.tenantId).toBe('tenant-b');
 
       // Verify tenant IDs are different
@@ -214,8 +214,8 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
         },
       };
       
-      (getServerSession as any).mockResolvedValueOnce(tenantAUser);
-      const session = await getServerSession(authOptions);
+      (getZentheaServerSession as any).mockResolvedValueOnce(tenantAUser);
+      const session = await getZentheaServerSession();
       
       expect(session?.user?.tenantId).toBe('tenant-a');
       expect(session?.user?.role).toBe('clinic_user');
@@ -231,8 +231,8 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
         },
       };
       
-      (getServerSession as any).mockResolvedValueOnce(tenantBUser);
-      const session = await getServerSession(authOptions);
+      (getZentheaServerSession as any).mockResolvedValueOnce(tenantBUser);
+      const session = await getZentheaServerSession();
       
       expect(session?.user?.tenantId).toBe('tenant-b');
       expect(session?.user?.role).toBe('clinic_user');
@@ -251,8 +251,8 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
           },
         };
         
-        (getServerSession as any).mockResolvedValueOnce(user);
-        const session = await getServerSession(authOptions);
+        (getZentheaServerSession as any).mockResolvedValueOnce(user);
+        const session = await getZentheaServerSession();
         
         expect(session?.user?.tenantId).toBe(tenantId);
       }
@@ -270,8 +270,8 @@ describe('Multi-Tenant Isolation - Route Migration Verification', () => {
         },
       };
       
-      (getServerSession as any).mockResolvedValueOnce(tenantAUser);
-      const session = await getServerSession(authOptions);
+      (getZentheaServerSession as any).mockResolvedValueOnce(tenantAUser);
+      const session = await getZentheaServerSession();
       
       // Tenant A user should only have access to Tenant A data
       expect(session?.user?.tenantId).toBe('tenant-a');

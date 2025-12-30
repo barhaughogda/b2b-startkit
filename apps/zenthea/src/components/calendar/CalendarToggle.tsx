@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,7 +27,7 @@ export function CalendarToggle({
   selectedUserIds,
   onSelectionChange,
 }: CalendarToggleProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const [viewMode, setViewMode] = useState<ViewMode>('own');
   const [customSelections, setCustomSelections] = useState<Set<Id<'users'>>>(new Set([userId]));
 

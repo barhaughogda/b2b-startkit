@@ -6,7 +6,7 @@
  */
 
 import { useQuery } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { canUseConvexQuery, isValidConvexId } from '@/lib/convexIdValidation';
@@ -80,7 +80,7 @@ export function useProviderAvailability({
   timezone: formatTimezone,
   sessionId,
 }: UseProviderAvailabilityOptions): AvailabilityData {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = overrideTenantId || session?.user?.tenantId || 'demo-tenant';
 
   // Check if we can use Convex queries
@@ -266,7 +266,7 @@ export function useCheckAvailability({
   locationId,
   tenantId: overrideTenantId,
 }: UseCheckAvailabilityOptions): CheckAvailabilityResult {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = overrideTenantId || session?.user?.tenantId || 'demo-tenant';
 
   // Check if we can use Convex queries

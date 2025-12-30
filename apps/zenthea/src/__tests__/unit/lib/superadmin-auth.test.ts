@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 import { verifySuperAdminAuth } from '@/lib/superadmin-auth';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+// Mock hook
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
 }));
 
-const mockGetServerSession = getServerSession as ReturnType<typeof vi.fn>;
+const mockGetZentheaServerSession = getZentheaServerSession as ReturnType<typeof vi.fn>;
 
 describe('verifySuperAdminAuth', () => {
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('verifySuperAdminAuth', () => {
 
   describe('Authentication', () => {
     it('should return 401 if user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockGetZentheaServerSession.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/superadmin/tenants');
       const result = await verifySuperAdminAuth(request);
@@ -30,7 +30,7 @@ describe('verifySuperAdminAuth', () => {
     });
 
     it('should return 401 if session exists but user is missing', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: null,
       });
 
@@ -46,7 +46,7 @@ describe('verifySuperAdminAuth', () => {
 
   describe('Authorization', () => {
     it('should return 403 if user is not superadmin', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'admin@example.com',
@@ -66,7 +66,7 @@ describe('verifySuperAdminAuth', () => {
     });
 
     it('should return 403 for provider role', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'provider@example.com',
@@ -83,7 +83,7 @@ describe('verifySuperAdminAuth', () => {
     });
 
     it('should return 403 for patient role', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'patient@example.com',
@@ -110,7 +110,7 @@ describe('verifySuperAdminAuth', () => {
         },
       };
 
-      mockGetServerSession.mockResolvedValue(mockSession);
+      mockGetZentheaServerSession.mockResolvedValue(mockSession);
 
       const request = new NextRequest('http://localhost:3000/api/superadmin/tenants');
       const result = await verifySuperAdminAuth(request);
@@ -131,7 +131,7 @@ describe('verifySuperAdminAuth', () => {
         },
       };
 
-      mockGetServerSession.mockResolvedValue(mockSession);
+      mockGetZentheaServerSession.mockResolvedValue(mockSession);
 
       const request = new NextRequest('http://localhost:3000/api/superadmin/tenants');
       const result = await verifySuperAdminAuth(request);
@@ -147,7 +147,7 @@ describe('verifySuperAdminAuth', () => {
   describe('Error Handling', () => {
     it('should handle session errors gracefully', async () => {
       const sessionError = new Error('Session error');
-      mockGetServerSession.mockRejectedValue(sessionError);
+      mockGetZentheaServerSession.mockRejectedValue(sessionError);
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/superadmin/tenants');
@@ -169,7 +169,7 @@ describe('verifySuperAdminAuth', () => {
     });
 
     it('should handle unknown errors', async () => {
-      mockGetServerSession.mockRejectedValue('Unknown error');
+      mockGetZentheaServerSession.mockRejectedValue('Unknown error');
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/superadmin/tenants');

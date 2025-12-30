@@ -7,13 +7,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/auth/audit/route';
+import { getZentheaServerSession } from '@/lib/auth';
 
 // Mock dependencies
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
-}));
-
 vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
   authOptions: {},
 }));
 
@@ -36,7 +34,7 @@ vi.mock('@/lib/utils/request-helpers', () => ({
   }),
 }));
 
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 import { initializeConvex } from '@/lib/convex-client';
 import { extractClientIP, extractUserAgent } from '@/lib/utils/request-helpers';
 
@@ -338,7 +336,7 @@ describe('POST /api/auth/audit', () => {
   describe('Session Handling', () => {
     it('should use session userId for login_success when not provided', async () => {
       const sessionUserId = 'sessionUserId123456789';
-      vi.mocked(getServerSession).mockResolvedValue({
+      vi.mocked(getZentheaServerSession).mockResolvedValue({
         user: {
           id: sessionUserId,
           tenantId: 'tenant123',
@@ -360,7 +358,7 @@ describe('POST /api/auth/audit', () => {
     it('should use provided userId over session userId', async () => {
       const providedUserId = 'providedUserId123456789';
       const sessionUserId = 'sessionUserId123456789';
-      vi.mocked(getServerSession).mockResolvedValue({
+      vi.mocked(getZentheaServerSession).mockResolvedValue({
         user: {
           id: sessionUserId,
           tenantId: 'tenant123',

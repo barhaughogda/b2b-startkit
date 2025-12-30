@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import type { Id } from '@/convex/_generated/dataModel';
@@ -33,7 +33,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 function CompanyUserSettingsContent() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const { theme, setTheme: setThemeFromHook } = useTheme();
   const changePasswordAction = useAction(api.users.changePassword);
   const [browserNotificationsEnabled, setBrowserNotificationsEnabled] = useState(false);

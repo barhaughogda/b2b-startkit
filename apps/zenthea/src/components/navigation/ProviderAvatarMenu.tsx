@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
+import { useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { User, Settings, LogOut } from 'lucide-react';
 import Image from 'next/image';
@@ -12,7 +13,8 @@ interface ProviderAvatarMenuProps {
 }
 
 export function ProviderAvatarMenu({ className = "" }: ProviderAvatarMenuProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
+  const { signOut } = useClerk();
   const router = useRouter();
   
   // Fetch provider profile to get avatar
@@ -46,7 +48,7 @@ export function ProviderAvatarMenu({ className = "" }: ProviderAvatarMenuProps) 
   };
 
   const handleLogout = () => {
-    signOut({ callbackUrl: '/' });
+    signOut({ redirectUrl: '/' });
   };
 
   const userMenuItems = [

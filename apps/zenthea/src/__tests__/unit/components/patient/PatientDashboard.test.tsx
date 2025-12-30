@@ -1,12 +1,12 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import PatientDashboardPage from '@/app/patient/dashboard/page';
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn()
+// Mock @/lib/auth
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn()
 }));
 
 // Mock the HealthRecordsOverview component
@@ -30,7 +30,7 @@ describe('Patient Dashboard Page', () => {
 
   describe('Loading State', () => {
     it('should show loading spinner when session is loading', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: null,
         status: 'loading'
       });
@@ -44,7 +44,7 @@ describe('Patient Dashboard Page', () => {
 
   describe('Access Control', () => {
     it('should show access denied when no session', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: null,
         status: 'unauthenticated'
       });
@@ -56,7 +56,7 @@ describe('Patient Dashboard Page', () => {
     });
 
     it('should show access denied when user is not a patient', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: {
           ...mockSession,
           user: { ...mockSession.user, role: 'provider' }
@@ -72,7 +72,7 @@ describe('Patient Dashboard Page', () => {
 
   describe('Dashboard Content', () => {
     beforeEach(() => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: mockSession,
         status: 'authenticated'
       });
@@ -147,7 +147,7 @@ describe('Patient Dashboard Page', () => {
 
   describe('Interactive Elements', () => {
     beforeEach(() => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: mockSession,
         status: 'authenticated'
       });
@@ -185,7 +185,7 @@ describe('Patient Dashboard Page', () => {
 
   describe('Responsive Design', () => {
     beforeEach(() => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: mockSession,
         status: 'authenticated'
       });
@@ -210,7 +210,7 @@ describe('Patient Dashboard Page', () => {
 
   describe('Data Display', () => {
     beforeEach(() => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: mockSession,
         status: 'authenticated'
       });
@@ -243,7 +243,7 @@ describe('Patient Dashboard Page', () => {
 
   describe('Accessibility', () => {
     beforeEach(() => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: mockSession,
         status: 'authenticated'
       });

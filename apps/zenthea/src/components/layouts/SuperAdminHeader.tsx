@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
+import { useClerk } from '@clerk/nextjs';
 import { usePathname } from 'next/navigation';
 import { User, LogOut, Search } from 'lucide-react';
 import Image from 'next/image';
@@ -28,7 +29,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function SuperAdminHeader() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
+  const { signOut } = useClerk();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -57,7 +59,7 @@ export function SuperAdminHeader() {
   const breadcrumbs = generateBreadcrumbs();
 
   const handleLogout = () => {
-    signOut({ callbackUrl: '/' });
+    signOut({ redirectUrl: '/' });
   };
 
   const userInitials = session?.user?.name

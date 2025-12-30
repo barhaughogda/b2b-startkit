@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QuickActionsToolbar } from '@/components/billing/QuickActionsToolbar';
 import { useMutation } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 
 // Mock Convex API
 vi.mock('@/convex/_generated/api', () => ({
@@ -23,9 +23,9 @@ vi.mock('convex/react', () => ({
   useQuery: vi.fn(),
 }));
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(),
+// Mock @/lib/auth
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(),
 }));
 
 // Mock lucide-react icons
@@ -109,7 +109,7 @@ describe('QuickActionsToolbar', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    (useSession as ReturnType<typeof vi.fn>).mockReturnValue(mockSession);
+    (useZentheaSession as ReturnType<typeof vi.fn>).mockReturnValue(mockSession);
     
     // Mock useMutation to return appropriate mock functions
     (useMutation as ReturnType<typeof vi.fn>).mockReturnValue(vi.fn());
@@ -393,7 +393,7 @@ describe('QuickActionsToolbar', () => {
 
   describe('Session Handling', () => {
     it('should handle unauthenticated state gracefully', () => {
-      (useSession as ReturnType<typeof vi.fn>).mockReturnValue({
+      (useZentheaSession as ReturnType<typeof vi.fn>).mockReturnValue({
         data: null,
         status: 'unauthenticated' as const,
       });
@@ -408,7 +408,7 @@ describe('QuickActionsToolbar', () => {
       render(<QuickActionsToolbar />);
       
       // Component should be ready to use session email
-      expect(useSession).toHaveBeenCalled();
+      expect(useZentheaSession).toHaveBeenCalled();
     });
   });
 });

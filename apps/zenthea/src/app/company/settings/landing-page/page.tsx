@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
@@ -45,7 +45,7 @@ import { BackButton } from "@/components/ui/back-button";
  * - Custom sections
  */
 export default function LandingPageSettingsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const tenantId = session?.user?.tenantId;
 
   // Fetch current config

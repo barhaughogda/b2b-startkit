@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
@@ -37,7 +37,7 @@ interface ClinicWithUsage extends Clinic {
 }
 
 export default function ClinicsListPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clinicToDelete, setClinicToDelete] = useState<ClinicWithUsage | null>(null);

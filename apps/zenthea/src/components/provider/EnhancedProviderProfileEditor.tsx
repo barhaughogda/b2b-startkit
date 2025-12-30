@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
@@ -146,7 +146,7 @@ function EnhancedProviderProfileEditorInner({
   profileId,
   onSave
 }: EnhancedProviderProfileEditorProps) {
-  const { data: session, update: updateSession } = useSession();
+  const { data: session, update: updateSession } = useZentheaSession();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['identity']));
   const profileLoadedRef = useRef(false);
 

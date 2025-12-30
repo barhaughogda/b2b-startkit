@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
@@ -18,7 +18,7 @@ import { CardEventHandlers } from '@/components/cards/types';
 import { ConvexHttpClient } from 'convex/browser';
 
 export default function PatientDashboardPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const tenantId = session?.user?.tenantId || 'demo-tenant';
   const sessionUserId = session?.user?.id;
   const [selectedPrescriptionId, setSelectedPrescriptionId] = useState<string | null>(null);

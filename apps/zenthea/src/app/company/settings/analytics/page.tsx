@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
 import { ClinicAnalyticsDashboard } from "@/components/clinic/ClinicAnalyticsDashboard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -28,7 +28,7 @@ export const dynamic = 'force-dynamic';
  * See ACCESS_SYSTEM_REFACTORING_TASKS.md for details
  */
 export default function ClinicAnalyticsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
 
   if (status === "loading") {
     return (

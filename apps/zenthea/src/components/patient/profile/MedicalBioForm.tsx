@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,7 +18,7 @@ interface MedicalBioFormProps {
 }
 
 export function MedicalBioForm({ patientId, initialData }: MedicalBioFormProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const updateProfile = useMutation((api as any).patientProfile?.updatePatientProfile);
   const [isSaving, setIsSaving] = useState(false);
   const [medicalBio, setMedicalBio] = useState(initialData || '');

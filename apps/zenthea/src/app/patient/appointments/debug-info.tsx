@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Id } from '@/convex/_generated/dataModel';
 
 export function AppointmentsDebugInfo() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { data: session, status: sessionStatus } = useZentheaSession();
   const userEmail = session?.user?.email;
   const tenantId = session?.user?.tenantId || 'demo-tenant';
   const userRole = session?.user?.role;

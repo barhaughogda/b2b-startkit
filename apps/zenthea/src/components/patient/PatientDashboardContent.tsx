@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
@@ -16,7 +16,7 @@ import { CardType, Priority, TaskStatus } from '@/components/cards/types';
 import { transformMessageToCardData } from '@/lib/utils/messageDataTransform';
 
 export function PatientDashboardContent() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = session?.user?.tenantId || 'demo-tenant';
   const sessionUserId = session?.user?.id;
   const { openCard } = useCardSystem();

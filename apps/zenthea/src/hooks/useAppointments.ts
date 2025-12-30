@@ -5,7 +5,7 @@
  */
 
 import { useQuery, useMutation } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { canUseConvexQuery } from '@/lib/convexIdValidation';
@@ -34,7 +34,7 @@ export interface ConvexAppointment {
 type Appointment = ConvexAppointment;
 
 export function useAppointments(status: string = 'all') {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = session?.user?.tenantId || 'demo-tenant';
   const userEmail = session?.user?.email;
   const userRole = session?.user?.role;

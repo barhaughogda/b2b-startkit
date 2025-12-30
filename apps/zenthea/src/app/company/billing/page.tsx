@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ClinicLayout } from '@/components/layout/ClinicLayout';
@@ -51,7 +51,7 @@ const DEFAULT_PAGE_SIZE = 20;
  * - Real-time data updates via Convex
  */
 export default function BillingPage() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { data: session, status: sessionStatus } = useZentheaSession();
 
   // Filter state (Task 3.4)
   const [filters, setFilters] = useState<ClinicBillingFiltersState>({

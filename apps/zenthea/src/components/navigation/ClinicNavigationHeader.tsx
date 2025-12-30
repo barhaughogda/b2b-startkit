@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
+import { useClerk } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -35,7 +36,8 @@ export function ClinicNavigationHeader({
   className?: string;
 }) {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
+  const { signOut } = useClerk();
 
   // Navigation state
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -51,7 +53,7 @@ export function ClinicNavigationHeader({
 
   const handleSignOut = async () => {
     try {
-      await signOut({ callbackUrl: '/' });
+      await signOut({ redirectUrl: '/' });
     } catch (error) {
       console.error('Sign out error:', error);
     }

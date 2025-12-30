@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
@@ -34,7 +34,7 @@ export const dynamic = 'force-dynamic';
  * will be implemented in future tasks.
  */
 export default function ClinicSubscriptionPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
 
   // Get tenant subscription data (hooks must be called before conditional returns)
   const tenantId = session?.user?.tenantId;

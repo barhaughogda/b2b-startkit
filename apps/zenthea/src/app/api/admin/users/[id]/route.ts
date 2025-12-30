@@ -5,13 +5,12 @@ import { Id } from "../../../../../../convex/_generated/dataModel";
 import * as bcrypt from "bcryptjs";
 import { verifyAdminAuth } from "@/lib/admin-auth";
 import { logAdminAction } from "@/lib/security/audit-logger";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getZentheaServerSession } from "@/lib/auth";
 import { validatePassword } from "@/lib/validation/password";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-type AdminSession = NonNullable<Awaited<ReturnType<typeof getServerSession<typeof authOptions>>>>;
+type AdminSession = NonNullable<Awaited<ReturnType<typeof getZentheaServerSession>>>;
 
 interface UpdateUserData {
   name?: string;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useParams, useRouter } from 'next/navigation';
 import { ClinicLayout } from '@/components/layout/ClinicLayout';
 import { ArrowLeft, User, Phone, Mail, Calendar, FileText, Activity, Heart, AlertTriangle, Plus, Users, History } from 'lucide-react';
@@ -25,7 +25,7 @@ import { Priority, TaskStatus } from '@/components/cards/types';
 import { Id } from '@/convex/_generated/dataModel';
 
 function PatientProfileContent() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const params = useParams();
   const router = useRouter();
   const { patients, isLoading, error } = usePatients();

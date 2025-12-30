@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, screen, waitFor } from '@/__tests__/utils/test-wrapper';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { MockedFunction } from 'vitest';
 import TodayPage from '@/app/company/today/page';
 
 // Mock Next.js modules
-vi.mock('next-auth/react');
+vi.mock('@/hooks/useZentheaSession');
 vi.mock('next/navigation');
 
 // Mock the usePatients hook
@@ -284,7 +284,7 @@ vi.mock('@/components/ui/separator', () => ({
 
 // Using global lucide-react mock from src/__tests__/setup/lucide-react-mock.ts
 
-const mockUseSession = useSession as MockedFunction<typeof useSession>;
+const mockUseSession = useZentheaSession as MockedFunction<typeof useZentheaSession>;
 const mockUseRouter = useRouter as MockedFunction<typeof useRouter>;
 
 describe('TodayPage Accessibility Tests', () => {

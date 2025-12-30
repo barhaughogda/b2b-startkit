@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut } from '@/lib/auth/react';
 
 /**
  * Hook for navigation actions
@@ -15,7 +15,7 @@ export function useNavigationActions() {
   }, [router]);
 
   const handleLogout = useCallback(() => {
-    signOut({ callbackUrl: '/' });
+    signOut({ redirectUrl: '/' });
   }, []);
 
   const handleQuickAction = useCallback((action: string) => {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import { useEffect, useState, useMemo } from 'react';
 import { api } from '@/convex/_generated/api';
 import { canUseConvexQuery } from '@/lib/convexIdValidation';
@@ -19,7 +19,7 @@ import { convex } from '@/lib/convex';
  * - Domains (subdomain, custom domain, preferred access)
  */
 export function useClinicProfile() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = session?.user?.tenantId;
   const [queryError, setQueryError] = useState<Error | null>(null);
 

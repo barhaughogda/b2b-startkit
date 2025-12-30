@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getZentheaServerSession } from "@/lib/auth";
+
 
 /**
  * Type representing an admin session
  */
-export type AdminSession = NonNullable<Awaited<ReturnType<typeof getServerSession<typeof authOptions>>>>;
+export type AdminSession = NonNullable<Awaited<ReturnType<typeof getZentheaServerSession>>>;
 
 /**
  * Helper function to verify admin authorization
@@ -16,7 +16,7 @@ export async function verifyAdminAuth(request: NextRequest): Promise<
   | { authorized: false; response: NextResponse }
 > {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session || !session.user) {
       return {

@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { vi } from 'vitest';
 import TodayPage from '@/app/company/today/page';
 
 // Mock Next.js modules
-vi.mock('next-auth/react');
+vi.mock('@/hooks/useZentheaSession');
 vi.mock('next/navigation');
 
 // Mock the navigation layout component
@@ -96,7 +96,7 @@ vi.mock('@/components/ui/separator', () => ({
 
 // Using global lucide-react mock from src/__tests__/setup/lucide-react-mock.ts
 
-const mockUseSession = useSession as ReturnType<typeof vi.fn>;
+const mockUseSession = useZentheaSession as ReturnType<typeof vi.fn>;
 const mockUseRouter = useRouter as ReturnType<typeof vi.fn>;
 
 describe('TodayPage Integration Tests', () => {

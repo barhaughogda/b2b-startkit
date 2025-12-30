@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 import { S3ClientManager } from '@/lib/aws/s3-client';
-import { authOptions } from '@/lib/auth';
+
 import { ImageOptimizer } from '@/lib/images/image-optimizer';
 
 /**
@@ -164,7 +164,7 @@ async function validateVideoContent(file: File): Promise<{ valid: boolean; error
 export async function POST(request: NextRequest) {
   try {
     // Authenticate user
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     if (!session?.user || session.user.role !== 'provider') {
       return NextResponse.json(
         { error: 'Unauthorized' },

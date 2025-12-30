@@ -12,7 +12,7 @@
  * - Clean session termination
  */
 
-import { signOut } from 'next-auth/react';
+import { signOut } from '@/lib/auth/react';
 
 /**
  * Configuration for session timeout

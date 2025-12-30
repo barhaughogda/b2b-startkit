@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { ClinicLayout } from '@/components/layout/ClinicLayout';
@@ -15,7 +15,7 @@ interface Message {
 }
 
 export default function AIAssistantPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
   
   // Chat state

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PatientProfileDashboard } from '@/components/patient/PatientProfileDashboard';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { usePatientProfileData } from '@/hooks/usePatientProfileData';
 import { useProfileCompleteness } from '@/hooks/useProfileCompleteness';
@@ -14,10 +14,10 @@ import { useProfileCompleteness } from '@/hooks/useProfileCompleteness';
 // This avoids issues when convex codegen hasn't been run
 type Id<T extends string> = string & { __tableName: T };
 
-// Mock next-auth
+// Mock @/lib/auth
 const mockUseSession = vi.fn();
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => mockUseSession(),
 }));
 
 // Mock Convex

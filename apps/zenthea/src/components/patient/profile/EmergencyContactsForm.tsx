@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,7 +33,7 @@ interface EmergencyContactsFormProps {
 }
 
 export function EmergencyContactsForm({ patientId, initialData }: EmergencyContactsFormProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const updateProfile = useMutation((api as any).patientProfile?.updatePatientProfile);
   const addEmergencyContact = useMutation((api as any).patientProfile?.addEmergencyContact);
   const removeEmergencyContact = useMutation((api as any).patientProfile?.removeEmergencyContact);

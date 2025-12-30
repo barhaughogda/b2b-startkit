@@ -16,8 +16,8 @@ vi.mock('convex/react', () => ({
   useMutation: () => mockUpdateProfile,
 }));
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => ({
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => ({
     data: {
       user: {
         email: 'patient@demo.com',

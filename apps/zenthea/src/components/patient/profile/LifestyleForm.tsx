@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +31,7 @@ interface LifestyleFormProps {
 }
 
 export function LifestyleForm({ patientId, initialData }: LifestyleFormProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const updateProfile = useMutation((api as any).patientProfile?.updatePatientProfile);
   const [isSaving, setIsSaving] = useState(false);
 

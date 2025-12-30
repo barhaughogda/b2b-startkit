@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
+import { getZentheaServerSession } from '@/lib/auth';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+// Mock hook
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
 }));
 
 // Mock Convex

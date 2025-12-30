@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
@@ -26,7 +26,7 @@ import { ClinicLayout } from '@/components/layout/ClinicLayout';
  * - Message visibility settings
  */
 export default function SharingSettingsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   
   const userId = session?.user?.id as Id<'users'> | undefined;
   const tenantId = session?.user?.tenantId;

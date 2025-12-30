@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +25,7 @@ interface FamilyHistoryFormProps {
 }
 
 export function FamilyHistoryForm({ patientId, initialData }: FamilyHistoryFormProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const addFamilyHistory = useMutation((api as any).patientProfile?.addFamilyHistory);
   const removeFamilyHistory = useMutation((api as any).patientProfile?.removeFamilyHistory);
   const [isSaving, setIsSaving] = useState(false);

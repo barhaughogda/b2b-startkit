@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 import { verifyAdminAuth } from '@/lib/admin-auth';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+// Mock hook
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
 }));
 
-const mockGetServerSession = getServerSession as ReturnType<typeof vi.fn>;
+const mockGetZentheaServerSession = getZentheaServerSession as ReturnType<typeof vi.fn>;
 
 describe('verifyAdminAuth', () => {
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('verifyAdminAuth', () => {
 
   describe('Authentication', () => {
     it('should return 401 if user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockGetZentheaServerSession.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/admin/users');
       const result = await verifyAdminAuth(request);
@@ -32,7 +32,7 @@ describe('verifyAdminAuth', () => {
     });
 
     it('should return 401 if session exists but user is missing', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: null,
       });
 
@@ -48,7 +48,7 @@ describe('verifyAdminAuth', () => {
 
   describe('Authorization', () => {
     it('should return 403 if user is not admin', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'provider@example.com',
@@ -68,7 +68,7 @@ describe('verifyAdminAuth', () => {
     });
 
     it('should return 403 for patient role', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'patient@example.com',
@@ -85,7 +85,7 @@ describe('verifyAdminAuth', () => {
     });
 
     it('should return 403 for demo role', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'user-1',
           email: 'demo@example.com',
@@ -104,7 +104,7 @@ describe('verifyAdminAuth', () => {
 
   describe('Successful Authorization', () => {
     it('should authorize admin user with tenantId', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -133,7 +133,7 @@ describe('verifyAdminAuth', () => {
         },
       };
 
-      mockGetServerSession.mockResolvedValue(mockSession);
+      mockGetZentheaServerSession.mockResolvedValue(mockSession);
 
       const request = new NextRequest('http://localhost:3000/api/admin/users');
       const result = await verifyAdminAuth(request);
@@ -150,7 +150,7 @@ describe('verifyAdminAuth', () => {
     it('should return 500 in production if tenantId is missing', async () => {
       process.env.NODE_ENV = 'production';
       
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -174,7 +174,7 @@ describe('verifyAdminAuth', () => {
       process.env.NODE_ENV = 'development';
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -204,7 +204,7 @@ describe('verifyAdminAuth', () => {
     });
 
     it('should use tenantId from session when available', async () => {
-      mockGetServerSession.mockResolvedValue({
+      mockGetZentheaServerSession.mockResolvedValue({
         user: {
           id: 'admin-1',
           email: 'admin@example.com',
@@ -226,7 +226,7 @@ describe('verifyAdminAuth', () => {
   describe('Error Handling', () => {
     it('should handle session errors gracefully', async () => {
       const sessionError = new Error('Session error');
-      mockGetServerSession.mockRejectedValue(sessionError);
+      mockGetZentheaServerSession.mockRejectedValue(sessionError);
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/admin/users');
@@ -248,7 +248,7 @@ describe('verifyAdminAuth', () => {
     });
 
     it('should handle unknown errors', async () => {
-      mockGetServerSession.mockRejectedValue('Unknown error');
+      mockGetZentheaServerSession.mockRejectedValue('Unknown error');
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/admin/users');

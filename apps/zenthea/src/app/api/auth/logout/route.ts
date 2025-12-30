@@ -6,8 +6,8 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { initializeConvex } from '@/lib/convex-client';
 import { logger } from '@/lib/logger';
 
@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic';
 export async function POST() {
   try {
     // Get current session
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session?.user) {
       return NextResponse.json(

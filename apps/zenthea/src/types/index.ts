@@ -692,46 +692,21 @@ export interface MedicalRecord {
   updatedAt: Date
 }
 
-// NextAuth type extensions
-// Import types to ensure module is available for augmentation
-import type { DefaultSession, DefaultUser } from "next-auth";
-
-declare module "next-auth" {
-  interface User {
+// Zenthea Session Type (Compatibility with legacy code)
+export interface ZentheaSession {
+  user: {
+    id: string;
+    email: string;
+    name: string;
     role: string;
     tenantId?: string;
+    image?: string;
     isOwner?: boolean;
     clinics?: string[];
     permissions?: PermissionTree;
-  }
-  
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      role: string;
-      tenantId?: string;
-      image?: string;
-      isOwner?: boolean;
-      clinics?: string[];
-      permissions?: PermissionTree;
-      originalRole?: string; // Original role (admin/provider) for backward compatibility
-    };
-  }
-}
-
-import type { DefaultJWT } from "next-auth/jwt";
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    role: string;
-    tenantId?: string;
-    isOwner?: boolean;
-    clinics?: string[];
-    permissions?: PermissionTree;
-    originalRole?: string; // Original role (admin/provider) for backward compatibility
-  }
+    originalRole?: string;
+  };
+  expires: string;
 }
 
 // Re-export billing domain types

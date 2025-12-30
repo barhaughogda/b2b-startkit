@@ -1,5 +1,4 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from './auth';
+import { getZentheaServerSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export interface PatientSession {
@@ -13,7 +12,7 @@ export interface PatientSession {
 }
 
 export async function getPatientSession(): Promise<PatientSession | null> {
-  const session = await getServerSession(authOptions);
+  const session = await getZentheaServerSession();
   
   if (!session || session.user.role !== 'patient') {
     return null;

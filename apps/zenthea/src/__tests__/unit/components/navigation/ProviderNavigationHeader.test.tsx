@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ProviderNavigationHeader } from '@/components/navigation/ProviderNavigationHeader';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from '@/lib/auth/react';
 
-// Mock next-auth
+// Mock @/lib/auth
 const mockSession = {
   user: {
     id: 'test-user-id',
@@ -16,8 +16,8 @@ const mockSession = {
   expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
 };
 
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(() => ({
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(() => ({
     data: mockSession,
     status: 'authenticated',
     update: vi.fn(),
@@ -226,7 +226,7 @@ describe('ProviderNavigationHeader', () => {
         },
       };
 
-      vi.mocked(require('next-auth/react').useSession).mockReturnValue({
+      vi.mocked(require('@/hooks/useZentheaSession').useZentheaSession).mockReturnValue({
         data: sessionWithoutId,
         status: 'authenticated',
         update: vi.fn(),
@@ -254,7 +254,7 @@ describe('ProviderNavigationHeader', () => {
         },
       };
 
-      vi.mocked(require('next-auth/react').useSession).mockReturnValue({
+      vi.mocked(require('@/hooks/useZentheaSession').useZentheaSession).mockReturnValue({
         data: sessionWithoutTenant,
         status: 'authenticated',
         update: vi.fn(),

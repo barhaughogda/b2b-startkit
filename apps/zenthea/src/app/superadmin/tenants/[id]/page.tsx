@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,7 +51,7 @@ interface TenantDetails {
 }
 
 export default function SuperAdminTenantDetailsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const params = useParams();
   const router = useRouter();
   const tenantId = params.id as string;

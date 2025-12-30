@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { signOut } from "next-auth/react";
+import { signOut } from "@/hooks/useZentheaSession";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Clock, AlertCircle, AlertTriangle, XCircle } from "lucide-react";

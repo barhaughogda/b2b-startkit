@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useAction, useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Id } from '../../../../convex/_generated/dataModel';
@@ -27,7 +27,7 @@ import { SettingsSection } from '@/components/settings/SettingsSection';
 export const dynamic = 'force-dynamic';
 
 function PatientSettingsContent() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const { theme, setTheme: setThemeFromHook } = useTheme();
   const { patientId, patientProfile, isLoading: patientLoading } = usePatientProfileData();
   const changePasswordAction = useAction(api.users.changePassword);

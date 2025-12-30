@@ -2,12 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { PatientProfileDashboard } from '@/components/patient/PatientProfileDashboard';
 import { Button } from '@/components/ui/button';
 
 export default function PatientProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
 
   if (status === 'loading') {
     return (

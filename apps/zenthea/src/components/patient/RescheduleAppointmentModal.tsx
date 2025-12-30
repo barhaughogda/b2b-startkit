@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils';
 import { AvailabilitySlotPicker } from '@/components/scheduling/AvailabilitySlotPicker';
 import { TimeSlot } from '@/hooks/useProviderAvailability';
 import { Id } from '@/convex/_generated/dataModel';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { canUseConvexQuery } from '@/lib/convexIdValidation';
 
 // Predefined reasons for rescheduling
@@ -70,7 +70,7 @@ export function RescheduleAppointmentModal({
   onClose, 
   appointment 
 }: RescheduleAppointmentModalProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = session?.user?.tenantId || 'demo-tenant';
   const { isLoading, error, rescheduleAppointment, clearError } = useAppointmentsStore();
   

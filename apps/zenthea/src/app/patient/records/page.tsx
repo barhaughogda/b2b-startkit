@@ -7,10 +7,10 @@ import { PatientHistoryTimeline } from '@/components/patient/PatientHistoryTimel
 import { PatientEventHistory } from '@/components/patient/PatientEventHistory';
 import { InteractiveBodyMap } from '@/components/patient/InteractiveBodyMap';
 import { CardSystemProvider } from '@/components/cards/CardSystemProvider';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 
 function PatientRecordsContent() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const [activeMedicalTab, setActiveMedicalTab] = useState('timeline');
   
   // Get patient ID from session or use a default

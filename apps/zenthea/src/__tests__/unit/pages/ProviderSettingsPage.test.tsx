@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from '@/lib/auth/react';
 import ProviderSettingsPage from '@/app/company/user/settings/page';
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(() => ({
+// Mock @/lib/auth
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(() => ({
     data: {
       user: {
         id: 'test-user-id',

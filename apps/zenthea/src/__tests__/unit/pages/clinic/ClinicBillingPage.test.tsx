@@ -13,16 +13,16 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import ClinicBillingPage from '@/app/company/billing/page';
 import type { RCMMetrics } from '@/types/billing';
 
-// Mock next-auth/react
+// Mock @/lib/auth/react
 const mockUseSession = vi.fn();
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => mockUseSession(),
 }));
 
 // Mock Convex

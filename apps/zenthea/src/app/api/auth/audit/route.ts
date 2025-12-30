@@ -7,8 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { initializeConvex } from '@/lib/convex-client';
 import { Id } from '@/convex/_generated/dataModel';
 import { extractClientIP, extractUserAgent } from '@/lib/utils/request-helpers';
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     
     if (action === 'login_success' && !userId) {
       try {
-        const session = await getServerSession(authOptions);
+        const session = await getZentheaServerSession();
         if (session?.user) {
           sessionUserId = session.user.id;
           sessionTenantId = session.user.tenantId;

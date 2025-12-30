@@ -288,8 +288,8 @@ global.console = {
 global.alert = vi.fn();
 
 // Mock NextAuth
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(() => ({
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(() => ({
     data: {
       user: {
         id: 'test-user-id',

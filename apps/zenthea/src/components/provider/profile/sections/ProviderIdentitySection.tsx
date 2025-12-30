@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -29,7 +29,7 @@ export function ProviderIdentitySection({
   updateField,
   errors,
 }: ProviderIdentitySectionProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   // Parse name from session
   const sessionName = session?.user?.name || '';

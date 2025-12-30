@@ -13,7 +13,7 @@ import { useNotificationsStore } from '@/stores/notificationsStore';
 import { useAppointments, type ConvexAppointment } from '@/hooks/useAppointments';
 import { useCardSystem } from '@/components/cards/CardSystemProvider';
 import { CardType, Priority, TaskStatus } from '@/components/cards/types';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -53,7 +53,7 @@ export default function PatientAppointmentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const router = useRouter();
 
   // Use the main card system for appointments

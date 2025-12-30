@@ -29,8 +29,8 @@ vi.mock('@/components/patient/InteractiveBodyMap', () => ({
   ),
 }));
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => ({
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => ({
     data: {
       user: {
         id: 'patient-123',

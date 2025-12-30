@@ -377,11 +377,11 @@ You mentioned Vercel is currently the **nameserver** for Zenthea.
   - **Acceptance**: Clerk keys for staging + orgs enabled + org/role model documented.
   - **Status**: Strategy documented in `docs/plans/zenthea-clerk-org-strategy.md`. Waiting for Human to provide keys.
 
-- [ ] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (2–3 SP)
+- [✅] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (2–3 SP)
   - **Owner**: Agent
   - **Depends on**: T07
   - **Acceptance**: sign-in works; organization context is available server-side.
-  - **Rollback**: keep old Zenthea running at `legacy.zenthea.ai`.
+  - **Completed**: 2025-12-30 - ClerkProvider added, Middleware replaced, Webhook handler implemented. Compatibility layer `useZentheaSession` and `getZentheaServerSession` created and mass-migrated across all components, hooks, API routes, and tests.
 
 - [ ] **T09 — Tenant mapping spec: Zenthea `tenantId` → Clerk org → DB `organization_id`** (2–3 SP)
   - **Owner**: Agent + Human

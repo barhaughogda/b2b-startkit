@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import Link from 'next/link';
 import { TenantBranding } from '@/components/patient/TenantBranding';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, Phone, ArrowLeft } from 'lucide-react';
 
 export default function PatientSupportPage() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = session?.user?.tenantId || 'demo-tenant';
 
   return (

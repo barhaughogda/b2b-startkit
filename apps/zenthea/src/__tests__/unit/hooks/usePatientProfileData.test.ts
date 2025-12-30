@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { usePatientProfileData } from '@/hooks/usePatientProfileData';
 import { getPatientProfileApi } from '@/lib/convex-api-types';
 import { canUseConvexQuery } from '@/lib/convexIdValidation';
 
 // Mock dependencies
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(),
 }));
 
 vi.mock('convex/react', () => ({
@@ -53,7 +53,7 @@ describe('usePatientProfileData', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    (useSession as any).mockReturnValue({
+    (useZentheaSession as any).mockReturnValue({
       data: mockSession,
       status: 'authenticated',
     });
@@ -99,7 +99,7 @@ describe('usePatientProfileData', () => {
     });
 
     it('should skip queries when email is empty', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: { ...mockSession, user: { ...mockSession.user, email: '' } },
         status: 'authenticated',
       });
@@ -228,7 +228,7 @@ describe('usePatientProfileData', () => {
     });
 
     it('should handle missing session gracefully', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: null,
         status: 'unauthenticated',
       });

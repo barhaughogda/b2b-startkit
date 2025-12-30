@@ -111,7 +111,8 @@ This is the **single step-by-step checklist** to execute BOA Group’s monorepo 
     - Orgs enabled and strategy confirmed.
   - **Reference**: `docs/plans/zenthea-clerk-org-strategy.md`
 
-- [ ] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (Owner: Agent, Depends on: T07)
+- [🟡] **T08 — Implement Clerk auth in `apps/zenthea` (replace NextAuth)** (Owner: Agent, Depends on: T07)
+  - **Status**: Scaffolded Clerk integration. Compatibility layer created. Next: mass migration of components.
 - [ ] **T09 — Tenant mapping spec: Zenthea `tenantId` → Clerk org → DB `organization_id`** (Owner: Agent + Human, Depends on: T08)
 
 ### 1.4 Database foundation (AWS Postgres + RLS)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useQuery } from "convex/react";
 import Link from "next/link";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
@@ -20,7 +20,7 @@ import { SessionTimeoutConfig } from "@/components/clinic/SessionTimeoutConfig";
 import { BackButton } from "@/components/ui/back-button";
 
 export default function ClinicSecurityPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
 
   // Check if we can query Convex
   const canQuery = canUseConvexQuery(session?.user?.id, session?.user?.tenantId);

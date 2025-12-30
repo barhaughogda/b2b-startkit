@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 import React, { useEffect, useState, useRef } from 'react';
@@ -19,7 +19,7 @@ import { isPublicAuthRoute } from '@/lib/routing';
  * Available for all roles within the clinic (clinic_user, admin, provider).
  */
 export function ElevenLabsWidget() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const pathname = usePathname();
   const [shouldRender, setShouldRender] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);

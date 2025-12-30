@@ -1,33 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import type { Session } from "next-auth";
+import { getZentheaServerSession } from "@/lib/auth";
+
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { getSupportAccessErrorMessage } from "./support-access";
-
-type SessionWithUser = Session & {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-    tenantId?: string;
-    image?: string;
-  };
-};
 
 /**
  * Helper function to verify superadmin authorization
  * Returns session if authorized, or error response if not
  */
 export async function verifySuperAdminAuth(request: NextRequest): Promise<
-  | { authorized: true; session: SessionWithUser }
+  | { authorized: true; session: NonNullable<Awaited<ReturnType<typeof getZentheaServerSession>>> }
   | { authorized: false; response: NextResponse }
 > {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session || !session.user) {
       return {

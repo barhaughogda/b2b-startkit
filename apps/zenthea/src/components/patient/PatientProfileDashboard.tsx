@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useMutation } from 'convex/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { getPatientProfileApi } from '@/lib/convex-api-types';
@@ -13,7 +13,7 @@ import { useProfileCompleteness } from '@/hooks/useProfileCompleteness';
 import { PatientDashboardLayout } from './dashboard/PatientDashboardLayout';
 
 export function PatientProfileDashboard() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['demographics']));
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
   

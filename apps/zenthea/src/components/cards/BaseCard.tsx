@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -135,7 +135,7 @@ export function BaseCardComponent({
   const { resizeState, resizeHandler } = useCardResize(dimensions, handlers, resizeConstraints, id);
   const { dropdownState, dropdownManager, priorityRef, statusRef } = useCardDropdowns(handlers, id);
   const { tabState, tabManager } = useCardTabs(activeTab, onTabChange);
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const isPatient = session?.user?.role === 'patient';
 
   // Redirect patients away from restricted tabs (tags, dueDate, notes)

@@ -1,4 +1,4 @@
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import { useQuery } from 'convex/react';
 import { Id } from '../../convex/_generated/dataModel';
 import { canUseConvexQuery, isValidConvexIdForTable } from '@/lib/convexIdValidation';
@@ -19,7 +19,7 @@ export interface UsePatientProfileDataReturn {
  * Handles patient ID lookup by email and profile retrieval
  */
 export function usePatientProfileData(): UsePatientProfileDataReturn {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   // Safely access patientProfile API (may not be in generated types if codegen was skipped)
   const patientProfileApi = getPatientProfileApi(api) || (api as any).patientProfile;

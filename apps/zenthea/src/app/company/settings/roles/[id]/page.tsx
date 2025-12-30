@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
@@ -27,7 +27,7 @@ import { getFullAccessPermissionTree } from "@/lib/permissions/validation";
 export const dynamic = 'force-dynamic';
 
 export default function EditRolePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const router = useRouter();
   const params = useParams();
   const roleId = params?.id as string;

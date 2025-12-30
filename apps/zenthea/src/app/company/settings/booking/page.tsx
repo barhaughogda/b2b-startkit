@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
@@ -53,7 +53,7 @@ import { ServiceEditor, ServiceCard, type ServiceData, type ServiceCardData } fr
  * Uses collapsible sections consistent with Company Settings page.
  */
 export default function BookingSettingsPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const tenantId = session?.user?.tenantId;
 
   // Collapsible sections state - default to all collapsed

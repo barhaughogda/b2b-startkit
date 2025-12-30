@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getZentheaServerSession } from "@/lib/auth";
+
 import { generateBackupCodes } from "@/lib/mfa";
 import { api } from "@/convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
@@ -16,7 +16,7 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
  */
 export async function POST(_request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

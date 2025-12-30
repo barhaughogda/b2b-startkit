@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { PermissionTree, CustomRole } from "@/types";
@@ -86,7 +86,7 @@ export function PermissionEditor({
   tenantId: propTenantId,
   hideHeader = false,
 }: PermissionEditorProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = propTenantId || session?.user?.tenantId;
 
   // Preview mode state

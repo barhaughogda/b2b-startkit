@@ -3,12 +3,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PatientLoginForm } from '@/components/patient/PatientLoginForm';
-import { signIn } from 'next-auth/react';
+import { signIn } from '@/lib/auth/react';
 import { useRouter } from 'next/navigation';
 
-// Mock next-auth
+// Mock @/lib/auth
 const mockSignIn = vi.fn();
-vi.mock('next-auth/react', () => ({
+vi.mock('@/lib/auth/react', () => ({
   signIn: (provider: string, options?: any) => mockSignIn(provider, options),
 }));
 

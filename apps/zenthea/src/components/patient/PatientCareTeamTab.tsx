@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/components/ui/button';
@@ -83,7 +83,7 @@ export function PatientCareTeamTab({
   tenantId,
   canEdit = false,
 }: PatientCareTeamTabProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const userId = session?.user?.id as Id<'users'> | undefined;
   
   // State

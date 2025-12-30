@@ -1,5 +1,5 @@
 import React from 'react';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from '@/lib/auth/react';
 
 interface TestWrapperProps {
   children: React.ReactNode;

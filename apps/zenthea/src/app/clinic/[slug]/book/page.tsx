@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useTenantPublicData } from "@/hooks/useTenantPublicData";
@@ -54,7 +54,7 @@ export default function TenantBookingPage() {
   const router = useRouter();
   const slug = params?.slug as string;
   
-  const { data: session, status: authStatus } = useSession();
+  const { data: session, status: authStatus } = useZentheaSession();
   const { tenant, isLoading: tenantLoading, notFound } = useTenantPublicData(slug);
   const { patientId, patientProfile, isLoading: patientLoading } = usePatientProfileData();
   const { careTeam, isLoading: careTeamLoading } = useCareTeam();

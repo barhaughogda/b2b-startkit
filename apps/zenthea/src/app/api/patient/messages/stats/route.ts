@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { api } from '../../../../../../convex/_generated/api';
 import { ConvexHttpClient } from 'convex/browser';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-// Force dynamic rendering - this route uses getServerSession and request.headers
+// Force dynamic rendering - this route uses getZentheaServerSession and request.headers
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session || session.user.role !== 'patient') {
       return NextResponse.json(

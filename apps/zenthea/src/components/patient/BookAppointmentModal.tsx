@@ -45,7 +45,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { LocationSelector } from '@/components/provider/LocationSelector';
 import { Id } from '@/convex/_generated/dataModel';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { canUseConvexQuery } from '@/lib/convexIdValidation';
@@ -69,7 +69,7 @@ export function BookAppointmentModal({ isOpen, onClose, initialProviderId }: Boo
     );
   }
   const { providers, isLoading, error, fetchProviders, bookAppointment, clearError } = useAppointmentsStore();
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('');

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -75,7 +75,7 @@ function parseErrorMessage(error: unknown, context?: { clinicName?: string }): s
 }
 
 export function ClinicForm({ clinic, onSave, onCancel }: ClinicFormProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const createClinic = useAction((api as any).clinic?.clinics?.createClinic as any);
   const updateClinic = useAction((api as any).clinic?.clinics?.updateClinic as any);
 

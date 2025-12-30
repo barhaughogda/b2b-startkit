@@ -2,11 +2,11 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useAction } from 'convex/react';
 import PatientSettingsPage from '@/app/patient/settings/page';
 
-// Mock next-auth
+// Mock @/lib/auth
 const mockSession = {
   user: {
     id: 'user-123',
@@ -18,8 +18,8 @@ const mockSession = {
   expires: '2024-12-31',
 };
 
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(),
 }));
 
 // Mock Convex
@@ -72,7 +72,7 @@ Object.defineProperty(window, 'Notification', {
 describe('PatientSettingsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useSession as any).mockReturnValue({
+    (useZentheaSession as any).mockReturnValue({
       data: mockSession,
       status: 'authenticated',
     });
@@ -505,7 +505,7 @@ describe('PatientSettingsPage', () => {
 
   describe('Loading and Error States', () => {
     it('should show loading state when session is loading', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: null,
         status: 'loading',
       });
@@ -516,7 +516,7 @@ describe('PatientSettingsPage', () => {
     });
 
     it('should show access denied when user is not authenticated', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: null,
         status: 'unauthenticated',
       });
@@ -530,7 +530,7 @@ describe('PatientSettingsPage', () => {
     });
 
     it('should show access denied when user is not a patient', () => {
-      (useSession as any).mockReturnValue({
+      (useZentheaSession as any).mockReturnValue({
         data: {
           ...mockSession,
           user: { ...mockSession.user, role: 'provider' },

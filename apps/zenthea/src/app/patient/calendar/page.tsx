@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PatientCalendar } from '@/components/patient/PatientCalendar';
 import { PatientDashboardContent } from '@/components/patient/PatientDashboardContent';
@@ -30,7 +30,7 @@ interface PatientAppointmentData {
 }
 
 function PatientCalendarPageContent() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { data: session, status: sessionStatus } = useZentheaSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { openCard } = useCardSystem();

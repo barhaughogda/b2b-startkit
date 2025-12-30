@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import React, { useState, useMemo, useEffect, Suspense, useRef, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -23,7 +23,7 @@ import { useCardSystem } from '@/components/cards/CardSystemProvider';
 import { Priority, TaskStatus } from '@/components/cards/types';
 
 function ClinicCalendarPageContent() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { openCard, cards } = useCardSystem();

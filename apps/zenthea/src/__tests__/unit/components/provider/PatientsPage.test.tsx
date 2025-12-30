@@ -17,8 +17,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock Next.js auth
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(() => ({
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(() => ({
     data: {
       user: {
         id: 'test-user-id',

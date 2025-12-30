@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { signIn, getSession } from "next-auth/react";
+import { signIn, getSession } from "@/hooks/useZentheaSession";
 import { useTenantPublicData } from "@/hooks/useTenantPublicData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

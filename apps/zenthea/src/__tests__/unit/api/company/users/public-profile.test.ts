@@ -7,13 +7,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET, POST, PUT, DELETE } from '@/app/api/company/users/[id]/public-profile/route';
+import { getZentheaServerSession } from '@/lib/auth';
 
 // Mock dependencies
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
-}));
-
 vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
   authOptions: {},
 }));
 
@@ -24,7 +22,6 @@ vi.mock('convex/browser', () => ({
   })),
 }));
 
-import { getServerSession } from 'next-auth';
 import { ConvexHttpClient } from 'convex/browser';
 
 describe('Public Profile API Routes', () => {
@@ -73,7 +70,7 @@ describe('Public Profile API Routes', () => {
 
   describe('GET /api/company/users/[id]/public-profile', () => {
     it('should return 401 when user is not authenticated', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(null);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(null);
 
       const request = createMockRequest('GET');
       const response = await GET(request, { params: { id: 'validUserId123456789' } });
@@ -84,7 +81,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should return 400 when tenant ID is missing', async () => {
-      vi.mocked(getServerSession).mockResolvedValue({
+      vi.mocked(getZentheaServerSession).mockResolvedValue({
         user: {
           id: 'validUserId123456789',
         },
@@ -99,7 +96,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should return 400 for invalid user ID format', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const request = createMockRequest('GET', undefined, { id: 'short' });
       const response = await GET(request, { params: { id: 'short' } });
@@ -111,7 +108,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should successfully fetch public profile', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const mockProfile = {
         publicProfile: {
@@ -140,7 +137,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should handle query errors gracefully', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
       mockQuery.mockRejectedValue(new Error('Query failed'));
 
       const request = createMockRequest('GET');
@@ -155,7 +152,7 @@ describe('Public Profile API Routes', () => {
 
   describe('POST /api/company/users/[id]/public-profile', () => {
     it('should return 401 when user is not authenticated', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(null);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(null);
 
       const request = createMockRequest('POST', { acceptingNewPatients: true });
       const response = await POST(request, { params: { id: 'validUserId123456789' } });
@@ -166,7 +163,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should return 400 for invalid request body', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const request = createMockRequest('POST', {
         displayName: 'a'.repeat(101), // Too long
@@ -180,7 +177,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should successfully create public profile', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const requestBody = {
         acceptingNewPatients: true,
@@ -213,7 +210,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should handle profile already exists error', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
       mockMutation.mockRejectedValue(new Error('Public profile already exists'));
 
       const request = createMockRequest('POST', { acceptingNewPatients: true });
@@ -226,7 +223,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should handle no profile error', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
       mockMutation.mockRejectedValue(new Error('User does not have a profile'));
 
       const request = createMockRequest('POST', { acceptingNewPatients: true });
@@ -241,7 +238,7 @@ describe('Public Profile API Routes', () => {
 
   describe('PUT /api/company/users/[id]/public-profile', () => {
     it('should return 401 when user is not authenticated', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(null);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(null);
 
       const request = createMockRequest('PUT', { displayName: 'Dr. Updated' });
       const response = await PUT(request, { params: { id: 'validUserId123456789' } });
@@ -252,7 +249,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should return 400 for invalid request body', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const request = createMockRequest('PUT', {
         bio: 'a'.repeat(2001), // Too long
@@ -266,7 +263,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should return 404 when profile does not exist', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
       mockQuery.mockResolvedValue({ publicProfile: null });
 
       const request = createMockRequest('PUT', { displayName: 'Dr. Updated' });
@@ -279,7 +276,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should successfully update public profile', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const existingProfile = {
         publicProfile: {
@@ -322,7 +319,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should trim string fields when updating', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const existingProfile = {
         publicProfile: {
@@ -356,7 +353,7 @@ describe('Public Profile API Routes', () => {
 
   describe('DELETE /api/company/users/[id]/public-profile', () => {
     it('should return 401 when user is not authenticated', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(null);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(null);
 
       const request = createMockRequest('DELETE');
       const response = await DELETE(request, { params: { id: 'validUserId123456789' } });
@@ -367,7 +364,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should return 400 for invalid user ID format', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const request = createMockRequest('DELETE', undefined, { id: 'short' });
       const response = await DELETE(request, { params: { id: 'short' } });
@@ -379,7 +376,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should return 404 when profile does not exist', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
       mockQuery.mockResolvedValue({ publicProfile: null });
 
       const request = createMockRequest('DELETE');
@@ -392,7 +389,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should successfully delete public profile', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const existingProfile = {
         publicProfile: {
@@ -421,7 +418,7 @@ describe('Public Profile API Routes', () => {
 
   describe('Validation Edge Cases', () => {
     it('should validate photo URL format', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const existingProfile = {
         publicProfile: {
@@ -444,7 +441,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should accept empty string for photo (clearing photo)', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const existingProfile = {
         publicProfile: {
@@ -472,7 +469,7 @@ describe('Public Profile API Routes', () => {
     });
 
     it('should validate array fields', async () => {
-      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      vi.mocked(getZentheaServerSession).mockResolvedValue(mockSession as any);
 
       const existingProfile = {
         publicProfile: {

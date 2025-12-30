@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { CardEventHandlers, Priority, TaskStatus, CardType, AssignmentType, CardDimensions, CardPosition } from '../types';
 import { CardHeaderComponent, CardControls, CardDropdowns, ResizeHandles } from './index';
 
@@ -103,7 +103,7 @@ export function MainCard({
   handleStatusChange
 }: MainCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const isPatient = session?.user?.role === 'patient';
 
   // Note: Removed native mousedown listener to prevent duplicate handler invocations.

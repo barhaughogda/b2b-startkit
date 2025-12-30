@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import {
   initializeSession,
   clearSession,
@@ -58,7 +58,7 @@ export interface UseSessionTimeoutReturn {
 export function useSessionTimeout(
   options: UseSessionTimeoutOptions = {}
 ): UseSessionTimeoutReturn {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const [config, setConfig] = useState<SessionTimeoutConfig>(
     options.config
       ? { ...DEFAULT_SESSION_TIMEOUT_CONFIG, ...options.config }

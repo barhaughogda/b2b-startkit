@@ -1,7 +1,7 @@
 "use client";
 
 import { ConvexProvider } from "convex/react";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider } from "@/hooks/useZentheaSession";
 import React from "react";
 import { CardSystemProvider } from "@/components/cards/CardSystemProvider";
 import { convex } from "@/lib/convex";

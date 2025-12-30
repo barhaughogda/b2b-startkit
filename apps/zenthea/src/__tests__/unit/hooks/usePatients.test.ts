@@ -1,11 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { usePatients } from '@/hooks/usePatients';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { vi } from 'vitest';
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: vi.fn(),
+// Mock @/lib/auth
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: vi.fn(),
 }));
 
 // Mock Convex
@@ -14,7 +14,7 @@ vi.mock('convex/react', () => ({
 }));
 
 describe('usePatients', () => {
-  const mockUseSession = useSession as ReturnType<typeof vi.fn>;
+  const mockUseSession = useZentheaSession as ReturnType<typeof vi.fn>;
   const mockUseQuery = require('convex/react').useQuery as ReturnType<typeof vi.fn>;
 
   beforeEach(() => {

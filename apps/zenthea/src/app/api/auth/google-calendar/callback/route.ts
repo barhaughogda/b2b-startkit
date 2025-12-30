@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { google } from 'googleapis';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify current session matches OAuth flow
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     if (!session || session.user.id !== userId || session.user.tenantId !== tenantId) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Session mismatch in OAuth callback');

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getZentheaServerSession } from "@/lib/auth";
+
 import { validatePasswordPolicy } from "@/lib/password-policy";
 import { api } from "@/convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
@@ -20,7 +20,7 @@ export async function POST(
   { params }: any
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     const body = await request.json();
     const { currentPassword, newPassword, passwordExpired } = body;
 

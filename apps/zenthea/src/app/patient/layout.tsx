@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter, usePathname } from 'next/navigation';
 import { PatientNavigationLayout } from "@/components/navigation/PatientNavigationLayout"
 import { ZentheaThemeProvider } from "@/lib/theme-context"
@@ -71,7 +71,7 @@ export default function PatientPortalLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const router = useRouter();
   const pathname = usePathname();
   const { patientProfile, isLoading: profileLoading } = usePatientProfileData();

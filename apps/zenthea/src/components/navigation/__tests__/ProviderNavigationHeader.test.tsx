@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SessionProvider } from 'next-auth/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ProviderNavigationHeader } from '../ProviderNavigationHeader';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 
-// Mock next-auth
-vi.mock('next-auth/react', () => ({
-  useSession: () => ({
+// Mock hook
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => ({
     data: {
       user: {
         name: 'Test User',
@@ -15,7 +15,6 @@ vi.mock('next-auth/react', () => ({
       }
     }
   }),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));
 
 // Mock theme context
@@ -45,12 +44,10 @@ vi.mock('@/lib/theme-context', () => ({
 describe('ProviderNavigationHeader', () => {
   it('renders with basic props', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationHeader 
-          pageTitle="Today" 
-          pagePath="/provider/today" 
-        />
-      </SessionProvider>
+      <ProviderNavigationHeader 
+        pageTitle="Today" 
+        pagePath="/provider/today" 
+      />
     );
 
     // Should render avatar and search button
@@ -60,13 +57,11 @@ describe('ProviderNavigationHeader', () => {
 
   it('renders with search when enabled', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationHeader 
-          pageTitle="Today" 
-          pagePath="/provider/today"
-          showSearch={true}
-        />
-      </SessionProvider>
+      <ProviderNavigationHeader 
+        pageTitle="Today" 
+        pagePath="/provider/today" 
+        showSearch={true}
+      />
     );
 
     // Should render search button
@@ -75,14 +70,12 @@ describe('ProviderNavigationHeader', () => {
 
   it('renders with notifications when enabled', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationHeader 
-          pageTitle="Today" 
-          pagePath="/provider/today"
-          showNotifications={true}
-          notificationCount={5}
-        />
-      </SessionProvider>
+      <ProviderNavigationHeader 
+        pageTitle="Today" 
+        pagePath="/provider/today" 
+        showNotifications={true}
+        notificationCount={5}
+      />
     );
 
     // Notifications are no longer displayed in the header
@@ -92,12 +85,10 @@ describe('ProviderNavigationHeader', () => {
 
   it('renders user menu with session data', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationHeader 
-          pageTitle="Today" 
-          pagePath="/provider/today" 
-        />
-      </SessionProvider>
+      <ProviderNavigationHeader 
+        pageTitle="Today" 
+        pagePath="/provider/today" 
+      />
     );
 
     // User avatar should be present
@@ -106,12 +97,10 @@ describe('ProviderNavigationHeader', () => {
 
   it('should have correct menu items with proper navigation links', () => {
     render(
-      <SessionProvider>
-        <ProviderNavigationHeader 
-          pageTitle="Today" 
-          pagePath="/provider/today" 
-        />
-      </SessionProvider>
+      <ProviderNavigationHeader 
+        pageTitle="Today" 
+        pagePath="/provider/today" 
+      />
     );
 
     // Verify that the avatar button exists (which contains the dropdown menu)

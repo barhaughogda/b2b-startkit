@@ -5,7 +5,7 @@
  */
 
 import { useQuery, useMutation } from 'convex/react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from './useZentheaSession';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { ProviderProfile } from '@/types';
@@ -14,7 +14,7 @@ import { canUseConvexQuery } from '@/lib/convexIdValidation';
 import { isClinicUser } from '@/lib/auth-utils';
 
 export function useProviderProfile(profileId?: string) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   // Check if we can use Convex queries (user ID must be valid Convex ID, not demo ID)
   const canQueryByUserId = canUseConvexQuery(session?.user?.id, session?.user?.tenantId);
@@ -90,7 +90,7 @@ export function useProviderProfile(profileId?: string) {
  */
 export function useProviderProfileWithScheduling(providerId: string) {
   const { profile, isLoading } = useProviderProfile(providerId);
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   const scheduleAppointment = (providerId: string) => {
     // Navigate to appointment booking with provider pre-selected
@@ -112,7 +112,7 @@ export function useProviderProfileWithScheduling(providerId: string) {
  */
 export function useProviderProfileWithMessaging(providerId: string) {
   const { profile, isLoading } = useProviderProfile(providerId);
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   
   const sendMessage = (providerId: string) => {
     // Navigate to messaging with provider pre-selected

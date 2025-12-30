@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ProviderProfile } from '@/types';
@@ -58,7 +58,7 @@ export function ProviderIntroductionModal({
   open,
   onOpenChange,
 }: ProviderIntroductionModalProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const router = useRouter();
   const [profile, setProfile] = useState<ProviderProfile | null>(null);
   const [user, setUser] = useState<Doc<'users'> | null>(null);

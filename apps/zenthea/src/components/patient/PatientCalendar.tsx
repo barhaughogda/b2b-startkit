@@ -8,7 +8,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { format, addDays, startOfDay } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -184,7 +184,7 @@ export function PatientCalendar({
   showBookingMode = true,
   className,
 }: PatientCalendarProps) {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const tenantId = session?.user?.tenantId || 'demo-tenant';
   const patientEmail = session?.user?.email;
   const userId = session?.user?.id;

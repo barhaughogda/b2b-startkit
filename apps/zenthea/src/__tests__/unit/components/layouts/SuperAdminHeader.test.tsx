@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SuperAdminHeader } from '@/components/layouts/SuperAdminHeader';
 
-// Mock next-auth
+// Mock @/lib/auth
 const mockSession = {
   user: {
     id: 'user-1',
@@ -14,8 +14,8 @@ const mockSession = {
   },
 };
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => ({ data: mockSession }),
+vi.mock('@/hooks/useZentheaSession', () => ({
+  useZentheaSession: () => ({ data: mockSession }),
   signOut: vi.fn(),
 }));
 
@@ -87,7 +87,7 @@ describe('SuperAdminHeader', () => {
 
     it('should have logout option', async () => {
       const user = userEvent.setup();
-      const { signOut } = await import('next-auth/react');
+      const { signOut } = await import('@/lib/auth/react');
       
       render(<SuperAdminHeader />);
 

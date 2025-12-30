@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -25,7 +25,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function PatientsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useZentheaSession();
   const router = useRouter();
   const { patients, isLoading, error } = usePatients();
   const [patientFilter, setPatientFilter] = useState<'all' | 'my-primary'>('all');

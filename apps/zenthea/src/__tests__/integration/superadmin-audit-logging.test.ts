@@ -8,15 +8,14 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi, type MockedFunction } from 'vitest';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getZentheaServerSession } from '@/lib/auth';
 import SuperAdminLayout from '@/app/superadmin/layout';
 import { createEdgeAuditLogger } from '@/lib/security/auditLogger.edge';
 import { logAdminAction } from '@/lib/security/audit-logger';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
-  authOptions: {},
+// Mock lib/auth
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
 }));
 
 // Mock next/navigation
@@ -55,7 +54,7 @@ describe('Superadmin Route Audit Logging', () => {
   let mockAuditLogger: {
     log: ReturnType<typeof vi.fn>;
   };
-  let mockGetServerSession: MockedFunction<typeof getServerSession>;
+  let mockGetServerSession: MockedFunction<typeof getZentheaServerSession>;
   let mockLogAdminAction: MockedFunction<typeof logAdminAction>;
 
   beforeEach(() => {
@@ -67,7 +66,7 @@ describe('Superadmin Route Audit Logging', () => {
     };
 
     (createEdgeAuditLogger as ReturnType<typeof vi.fn>).mockReturnValue(mockAuditLogger);
-    mockGetServerSession = getServerSession as MockedFunction<typeof getServerSession>;
+    mockGetServerSession = getZentheaServerSession as MockedFunction<typeof getZentheaServerSession>;
     mockLogAdminAction = logAdminAction as MockedFunction<typeof logAdminAction>;
   });
 

@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/upload-avatar/route';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getToken } from 'next-auth/jwt';
+import { getToken } from '@/lib/auth/jwt';
 import { MAX_AVATAR_SIZE, ALLOWED_AVATAR_TYPES } from '@/lib/avatar-constants';
 
 // Mock dependencies
-vi.mock('next-auth/jwt');
+vi.mock('@/lib/auth/jwt');
 vi.mock('@aws-sdk/client-s3');
 vi.mock('@/lib/logger', () => ({
   logger: {
@@ -114,7 +114,7 @@ describe('POST /api/upload-avatar', () => {
     const request = new NextRequest('http://localhost:3000/api/upload-avatar', {
       method: 'POST',
       headers: {
-        cookie: 'next-auth.session-token=test-token',
+        cookie: '@/lib/auth.session-token=test-token',
       },
     }) as any;
 
@@ -511,7 +511,7 @@ describe('POST /api/upload-avatar', () => {
       const request = new NextRequest('http://localhost:3000/api/upload-avatar', {
         method: 'POST',
         headers: {
-          cookie: 'next-auth.session-token=test-token',
+          cookie: '@/lib/auth.session-token=test-token',
         },
       }) as any;
       request.formData = vi.fn().mockResolvedValue(formData);

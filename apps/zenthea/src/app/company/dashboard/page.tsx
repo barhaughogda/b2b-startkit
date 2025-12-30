@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useZentheaSession } from "@/hooks/useZentheaSession";
 import { useMemo } from "react";
 import { ClinicLayout } from "@/components/layout/ClinicLayout";
 import { useQuery } from "convex/react";
@@ -14,7 +14,7 @@ import { MessagesWidget } from "@/components/clinic/dashboard/MessagesWidget";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function ClinicDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useZentheaSession();
   const tenantId = session?.user?.tenantId;
 
   // Fetch dashboard data

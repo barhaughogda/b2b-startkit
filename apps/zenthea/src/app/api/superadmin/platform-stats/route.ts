@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getToken } from '@/lib/auth/jwt';
 import { unstable_cache, revalidateTag } from 'next/cache';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';

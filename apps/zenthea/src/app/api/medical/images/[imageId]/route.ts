@@ -5,8 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
@@ -17,7 +17,7 @@ export async function GET(
   { params }: any
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session) {
       return NextResponse.json(
@@ -148,7 +148,7 @@ export async function DELETE(
   { params }: any
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     
     if (!session || !['physician', 'admin'].includes(session.user.role)) {
       return NextResponse.json(

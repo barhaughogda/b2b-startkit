@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getZentheaServerSession } from '@/lib/auth';
+
 import { sendAppointmentEmailToMultiple } from '@/lib/email/appointment-email';
 
 /**
@@ -13,7 +13,7 @@ import { sendAppointmentEmailToMultiple } from '@/lib/email/appointment-email';
 export async function POST(request: NextRequest) {
   try {
     // Verify session
-    const session = await getServerSession(authOptions);
+    const session = await getZentheaServerSession();
     if (!session?.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },

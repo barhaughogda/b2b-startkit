@@ -2,10 +2,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET } from '@/app/api/auth/google-calendar/callback/route';
+import { getZentheaServerSession } from '@/lib/auth';
 
 // Mock dependencies
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+vi.mock('@/lib/auth', () => ({
+  getZentheaServerSession: vi.fn(),
+  authOptions: {},
 }));
 
 vi.mock('googleapis', () => ({
@@ -29,7 +31,7 @@ vi.mock('@/lib/auth', () => ({
 // Note: @/convex/_generated/api is already mocked globally in src/__tests__/setup.ts
 
 describe('Google Calendar OAuth Callback', () => {
-  const mockGetServerSession = require('next-auth').getServerSession;
+  const mockGetServerSession = require('@/lib/auth').getZentheaServerSession;
   const mockConvexHttpClient = require('convex/browser').ConvexHttpClient;
   const mockFetch = global.fetch;
 
