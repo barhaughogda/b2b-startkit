@@ -109,11 +109,53 @@ export function useAppointment(id: string) {
     return await response.json()
   }
 
+  const addMember = async (userId: string, role: string) => {
+    const response = await fetch(`/api/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        members: [...(data?.members || []), { userId, role }] 
+      }),
+    })
+    if (!response.ok) throw new Error('Failed to add member')
+    await mutate()
+  }
+
+  const removeMember = async (userId: string) => {
+    const response = await fetch(`/api/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        members: (data?.members || []).filter((m: any) => m.userId !== userId)
+      }),
+    })
+    if (!response.ok) throw new Error('Failed to remove member')
+    await mutate()
+  }
+
+  const updateMemberStatus = async (userId: string, status: string) => {
+    const response = await fetch(`/api/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        members: (data?.members || []).map((m: any) => 
+          m.userId === userId ? { ...m, status } : m
+        )
+      }),
+    })
+    if (!response.ok) throw new Error('Failed to update member status')
+    await mutate()
+  }
+
   return {
     appointment: data,
     isLoading,
     error,
     updateAppointment,
     deleteAppointment,
+    addMember,
+    removeMember,
+    updateMemberStatus,
+    refreshAppointment: mutate,
   }
 }
