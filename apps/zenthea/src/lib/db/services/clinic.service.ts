@@ -24,8 +24,8 @@ export class ClinicService {
    */
   static async getClinicById(id: string, organizationId: string) {
     // Validate UUID format to prevent database errors
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(id)) return null
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!id || !uuidRegex.test(id)) return null
 
     // Using superadminDb to bypass RLS since organizationId is manually filtered
     const [clinic] = await superadminDb.select()
@@ -45,7 +45,7 @@ export class ClinicService {
    * Create a new clinic
    */
   static async createClinic(data: any, organizationId: string) {
-    const [newClinic] = await db.insert(clinics)
+    const [newClinic] = await superadminDb.insert(clinics)
       .values({
         ...data,
         organizationId,
@@ -59,7 +59,7 @@ export class ClinicService {
    * Update an existing clinic
    */
   static async updateClinic(id: string, data: any, organizationId: string) {
-    const [updatedClinic] = await db.update(clinics)
+    const [updatedClinic] = await superadminDb.update(clinics)
       .set({
         ...data,
         updatedAt: new Date(),
@@ -79,7 +79,7 @@ export class ClinicService {
    * Delete a clinic
    */
   static async deleteClinic(id: string, organizationId: string) {
-    const [deletedClinic] = await db.delete(clinics)
+    const [deletedClinic] = await superadminDb.delete(clinics)
       .where(
         and(
           eq(clinics.id, id),
