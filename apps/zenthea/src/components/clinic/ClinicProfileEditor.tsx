@@ -24,8 +24,6 @@ import {
   MapPin
 } from 'lucide-react';
 import { useClinicProfile } from '@/hooks/useClinicProfile';
-import { ConvexErrorBoundary } from '@/components/utils/ConvexErrorBoundary';
-import { convex } from '@/lib/convex';
 import { toast } from 'sonner';
 
 interface ClinicProfileFormData {
@@ -102,8 +100,8 @@ export function ClinicProfileEditor() {
   }, [tenantData, setValue]);
 
   const onSubmit = async (data: ClinicProfileFormData) => {
-    if (!tenantId || !canQuery || !convex) {
-      setSaveError('Cannot save: Convex not configured or tenant ID not available');
+    if (!tenantId || !canQuery) {
+      setSaveError('Cannot save: Session not found or tenant ID not available');
       return;
     }
 
@@ -153,10 +151,10 @@ export function ClinicProfileEditor() {
               <AlertCircle className="h-5 w-5 text-status-warning" />
               <div>
                 <p className="text-sm font-medium text-text-primary">
-                  Convex not configured
+                  Not Authenticated
                 </p>
                 <p className="text-xs text-text-secondary mt-1">
-                  Clinic profile editing requires Convex to be configured.
+                  Please sign in to edit your clinic profile.
                 </p>
               </div>
             </div>
@@ -202,15 +200,7 @@ export function ClinicProfileEditor() {
   }
 
   return (
-    <ConvexErrorBoundary fallback={
-      <div className="flex items-center gap-3 p-4 bg-status-error/10 border border-status-error rounded-md">
-        <AlertCircle className="h-5 w-5 text-status-error" />
-        <p className="text-sm text-text-primary">
-          Error loading clinic profile. Please try refreshing the page.
-        </p>
-      </div>
-    }>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
         <div className="space-y-4 pb-4 border-b border-border-primary">
           <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
@@ -379,7 +369,6 @@ export function ClinicProfileEditor() {
           </Button>
         </div>
       </form>
-    </ConvexErrorBoundary>
   );
 }
 
