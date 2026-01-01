@@ -13,13 +13,10 @@ export class MessageService {
    * Get all conversations for a user
    */
   static async getConversations(userId: string, organizationId: string) {
-    // This is a simplified version of Convex's getConversations.
-    // We group by threadId and get the last message and unread count.
-    
-    const conversations = await db.select({
+    // We group by threadId and get the unread count.
+    const threadGroups = await db.select({
       threadId: messages.threadId,
       unreadCount: sql<number>`count(*) filter (where ${messages.isRead} = false and ${messages.toUserId} = ${userId})`,
-      lastMessageId: sql<string>`max(${messages.id})`, // Simplified: last ID by insertion
     })
     .from(messages)
     .where(
@@ -33,8 +30,8 @@ export class MessageService {
     )
     .groupBy(messages.threadId)
 
-    // Resolve last message details and other user
-    const detailedConversations = await Promise.all(conversations.map(async (conv) => {
+    // Resolve last message details and other user for each thread group
+    const detailedConversations = await Promise.all(threadGroups.map(async (group) => {
       const [lastMsg] = await db.select({
         id: messages.id,
         content: messages.content,
@@ -47,8 +44,16 @@ export class MessageService {
         toUserName: sql<string>`(SELECT name FROM users WHERE id = ${messages.toUserId})`,
       })
       .from(messages)
-      .where(eq(messages.id, conv.lastMessageId!))
+      .where(
+        and(
+          eq(messages.threadId, group.threadId!),
+          eq(messages.organizationId, organizationId)
+        )
+      )
+      .orderBy(desc(messages.createdAt))
       .limit(1)
+
+      if (!lastMsg) return null;
 
       const otherUserId = lastMsg.fromUserId === userId ? lastMsg.toUserId : lastMsg.fromUserId
       
@@ -63,8 +68,8 @@ export class MessageService {
       .limit(1) : [null]
 
       return {
-        threadId: conv.threadId,
-        unreadCount: Number(conv.unreadCount),
+        threadId: group.threadId,
+        unreadCount: Number(group.unreadCount),
         lastMessage: lastMsg,
         otherUser: otherUser ? {
           ...otherUser,
@@ -75,7 +80,7 @@ export class MessageService {
       }
     }))
 
-    return detailedConversations
+    return detailedConversations.filter((c): c is NonNullable<typeof c> => c !== null)
   }
 
   /**

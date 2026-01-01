@@ -52,7 +52,7 @@ export function AvailabilitySlotPicker({
   const availableSlotsForDate: TimeSlot[] = useMemo(() => {
     const slots: TimeSlot[] = [];
     const base = startOfDay(selectedDate).getTime();
-    for (let h = 9; hour < 17; h++) {
+    for (let h = 9; h < 17; h++) {
       for (let m = 0; m < 60; m += 30) {
         const dt = base + (h * 3600 + m * 60) * 1000;
         const date = new Date(dt);

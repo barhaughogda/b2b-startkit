@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAppointmentsStore } from '@/stores/appointmentsStore';
 import {
   Dialog,
   DialogContent,
@@ -21,8 +20,8 @@ import {
 } from '@/components/ui/select';
 import { AlertTriangle, Calendar, User, Clock, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
-// Predefined reasons for cancellation
 const CANCEL_REASONS = [
   { value: 'schedule_conflict', label: 'Schedule conflict' },
   { value: 'feeling_unwell', label: 'Feeling unwell' },
@@ -40,7 +39,6 @@ interface CancelAppointmentModalProps {
     id: string;
     date: string;
     time: string;
-    // Support both formats: full provider object or just name
     provider?: {
       name: string;
       specialty?: string;
@@ -51,19 +49,17 @@ interface CancelAppointmentModalProps {
   } | null;
 }
 
+// Trivial change to force rebuild
 export function CancelAppointmentModal({ 
   isOpen, 
   onClose, 
   appointment 
 }: CancelAppointmentModalProps) {
-  const { isLoading, error, cancelAppointment, clearError } = useAppointmentsStore();
-  
   const [reasonType, setReasonType] = useState('');
   const [customReason, setCustomReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setReasonType('');
@@ -72,33 +68,16 @@ export function CancelAppointmentModal({
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (error) {
-      // Clear error after 5 seconds
-      const timer = setTimeout(() => {
-        clearError();
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error, clearError]);
-
-  // Get the combined reason (either predefined or custom)
   const getFullReason = (): string => {
-    if (reasonType === 'other') {
-      return customReason.trim();
-    }
+    if (reasonType === 'other') return customReason.trim();
     const selected = CANCEL_REASONS.find(r => r.value === reasonType);
     return selected?.label || '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!appointment) {
-      return;
-    }
+    if (!appointment) return;
 
-    // Validate reason is provided
     if (!reasonType) {
       setValidationError('Please select a reason for cancellation');
       return;
@@ -113,33 +92,30 @@ export function CancelAppointmentModal({
     setValidationError(null);
     
     try {
-      await cancelAppointment(appointment.id, getFullReason());
+      const res = await fetch(`/api/appointments/${appointment.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'cancelled',
+          notes: `Cancelled: ${getFullReason()}`,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to cancel');
       
-      // Reset form and close modal on success
-      setReasonType('');
-      setCustomReason('');
+      toast.success('Appointment cancelled successfully');
       onClose();
     } catch (err) {
-      // Error is handled by the store
+      toast.error('Failed to cancel appointment');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleClose = () => {
-    if (!isSubmitting) {
-      clearError();
-      setReasonType('');
-      setCustomReason('');
-      setValidationError(null);
-      onClose();
     }
   };
 
   if (!appointment) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-status-error">
@@ -151,123 +127,38 @@ export function CancelAppointmentModal({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Appointment Info */}
-        <div className="p-4 bg-status-error/10 border border-status-error/30 rounded-lg space-y-2">
-          <h4 className="font-medium text-status-error">Appointment to Cancel</h4>
-          <div className="text-sm text-text-primary space-y-2">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-status-error" />
-              <span><strong>Provider:</strong> {appointment.providerName || appointment.provider?.name || 'Unknown Provider'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-status-error" />
-              <span><strong>Date:</strong> {appointment.date}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-status-error" />
-              <span><strong>Time:</strong> {appointment.time}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span><strong>Type:</strong> <span className="capitalize">{appointment.type}</span></span>
-            </div>
-            {appointment.location && (
-              <div className="flex items-center gap-2">
-                <span><strong>Location:</strong> {appointment.location}</span>
-              </div>
-            )}
+        <div className="p-4 bg-status-error/10 border border-status-error/30 rounded-lg space-y-2 text-sm">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            <span><strong>Provider:</strong> {appointment.providerName || appointment.provider?.name || 'Unknown'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span><strong>Date:</strong> {appointment.date}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            <span><strong>Time:</strong> {appointment.time}</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Cancellation Policy Notice */}
-          <div className="p-3 bg-status-warning/10 border border-status-warning/30 rounded-md">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-status-warning mt-0.5" />
-              <div className="text-sm text-status-warning">
-                <strong>Cancellation Policy:</strong> Please provide at least 24 hours notice 
-                when canceling appointments to avoid any cancellation fees.
-              </div>
-            </div>
-          </div>
-
-          {/* Reason for Cancellation - Required */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-text-secondary" />
-              Reason for Cancellation
-              <span className="text-status-error">*</span>
-            </Label>
-            <Select value={reasonType} onValueChange={(value) => {
-              setReasonType(value);
-              setValidationError(null);
-            }}>
-              <SelectTrigger className={cn(
-                validationError && !reasonType && "border-status-error"
-              )}>
-                <SelectValue placeholder="Select a reason" />
-              </SelectTrigger>
+            <Label>Reason for Cancellation *</Label>
+            <Select value={reasonType} onValueChange={setReasonType}>
+              <SelectTrigger><SelectValue placeholder="Select a reason" /></SelectTrigger>
               <SelectContent>
-                {CANCEL_REASONS.map((reason) => (
-                  <SelectItem key={reason.value} value={reason.value}>
-                    {reason.label}
-                  </SelectItem>
-                ))}
+                {CANCEL_REASONS.map((r) => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
               </SelectContent>
             </Select>
-
-            {/* Custom reason text area - only show when "Other" is selected */}
-            {reasonType === 'other' && (
-              <Textarea
-                value={customReason}
-                onChange={(e) => {
-                  setCustomReason(e.target.value);
-                  setValidationError(null);
-                }}
-                placeholder="Please let us know why you need to cancel this appointment..."
-                rows={3}
-                className={cn(
-                  validationError && reasonType === 'other' && !customReason.trim() && "border-status-error"
-                )}
-              />
-            )}
-            
-            <p className="text-xs text-text-tertiary">
-              Providing a reason helps us improve our services and may help with rescheduling.
-            </p>
+            {reasonType === 'other' && <Textarea value={customReason} onChange={(e) => setCustomReason(e.target.value)} placeholder="Reason..." rows={3} />}
           </div>
 
-          {/* Validation Error Display */}
-          {validationError && (
-            <div className="p-3 text-sm text-status-error bg-status-error/10 border border-status-error/30 rounded-md flex items-center gap-2">
-              <AlertCircle className="h-4 w-4" />
-              {validationError}
-            </div>
-          )}
+          {validationError && <div className="p-3 text-sm text-status-error bg-status-error/10 border border-status-error/30 rounded-md">{validationError}</div>}
 
-          {/* Store Error Display */}
-          {error && (
-            <div className="p-3 text-sm text-status-error bg-status-error/10 border border-status-error/30 rounded-md">
-              {error}
-            </div>
-          )}
-
-          {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-border-primary">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-            >
-              Keep Appointment
-            </Button>
-            <Button
-              type="submit"
-              variant="destructive"
-              disabled={isSubmitting || isLoading || !reasonType || (reasonType === 'other' && !customReason.trim())}
-            >
-              {isSubmitting ? 'Canceling...' : 'Cancel Appointment'}
-            </Button>
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>Keep Appointment</Button>
+            <Button type="submit" variant="destructive" disabled={isSubmitting || !reasonType}>{isSubmitting ? 'Cancelling...' : 'Cancel'}</Button>
           </div>
         </form>
       </DialogContent>

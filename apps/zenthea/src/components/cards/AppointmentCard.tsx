@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -111,6 +111,7 @@ interface AppointmentCardProps extends BaseCardProps {
   onCancel?: () => void;
 }
 
+// Trivial change to force rebuild
 export function AppointmentCard({ 
   appointmentData, 
   handlers,
@@ -128,6 +129,8 @@ export function AppointmentCard({
   const currentUserId = session?.user?.id;
   
   const { 
+    id: appointmentId,
+    patientId,
     patientName, 
     time, 
     date, 
@@ -144,6 +147,11 @@ export function AppointmentCard({
     documents = [],
     comments = []
   } = appointmentData;
+
+  // Extract id, title, priority from props to avoid ReferenceError
+  const id = (props as any).id || appointmentId;
+  const title = (props as any).title || `${type.charAt(0).toUpperCase() + type.slice(1)}: ${patientName}`;
+  const priority = (props as any).priority || 'medium';
 
   const [newComment, setNewComment] = useState('');
   const [isEditing, setIsEditing] = useState(mode === 'create' || mode === 'edit');
@@ -181,12 +189,12 @@ export function AppointmentCard({
     calendarOwnerId: currentUserId || '',
   });
 
-  // Get care team for primary provider and member management
-  const { careTeam: patientCareTeam, primaryProvider: patientPrimaryProvider } = useCareTeam(formData.patientId);
-  const { appointment, updateAppointment, addMember, removeMember, updateMemberStatus, refreshAppointment } = useAppointment(appointmentData.id === 'new' ? '' : appointmentData.id);
+  // Get data using refactored hooks
+  const { careTeam: patientCareTeam, primaryProvider: patientPrimaryProvider, isLoading: careTeamLoading } = useCareTeam(formData.patientId);
+  const { appointment, updateAppointment, addMember, removeMember, updateMemberStatus, isLoading: appointmentLoading } = useAppointment(appointmentData.id === 'new' ? '' : appointmentData.id);
   const { createAppointment } = useAppointments();
-  const { patients } = usePatients();
-  const { users: tenantUsers } = useOrganizationUsers();
+  const { patients, isLoading: patientsLoading } = usePatients();
+  const { users: tenantUsers, isLoading: usersLoading } = useOrganizationUsers();
   
   // Track if auto-select has been performed
   const hasAutoSelectedProvider = useRef(false);
@@ -216,7 +224,7 @@ export function AppointmentCard({
       }
     }
   }, [isPatient, mode, patientCareTeam]);
-
+  
   // Default to primary provider when creating a new appointment
   useEffect(() => {
     if (
@@ -465,7 +473,7 @@ export function AppointmentCard({
     if (isNaN(startDate.getTime())) return '';
     const endDate = new Date(startDate.getTime() + duration * 60 * 1000);
     const formatGoogleDate = (d: Date) => d.toISOString().replace(/-|:|\.\d{3}/g, '');
-    const title = encodeURIComponent(`${type} - ${patientName}`);
+      const title = encodeURIComponent(`${type} - ${patientName}`);
     const locStr = encodeURIComponent(location || '');
     const det = encodeURIComponent(notes || `Appointment at Zenthea Healthcare`);
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}&details=${det}&location=${locStr}`;
@@ -611,78 +619,81 @@ export function AppointmentCard({
       <div className="p-4">
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
           {saveError && <div className="bg-status-error/10 border border-status-error/20 text-status-error p-3 rounded-md text-sm">{saveError}</div>}
-          {mode === 'create' && (
-            <div>
-              <Label htmlFor="patient-select">Patient *</Label>
+        {mode === 'create' && (
+          <div>
+            <Label htmlFor="patient-select">Patient *</Label>
               <Select value={formData.patientId} onValueChange={(v) => { const p = patients?.find(p => p.id === v); updateField('patientId', v); if (p) updateField('patientName', `${p.firstName} ${p.lastName}`); setPatientSearchQuery(''); }} onOpenChange={(o) => { if (!o) setPatientSearchQuery(''); }}>
                 <SelectTrigger id="patient-select"><SelectValue placeholder="Select a patient" /></SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  <div className="sticky top-0 z-10 bg-surface-elevated border-b border-border-primary px-2 py-2">
-                    <div className="relative">
-                      <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-text-secondary" />
+              <SelectContent className="max-h-[300px]">
+                <div className="sticky top-0 z-10 bg-surface-elevated border-b border-border-primary px-2 py-2">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-text-secondary" />
                       <Input type="text" placeholder="Search patients..." value={patientSearchQuery} onChange={(e) => setPatientSearchQuery(e.target.value)} className="pl-8 h-8 text-sm" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} />
-                    </div>
                   </div>
-                  <div className="max-h-[240px] overflow-y-auto">
+                </div>
+                <div className="max-h-[240px] overflow-y-auto">
                     {filteredPatients.length === 0 ? <div className="px-2 py-4 text-sm text-text-secondary text-center">No patients found</div> : filteredPatients.map((p) => <SelectItem key={p.id} value={p.id}>{p.firstName} {p.lastName}</SelectItem>)}
-                  </div>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          {mode === 'edit' && patientName && (
+                </div>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {mode === 'edit' && patientName && (
             <div><Label>Patient</Label><div className="flex items-center gap-2 p-2 bg-surface-elevated rounded-md text-sm"><User className="h-4 w-4 text-text-secondary" /><span>{patientName}</span></div></div>
           )}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="date">Date *</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="date">Date *</Label>
               <Input id="date" type="date" value={formData.date} onChange={(e) => updateField('date', e.target.value)} required />
-            </div>
-            <div>
-              <Label htmlFor="time">Time *</Label>
-              <Input id="time" type="time" value={formData.time} onChange={(e) => updateField('time', e.target.value)} required />
-            </div>
           </div>
           <div>
-            <Label htmlFor="duration">Duration</Label>
+            <Label htmlFor="time">Time *</Label>
+              <Input id="time" type="time" value={formData.time} onChange={(e) => updateField('time', e.target.value)} required />
+                      </div>
+                    </div>
+        <div>
+          <Label htmlFor="duration">Duration</Label>
             <Select value={formData.duration.toString()} onValueChange={(v) => updateField('duration', parseInt(v))}>
               <SelectTrigger id="duration"><SelectValue /></SelectTrigger>
               <SelectContent>{durationOptions.map(o => <SelectItem key={o.value} value={o.value.toString()}>{o.label}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          {mode === 'edit' && (
-            <div>
-              <Label htmlFor="status">Status</Label>
+          </Select>
+        </div>
+        {mode === 'edit' && (
+          <div>
+            <Label htmlFor="status">Status</Label>
               <Select value={formData.status} onValueChange={(v) => updateField('status', v)}>
                 <SelectTrigger id="status"><SelectValue /></SelectTrigger>
-                <SelectContent>
+              <SelectContent>
                   <SelectItem value="scheduled"><div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-status-info" />Scheduled</div></SelectItem>
                   <SelectItem value="confirmed"><div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-status-success" />Confirmed</div></SelectItem>
                   <SelectItem value="in-progress"><div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-status-warning" />In Progress</div></SelectItem>
                   <SelectItem value="completed"><div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-zenthea-teal" />Completed</div></SelectItem>
                   <SelectItem value="cancelled"><div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-status-error" />Cancelled</div></SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          <div>
-            <Label>Appointment Type</Label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {appointmentTypes.map(t => <Button key={t.value} type="button" variant={formData.type === t.value ? 'default' : 'outline'} className="justify-start" onClick={() => updateField('type', t.value)}><t.icon className="h-4 w-4 mr-2" />{t.label}</Button>)}
-            </div>
+              </SelectContent>
+            </Select>
           </div>
+        )}
+        <div>
+          <Label>Appointment Type</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+              {appointmentTypes.map(t => <Button key={t.value} type="button" variant={formData.type === t.value ? 'default' : 'outline'} className="justify-start" onClick={() => updateField('type', t.value)}><t.icon className="h-4 w-4 mr-2" />{t.label}</Button>)}
+          </div>
+        </div>
           <LocationSelector value={formData.locationId} onValueChange={(v) => updateField('locationId', v)} tenantId={tenantId} label="Location" placeholder="Select a location" />
           <div><Label htmlFor="notes">Notes</Label><Textarea id="notes" value={formData.notes} onChange={(e) => updateField('notes', e.target.value)} placeholder="Notes..." rows={3} /></div>
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-primary">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-primary">
             <Button type="button" variant="outline" onClick={handleCancel} disabled={isSaving}>Cancel</Button>
             <Button type="submit" disabled={isSaving}>{isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}{mode === 'create' ? 'Create' : 'Save'}</Button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
+    </div>
     );
   };
 
   const renderInfo = () => isEditing ? renderInfoForm() : renderInfoView();
+
+  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [selectedUserToAdd, setSelectedUserToAdd] = useState<string | null>(null);
 
   // Members Tab
   const renderCareTeam = () => {
@@ -703,9 +714,9 @@ export function AppointmentCard({
               <SelectTrigger><SelectValue placeholder="Select user..." /></SelectTrigger>
               <SelectContent>{availableToAdd.map((u: any) => <SelectItem key={u.id} value={u.id}>{u.name || u.email}</SelectItem>)}</SelectContent>
             </Select>
-            {selectedUserToAdd && <div className="flex gap-2 mt-2"><Button size="sm" variant="outline" onClick={() => { addMember(selectedUserToAdd, 'attendee'); setIsAddingMember(false); }} className="flex-1">Add</Button></div>}
-          </div>
-        )}
+            {selectedUserToAdd && <div className="flex gap-2 mt-2"><Button size="sm" variant="outline" onClick={() => { if (addMember) addMember(selectedUserToAdd, 'attendee'); setIsAddingMember(false); }} className="flex-1">Add</Button></div>}
+              </div>
+            )}
         <ScrollArea className="max-h-[200px]">
           <div className="space-y-2">
             {members.map((m: any) => (
@@ -713,8 +724,8 @@ export function AppointmentCard({
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <Avatar className="h-8 w-8"><AvatarImage src={m.avatarUrl} /><AvatarFallback>{m.name?.[0]}</AvatarFallback></Avatar>
                   <div className="min-w-0 flex-1"><div className="text-sm font-medium truncate">{m.name || m.email}</div><Badge variant="outline" className="text-[10px]">{m.role}</Badge></div>
-                </div>
-                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => removeMember(m.userId)}><Trash2 className="h-3 w-3" /></Button>
+                    </div>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => removeMember && removeMember(m.userId)}><Trash2 className="h-3 w-3" /></Button>
               </div>
             ))}
           </div>
@@ -765,7 +776,7 @@ export function AppointmentCard({
 
   return (
     <>
-      <BaseCardComponent {...props} activeTab={activeTab} onTabChange={onTabChange} handlers={handlers}>
+      <BaseCardComponent {...props} id={id} type={type} title={title} priority={priority} status={status} patientId={patientId} patientName={patientName} activeTab={activeTab} onTabChange={onTabChange} handlers={handlers}>
         {renderContent()}
       </BaseCardComponent>
       <RescheduleAppointmentModal isOpen={isRescheduleModalOpen} onClose={() => setIsRescheduleModalOpen(false)} appointment={getRescheduleAppointmentData()} />
