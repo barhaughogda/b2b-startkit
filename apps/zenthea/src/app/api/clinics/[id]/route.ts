@@ -77,6 +77,7 @@ export async function DELETE(
   try {
     const { id } = await params
     const { organization, user } = await requireOrganization()
+    console.log('DEBUG: API - Requested ID:', id, 'Org ID:', organization.organizationId);
     
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },

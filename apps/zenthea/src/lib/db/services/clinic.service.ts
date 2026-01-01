@@ -1,5 +1,5 @@
 import { eq, and } from 'drizzle-orm'
-import { db } from '@startkit/database'
+import { db, superadminDb } from '@startkit/database'
 import { clinics } from '../schema'
 
 /**
@@ -12,7 +12,8 @@ export class ClinicService {
    * Get all clinics for the current organization
    */
   static async getClinics(organizationId: string) {
-    return await db.select()
+    // Using superadminDb to bypass RLS since organizationId is manually filtered
+    return await superadminDb.select()
       .from(clinics)
       .where(eq(clinics.organizationId, organizationId))
       .orderBy(clinics.name)
@@ -26,7 +27,8 @@ export class ClinicService {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(id)) return null
 
-    const [clinic] = await db.select()
+    // Using superadminDb to bypass RLS since organizationId is manually filtered
+    const [clinic] = await superadminDb.select()
       .from(clinics)
       .where(
         and(
