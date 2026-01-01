@@ -42,10 +42,10 @@ interface AppointmentEventData {
 }
 
 interface ProviderCalendarProps {
-  userId: Id<'users'>; // User who owns the calendar
+  userId: string; // User who owns the calendar
   tenantId: string;
-  locationId?: Id<'locations'>; // Legacy - kept for backward compatibility
-  clinicId?: Id<'clinics'>; // Preferred - filter to specific clinic
+  locationId?: string; // Legacy - kept for backward compatibility
+  clinicId?: string; // Preferred - filter to specific clinic
   sharedUserIds?: string[]; // Additional users whose calendars to show (for shared calendars)
   onEventClick?: (appointmentId: string, appointmentData?: AppointmentEventData) => void;
   onDateClick?: (date: Date) => void;
@@ -304,13 +304,14 @@ export function ProviderCalendar({
     };
   }, [currentDate, currentView]);
 
-  // Fetch appointments for the date range using getUserCalendarWithShares
-  // This handles both the user's own appointments and shared calendars
+  // Use generic query calls to avoid strict type issues with Clerk IDs
+  const isConvexId = (id: string) => /^[a-z][a-z0-9]{19,}$/.test(id);
+
   const appointmentsWithShares = useQuery(
-    api.appointments.getUserCalendarWithShares,
-    userId && tenantId
+    (api as any).appointments?.getUserCalendarWithShares,
+    userId && tenantId && isConvexId(userId)
       ? {
-          userId,
+          userId: userId as any,
           tenantId,
           startDate: dateRange.start,
           endDate: dateRange.end,
@@ -319,64 +320,37 @@ export function ProviderCalendar({
       : 'skip'
   );
 
-  // For multiple users (sharedUserIds), also fetch their appointments
   const sharedAppointments = useQuery(
-    api.appointments.getMultiUserAppointments,
-    sharedUserIds && sharedUserIds.length > 0 && tenantId
+    (api as any).appointments?.getMultiUserAppointments,
+    sharedUserIds.length > 0 && tenantId && sharedUserIds.every(isConvexId)
       ? {
           tenantId,
           startDate: dateRange.start,
           endDate: dateRange.end,
-          userIds: sharedUserIds.map(id => id as Id<'users'>),
+          userIds: sharedUserIds as any[],
         }
       : 'skip'
   );
 
-  // Combine appointments
-  // getUserCalendarWithShares returns an array of enriched appointments
   const appointments = useMemo(() => {
-    const ownAppointments = appointmentsWithShares || [];
-    const shared = sharedAppointments || [];
-    
-    // Combine and deduplicate by appointment ID
-    const combined = [...ownAppointments, ...shared];
-    const unique = combined.filter((apt, index, self) =>
-      index === self.findIndex(a => a._id === apt._id)
-    );
-    
-    return unique;
+    const combined = [...(appointmentsWithShares || []), ...(sharedAppointments || [])];
+    return combined.filter((apt, index, self) => index === self.findIndex(a => a._id === apt._id));
   }, [appointmentsWithShares, sharedAppointments]);
 
-  // Fetch patients for patient names (we'll batch fetch all needed patients)
-  const patientIds = useMemo(() => {
-    if (!appointments) return [];
-    return Array.from(new Set(appointments.map(apt => apt.patientId)));
-  }, [appointments]);
-
-  // Note: We'd need a batch query for patients, but for now we'll fetch individually
-  // This is not optimal but works for MVP - can be optimized later with a batch query
-
-  // Fetch locations for display (user-based)
-  // Use getLocationsByTenant - it's the existing function that works
   const locations = useQuery(
-    api.locations.getLocationsByTenant,
-    tenantId
-      ? {
-          tenantId,
-        }
-      : 'skip'
+    (api as any).locations?.getLocationsByTenant,
+    tenantId ? { tenantId } : 'skip'
   );
 
-  // Fetch user's clinic availability windows for the calendar overlay
   const availabilityData = useQuery(
-    api.availability.getUserClinicAvailabilityWindows,
-    userId && tenantId
+    (api as any).availability?.getUserClinicAvailabilityWindows,
+    userId && tenantId && isConvexId(userId)
       ? {
-          userId,
+          userId: userId as any,
           tenantId,
           startDate: dateRange.start,
           endDate: dateRange.end,
-          clinicIds: clinicId ? [clinicId] : undefined,
+          clinicIds: clinicId ? [clinicId as any] : undefined,
         }
       : 'skip'
   );
@@ -451,10 +425,6 @@ export function ProviderCalendar({
         if (clinicId && (appointment as any).clinicId !== clinicId) {
           return;
         }
-        // Skip if location filter is set and appointment doesn't match (legacy filter)
-        if (!clinicId && locationId && appointment.locationId !== locationId) {
-          return;
-        }
 
         const start = new Date(appointment.scheduledAt);
         const end = new Date(start.getTime() + appointment.duration * 60 * 1000);
@@ -508,8 +478,8 @@ export function ProviderCalendar({
         }
 
         // Get location name
-        const locationName = (appointment as any).locationName || locations?.find(
-          (loc: any) => loc._id === appointment.locationId
+        const locationName = (appointment as any).locationName || (locations as any[])?.find(
+          (loc: any) => (loc._id || loc.id) === appointment.locationId
         )?.name;
 
         // Build title with patient name and optionally user name for shared calendars
@@ -544,7 +514,7 @@ export function ProviderCalendar({
 
     // Add availability blocks as background events when toggle is enabled
     if (showAvailability && availabilityData?.windows) {
-      availabilityData.windows.forEach((window, index) => {
+      availabilityData.windows.forEach((window: any, index: number) => {
         // Skip if clinicId filter is set and doesn't match
         if (clinicId && window.clinicId !== clinicId) {
           return;
@@ -554,8 +524,6 @@ export function ProviderCalendar({
         const colors = CLINIC_COLORS[colorIndex] || CLINIC_COLORS[0]!;
 
         // Use local date/time strings to display availability in the clinic's local time
-        // This ensures 09:00 at the clinic displays as 09:00 regardless of browser timezone
-        // Format: "2025-12-22T09:00:00" (no timezone offset = FullCalendar treats as local)
         const startDateTimeStr = `${window.date}T${window.startTime}:00`;
         const endDateTimeStr = `${window.date}T${window.endTime}:00`;
 
@@ -581,7 +549,7 @@ export function ProviderCalendar({
     }
 
     return events;
-  }, [appointments, locations, locationId, clinicId, selectionTimeBlock, showAvailability, availabilityData, clinicColorMap]);
+  }, [appointments, locations, clinicId, selectionTimeBlock, showAvailability, availabilityData, clinicColorMap]);
 
   const handleEventClick = useCallback(
     (info: any) => {

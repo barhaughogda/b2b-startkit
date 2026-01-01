@@ -5,35 +5,34 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useMemo, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { ClinicLayout } from '@/components/layout/ClinicLayout';
 import { ProviderCalendar } from '@/components/calendar/ProviderCalendar';
 import { CalendarSettingsPanel } from '@/components/calendar/CalendarSettingsPanel';
 import { CalendarFiltersBar } from '@/components/calendar/CalendarFiltersBar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Settings, CalendarCheck, Plus } from 'lucide-react';
-import { canUseConvexQuery } from '@/lib/convexIdValidation';
 import { toast } from 'sonner';
-import { ConvexErrorBoundary } from '@/components/utils/ConvexErrorBoundary';
 import { TodayContent } from '@/components/clinic/TodayContent';
 import { useCardSystem } from '@/components/cards/CardSystemProvider';
 import { Priority, TaskStatus } from '@/components/cards/types';
+import { useClinics } from '@/hooks/useClinicProfile';
 
 function ClinicCalendarPageContent() {
-  const { data: session } = useZentheaSession();
+  const { data: session, status } = useZentheaSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { openCard, cards } = useCardSystem();
-  const [selectedClinicId, setSelectedClinicId] = useState<Id<'clinics'> | undefined>(undefined);
+  const [selectedClinicId, setSelectedClinicId] = useState<string | undefined>(undefined);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'today' | 'calendar' | 'sync'>('today');
   const processedParamsRef = useRef<string>('');
   const tabInitializedRef = useRef(false);
   const mountedRef = useRef(false);
   const isProcessingOAuthRef = useRef(false);
+
+  // Get clinics using refactored hook
+  const { clinics } = useClinics();
 
   // Find active appointment card in create/edit mode for visual selection
   const activeAppointmentSelection = useMemo(() => {
@@ -164,80 +163,6 @@ function ClinicCalendarPageContent() {
   const tenantId = session?.user?.tenantId;
   const userId = session?.user?.id;
 
-  // Check if we can use Convex queries
-  const canQuery = canUseConvexQuery(userId, tenantId);
-
-  // Convert userId to Convex ID format
-  const finalUserId = useMemo(() => {
-    if (canQuery && userId && typeof userId === 'string' && /^[jk][a-z0-9]{15,}$/.test(userId)) {
-      return userId as Id<'users'>;
-    }
-    return undefined;
-  }, [canQuery, userId]);
-
-  // Get provider profile to find provider ID (for calendar functionality)
-  // Use userId directly like in provider calendar page, not finalUserId
-  const providerProfile = useQuery(
-    api.providerProfiles.getProviderProfileByUserId,
-    canQuery && userId && tenantId
-      ? {
-          userId: userId as Id<'users'>,
-          tenantId: tenantId,
-        }
-      : 'skip'
-  );
-
-  // Get provider ID from profile
-  const providerId = useMemo(() => {
-    if (providerProfile?.providerId) {
-      return providerProfile.providerId as Id<'providers'>;
-    }
-    return undefined;
-  }, [providerProfile]);
-
-  // Get provider by email as fallback
-  const providerByEmail = useQuery(
-    api.providers.getProviderByEmail,
-    canQuery && session?.user?.email && tenantId && !providerId
-      ? {
-          email: session.user.email,
-          tenantId: tenantId,
-        }
-      : 'skip'
-  );
-
-  // Use providerId from profile or from email lookup
-  const finalProviderId = providerId || (providerByEmail?._id as Id<'providers'> | undefined);
-
-  // Debug logging to understand what's happening (development only)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && canQuery && userId && tenantId) {
-      const debugInfo = {
-        userId,
-        tenantId,
-        finalUserId,
-        canQuery,
-        providerProfile: providerProfile ? { hasProviderId: !!providerProfile.providerId, providerId: providerProfile.providerId } : null,
-        providerByEmail: providerByEmail ? { hasId: !!providerByEmail._id, id: providerByEmail._id } : null,
-        finalProviderId,
-        providerProfileLoading: providerProfile === undefined,
-        providerByEmailLoading: providerByEmail === undefined,
-      };
-      console.log('[Clinic Calendar] Availability Debug:', JSON.stringify(debugInfo, null, 2));
-    }
-  }, [canQuery, userId, tenantId, finalUserId, providerProfile, providerByEmail, finalProviderId]);
-
-  // Get user's assigned clinics for the clinic filter dropdown
-  const clinics = useQuery(
-    api.clinics.getUserClinics,
-    finalUserId && tenantId
-      ? {
-          userId: finalUserId,
-          tenantId: tenantId,
-        }
-      : 'skip'
-  );
-
   // Handle tab change - update both state and URL
   const handleTabChange = useCallback((tab: 'today' | 'calendar' | 'sync') => {
     setActiveTab(tab);
@@ -309,29 +234,13 @@ function ClinicCalendarPageContent() {
     });
   };
 
-  if (!canQuery || !tenantId) {
+  if (status === 'unauthenticated' || !session) {
     return (
       <ClinicLayout showSearch={true}>
         <div className="flex-1 pb-6">
           <Card>
             <CardContent className="p-6">
               <p className="text-text-secondary">Please sign in to view your calendar.</p>
-            </CardContent>
-          </Card>
-        </div>
-      </ClinicLayout>
-    );
-  }
-
-  if (!finalUserId) {
-    return (
-      <ClinicLayout showSearch={true}>
-        <div className="flex-1 pb-6">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-text-secondary">
-                Please sign in to view your calendar.
-              </p>
             </CardContent>
           </Card>
         </div>
@@ -362,10 +271,7 @@ function ClinicCalendarPageContent() {
 
           {/* Tabs */}
           <div className="flex items-center justify-between border-b relative">
-            {/* Left spacer */}
             <div className="flex-1" />
-            
-            {/* Center: Today and Calendar */}
             <div className="flex gap-2 absolute left-1/2 transform -translate-x-1/2">
               <Button
                 variant={activeTab === 'today' ? 'default' : 'ghost'}
@@ -384,8 +290,6 @@ function ClinicCalendarPageContent() {
                 Calendar
               </Button>
             </div>
-            
-            {/* Right: Settings */}
             <div className="flex-1 flex justify-end">
               <Button
                 variant={activeTab === 'sync' ? 'default' : 'ghost'}
@@ -406,22 +310,20 @@ function ClinicCalendarPageContent() {
           {/* Calendar Tab Content */}
           {activeTab === 'calendar' && (
             <>
-              {/* Collapsible Filters Bar */}
               <CalendarFiltersBar
-                userId={finalUserId}
-                tenantId={tenantId}
-                clinics={clinics as Array<{ _id: Id<'clinics'>; name: string }> | undefined}
-                selectedClinicId={selectedClinicId}
-                onClinicChange={(clinicId) => setSelectedClinicId(clinicId)}
+                userId={userId as any}
+                tenantId={tenantId!}
+                clinics={clinics as any}
+                selectedClinicId={selectedClinicId as any}
+                onClinicChange={(clinicId) => setSelectedClinicId(clinicId as any)}
                 selectedUserIds={selectedUserIds}
                 onSelectionChange={setSelectedUserIds}
               />
 
-              {/* Main Calendar */}
               <ProviderCalendar
-                userId={finalUserId}
-                tenantId={tenantId}
-                clinicId={selectedClinicId}
+                userId={userId as any}
+                tenantId={tenantId!}
+                clinicId={selectedClinicId as any}
                 sharedUserIds={selectedUserIds}
                 onEventClick={handleEventClick}
                 onDateClick={handleDateClick}
@@ -433,36 +335,11 @@ function ClinicCalendarPageContent() {
 
           {/* Settings Tab Content */}
           {activeTab === 'sync' && (
-            finalUserId ? (
-              <ConvexErrorBoundary
-                fallback={
-                  <Card>
-                    <CardContent className="p-6">
-                      <p className="text-text-secondary">
-                        Calendar settings are currently being deployed. Please check back in a few moments.
-                      </p>
-                    </CardContent>
-                  </Card>
-                }
-                title="Calendar Settings Unavailable"
-                description="The calendar settings feature requires additional setup. This is normal if the function hasn't been deployed yet."
-              >
-                <CalendarSettingsPanel
-                  userId={finalUserId}
-                  tenantId={tenantId}
-                  providerId={finalProviderId}
-                  clinicId={selectedClinicId}
-                />
-              </ConvexErrorBoundary>
-            ) : (
-              <Card>
-                <CardContent className="p-6">
-                  <p className="text-text-secondary">
-                    Calendar settings require a valid user account. Please sign in to manage calendar settings.
-                  </p>
-                </CardContent>
-              </Card>
-            )
+            <CalendarSettingsPanel
+              userId={userId as any}
+              tenantId={tenantId!}
+              clinicId={selectedClinicId as any}
+            />
           )}
         </div>
       </div>
@@ -472,26 +349,21 @@ function ClinicCalendarPageContent() {
 
 export default function ClinicCalendarPage() {
   return (
-    <ConvexErrorBoundary
-      title="Calendar Error"
-      description="Unable to load calendar data. This may happen if Convex functions are not deployed yet."
+    <Suspense
+      fallback={
+        <ClinicLayout showSearch={true}>
+          <div className="flex-1 pb-6">
+            <Card>
+              <CardContent className="p-6">
+                <p className="text-text-secondary">Loading calendar...</p>
+              </CardContent>
+            </Card>
+          </div>
+        </ClinicLayout>
+      }
     >
-      <Suspense
-        fallback={
-          <ClinicLayout showSearch={true}>
-            <div className="flex-1 pb-6">
-              <Card>
-                <CardContent className="p-6">
-                  <p className="text-text-secondary">Loading calendar...</p>
-                </CardContent>
-              </Card>
-            </div>
-          </ClinicLayout>
-        }
-      >
-        <ClinicCalendarPageContent />
-      </Suspense>
-    </ConvexErrorBoundary>
+      <ClinicCalendarPageContent />
+    </Suspense>
   );
 }
 

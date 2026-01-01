@@ -16,11 +16,11 @@ import { ClinicAvailabilityManager } from '@/components/provider/ClinicAvailabil
 import { ClinicAssignmentManager } from '@/components/provider/ClinicAssignmentManager';
 
 interface CalendarSettingsPanelProps {
-  userId: Id<'users'>;
+  userId: string;
   tenantId: string;
-  providerId?: Id<'providers'>;
-  clinicId?: Id<'clinics'>; // Clinic filter (canonical - preferred)
-  locationId?: Id<'locations'>; // DEPRECATED: Use clinicId instead
+  providerId?: string;
+  clinicId?: string; // Clinic filter (canonical - preferred)
+  locationId?: string; // DEPRECATED: Use clinicId instead
 }
 
 export function CalendarSettingsPanel({ userId, tenantId, providerId, clinicId, locationId }: CalendarSettingsPanelProps) {
@@ -42,16 +42,16 @@ export function CalendarSettingsPanel({ userId, tenantId, providerId, clinicId, 
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4">
-            {userId ? (
+            {userId && /^[a-z][a-z0-9]{19,}$/.test(userId) ? (
               <ClinicAvailabilityManager
-                userId={userId}
+                userId={userId as any}
                 tenantId={tenantId}
               />
             ) : (
               <Card>
                 <CardContent className="p-6">
                   <p className="text-text-secondary">
-                    Availability management requires a valid user account. Please sign in to manage your availability.
+                    Availability management requires a legacy user account for now.
                   </p>
                 </CardContent>
               </Card>
@@ -73,16 +73,16 @@ export function CalendarSettingsPanel({ userId, tenantId, providerId, clinicId, 
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4">
-            {userId ? (
+            {userId && /^[a-z][a-z0-9]{19,}$/.test(userId) ? (
               <ClinicAssignmentManager
-                userId={userId}
+                userId={userId as any}
                 tenantId={tenantId}
               />
             ) : (
               <Card>
                 <CardContent className="p-6">
                   <p className="text-text-secondary">
-                    Clinic assignment requires a valid user account. Please sign in to select your clinics.
+                    Clinic assignment requires a legacy user account for now.
                   </p>
                 </CardContent>
               </Card>
@@ -104,7 +104,17 @@ export function CalendarSettingsPanel({ userId, tenantId, providerId, clinicId, 
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4">
-            <CalendarSharingSettings userId={userId} tenantId={tenantId} />
+            {userId && /^[a-z][a-z0-9]{19,}$/.test(userId) ? (
+              <CalendarSharingSettings userId={userId as any} tenantId={tenantId} />
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-text-secondary">
+                    Calendar sharing requires a legacy user account for now.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </AccordionContent>
         </AccordionItem>
 
@@ -122,7 +132,17 @@ export function CalendarSettingsPanel({ userId, tenantId, providerId, clinicId, 
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4">
-            <CalendarSyncSettings userId={userId} tenantId={tenantId} />
+            {userId && /^[a-z][a-z0-9]{19,}$/.test(userId) ? (
+              <CalendarSyncSettings userId={userId as any} tenantId={tenantId} />
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-text-secondary">
+                    External sync requires a legacy user account for now.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </AccordionContent>
         </AccordionItem>
       </Accordion>
