@@ -25,6 +25,8 @@ export interface Patient {
   organizationId: string
   /** Patient status */
   status: 'active' | 'inactive' | 'discharged'
+  /** Primary provider ID */
+  primaryProviderId?: string | null
   /** Record creation timestamp */
   createdAt: string
   /** Record last update timestamp */

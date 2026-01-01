@@ -3,9 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { ClinicLayout } from '@/components/layout/ClinicLayout';
 import { User, Phone, Mail, Calendar, MoreHorizontal, Loader2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DataTable, Column, FilterOption } from '@/components/ui/data-table';
 import { usePatients, PatientWithComputedFields } from '@/hooks/usePatients';
-import { navigationHelpers } from '@/utils/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,16 +26,7 @@ export default function PatientsPage() {
   const { patients, isLoading, error } = usePatients();
   const [patientFilter, setPatientFilter] = useState<'all' | 'my-primary'>('all');
   
-  const tenantId = session?.user?.tenantId || '';
   const currentUserId = session?.user?.id;
-  
-  // Fetch patients where current user is the primary provider
-  const myPrimaryPatients = useQuery(
-    api.careTeam.getPatientsByPrimaryProvider,
-    currentUserId && tenantId
-      ? { providerId: currentUserId as Id<'users'>, tenantId }
-      : 'skip'
-  );
   
   // Filter patients based on selected tab
   const filteredPatients = useMemo(() => {
@@ -47,13 +34,17 @@ export default function PatientsPage() {
       return patients;
     }
     
-    if (patientFilter === 'my-primary' && myPrimaryPatients?.patients) {
-      const primaryPatientIds = new Set<string>(myPrimaryPatients.patients.map((p: { _id: string }) => p._id as string));
-      return patients.filter((p: PatientWithComputedFields) => primaryPatientIds.has(p._id));
+    if (patientFilter === 'my-primary' && currentUserId) {
+      return patients.filter((p: PatientWithComputedFields) => p.primaryProviderId === currentUserId);
     }
     
     return patients;
-  }, [patients, patientFilter, myPrimaryPatients]);
+  }, [patients, patientFilter, currentUserId]);
+
+  const myPrimaryCount = useMemo(() => {
+    if (!currentUserId) return 0;
+    return patients.filter((p: PatientWithComputedFields) => p.primaryProviderId === currentUserId).length;
+  }, [patients, currentUserId]);
 
   // Define table columns
   const columns: Column<PatientWithComputedFields>[] = [
@@ -149,7 +140,7 @@ export default function PatientsPage() {
               Schedule
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push(`/company/patients/${row._id}`)}>
+            <DropdownMenuItem onClick={() => router.push(`/company/patients/${row.id}`)}>
               View Profile
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -186,7 +177,7 @@ export default function PatientsPage() {
   ];
 
   const handleRowClick = (patient: PatientWithComputedFields) => {
-    router.push(`/company/patients/${patient._id}`);
+    router.push(`/company/patients/${patient.id}`);
   };
 
   // Loading state
@@ -248,7 +239,7 @@ export default function PatientsPage() {
                     <Star className="h-4 w-4" />
                     My Primary Patients
                     <Badge variant="secondary" className="ml-2">
-                      {myPrimaryPatients?.totalCount || 0}
+                      {myPrimaryCount}
                     </Badge>
                   </TabsTrigger>
                 </TabsList>

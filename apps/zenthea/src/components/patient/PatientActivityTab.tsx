@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import useSWR from 'swr';
+import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { 
   Activity,
   Eye,
@@ -31,9 +29,17 @@ import {
 import { format, formatDistanceToNow, subDays, subWeeks, subMonths } from 'date-fns';
 
 interface PatientActivityTabProps {
-  patientId: Id<'patients'>;
+  patientId: string;
   tenantId: string;
 }
+
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch activity logs');
+  }
+  return res.json();
+})
 
 // Action type icons and labels
 const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
@@ -52,6 +58,7 @@ const ACTION_CONFIG: Record<string, { icon: React.ReactNode; label: string; colo
   appointment_cancelled: { icon: <Calendar className="h-4 w-4" />, label: 'Appointment Cancelled', color: 'text-status-error' },
   message_sent: { icon: <MessageSquare className="h-4 w-4" />, label: 'Message Sent', color: 'text-interactive-primary' },
   message_read: { icon: <MessageSquare className="h-4 w-4" />, label: 'Message Read', color: 'text-status-info' },
+  phi_access: { icon: <Shield className="h-4 w-4" />, label: 'PHI Accessed', color: 'text-status-warning' },
   data_export: { icon: <Download className="h-4 w-4" />, label: 'Data Exported', color: 'text-status-warning' },
   care_team_member_added: { icon: <UserPlus className="h-4 w-4" />, label: 'Care Team Added', color: 'text-status-success' },
   care_team_member_removed: { icon: <UserMinus className="h-4 w-4" />, label: 'Care Team Removed', color: 'text-status-error' },
@@ -81,18 +88,13 @@ const ACTION_FILTER_OPTIONS = [
  * 
  * Displays audit trail of all activities related to a patient.
  * Shows who accessed the patient record, when, and what they did.
- * 
- * Features:
- * - Filter by date range
- * - Filter by action type
- * - Pagination with "load more"
- * - User name resolution
- * - Formatted timestamps
  */
 export function PatientActivityTab({
   patientId,
   tenantId,
 }: PatientActivityTabProps) {
+  const { data: session } = useZentheaSession();
+  
   // State
   const [dateRange, setDateRange] = useState<string>('month');
   const [actionFilter, setActionFilter] = useState<string>('all');
@@ -101,78 +103,52 @@ export function PatientActivityTab({
 
   // Calculate date range
   const dateRangeValues = useMemo(() => {
-    const now = Date.now();
-    let startDate: number | undefined;
+    const now = new Date();
+    let startDate: string | undefined;
     
     switch (dateRange) {
       case 'today':
-        startDate = subDays(now, 1).getTime();
+        startDate = subDays(now, 1).toISOString();
         break;
       case 'week':
-        startDate = subWeeks(now, 1).getTime();
+        startDate = subWeeks(now, 1).toISOString();
         break;
       case 'month':
-        startDate = subMonths(now, 1).getTime();
+        startDate = subMonths(now, 1).toISOString();
         break;
       case '3months':
-        startDate = subMonths(now, 3).getTime();
+        startDate = subMonths(now, 3).toISOString();
         break;
       case 'all':
       default:
         startDate = undefined;
     }
     
-    return { startDate, endDate: undefined };
+    return { startDate };
   }, [dateRange]);
 
-  // Query audit logs
-  const auditLogs = useQuery(
-    api.audit.getPHIAccessLogs,
-    patientId && tenantId ? {
-      tenantId,
-      patientId,
-      startDate: dateRangeValues.startDate,
-      endDate: dateRangeValues.endDate,
-      limit: limit + 1, // Fetch one extra to check if there are more
-    } : 'skip'
+  const queryParams = new URLSearchParams({
+    patientId,
+    limit: limit.toString(),
+    ...(dateRangeValues.startDate && { startDate: dateRangeValues.startDate }),
+  });
+
+  // Query audit logs via SWR
+  const { data, error, isLoading } = useSWR(
+    session ? `/api/audit?${queryParams.toString()}` : null,
+    fetcher
   );
 
-  // Query general audit logs (for non-PHI actions)
-  const generalLogs = useQuery(
-    api.auditLogs.getAuditLogs,
-    patientId && tenantId ? {
-      tenantId,
-      resource: 'patient',
-      startDate: dateRangeValues.startDate,
-      endDate: dateRangeValues.endDate,
-      limit: limit + 1,
-    } : 'skip'
-  );
-
-  // Combine and filter logs
-  const combinedLogs = useMemo(() => {
-    const phiLogs = auditLogs?.logs || [];
-    const otherLogs = (generalLogs?.logs || []).filter(log => 
-      log.resourceId === patientId
-    );
-    
-    // Combine and deduplicate by ID
-    const logMap = new Map();
-    [...phiLogs, ...otherLogs].forEach(log => {
-      if (!logMap.has(log._id)) {
-        logMap.set(log._id, log);
-      }
-    });
-    
-    let logs = Array.from(logMap.values());
+  const logs = useMemo(() => {
+    let list = data?.logs || [];
     
     // Apply action filter
     if (actionFilter !== 'all') {
-      logs = logs.filter(log => {
+      list = list.filter((log: any) => {
         const action = log.action.toLowerCase();
         switch (actionFilter) {
           case 'view':
-            return action.includes('view') || action.includes('access') || action.includes('read');
+            return action.includes('view') || action.includes('access') || action.includes('read') || action.includes('phi_access');
           case 'edit':
             return action.includes('update') || action.includes('edit') || action.includes('change');
           case 'create':
@@ -185,21 +161,14 @@ export function PatientActivityTab({
       });
     }
     
-    // Sort by timestamp descending
-    logs.sort((a, b) => b.timestamp - a.timestamp);
-    
-    return logs;
-  }, [auditLogs, generalLogs, actionFilter, patientId]);
-
-  // Check if there are more logs
-  const hasMore = combinedLogs.length > limit;
-  const displayLogs = combinedLogs.slice(0, limit);
+    return list;
+  }, [data, actionFilter]);
 
   const getActionConfig = (action: string) => {
     return ACTION_CONFIG[action] || ACTION_CONFIG.default;
   };
 
-  const formatTimestamp = (timestamp: number) => {
+  const formatTimestamp = (timestamp: string | number | Date) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
@@ -214,7 +183,7 @@ export function PatientActivityTab({
   };
 
   // Loading state
-  if (auditLogs === undefined) {
+  if (isLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-text-secondary" />
@@ -230,7 +199,7 @@ export function PatientActivityTab({
             <Activity className="h-5 w-5 text-text-secondary" />
             <CardTitle className="text-lg">Activity Log</CardTitle>
             <Badge variant="secondary" className="ml-2">
-              {combinedLogs.length} {combinedLogs.length === 1 ? 'entry' : 'entries'}
+              {logs.length} {logs.length === 1 ? 'entry' : 'entries'}
             </Badge>
           </div>
           <Button 
@@ -287,7 +256,7 @@ export function PatientActivityTab({
 
         {/* Activity List */}
         <div className="space-y-3 max-h-[500px] overflow-y-auto">
-          {displayLogs.length === 0 ? (
+          {logs.length === 0 ? (
             <div className="text-center py-8">
               <Activity className="h-12 w-12 text-text-tertiary mx-auto mb-3" />
               <p className="text-text-secondary">No activity found for the selected filters</p>
@@ -296,16 +265,18 @@ export function PatientActivityTab({
               </p>
             </div>
           ) : (
-            displayLogs.map((log) => {
+            logs.map((log: any) => {
               const config = getActionConfig(log.action) || {
                 color: 'text-text-secondary',
                 icon: <FileText className="h-5 w-5" />,
                 label: log.action
               };
               
+              const phiAccessed = log.metadata?.phiAccessed;
+              
               return (
                 <div 
-                  key={log._id} 
+                  key={log.id} 
                   className="flex gap-3 p-3 bg-surface-elevated rounded-lg border border-border-primary hover:border-border-focus transition-colors"
                 >
                   <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-background-secondary flex items-center justify-center ${config.color}`}>
@@ -317,7 +288,7 @@ export function PatientActivityTab({
                         {config.label}
                       </span>
                       <Badge variant="outline" className="text-xs">
-                        {log.resource}
+                        {log.resourceType}
                       </Badge>
                     </div>
                     
@@ -332,41 +303,32 @@ export function PatientActivityTab({
                     {/* Timestamp */}
                     <div className="flex items-center gap-2 text-xs text-text-tertiary">
                       <Clock className="h-3 w-3" />
-                      <span>{formatTimestamp(log.timestamp)}</span>
+                      <span>{formatTimestamp(log.createdAt)}</span>
                     </div>
                     
                     {/* PHI Access Details */}
-                    {log.phiAccessed && (
+                    {phiAccessed && (
                       <div className="mt-2 p-2 bg-background-secondary rounded text-xs">
                         <div className="flex items-center gap-2 mb-1">
                           <Shield className="h-3 w-3 text-status-warning" />
                           <span className="font-medium text-text-primary">PHI Access</span>
                         </div>
                         <div className="text-text-secondary">
-                          <span className="font-medium">Purpose:</span> {log.phiAccessed.purpose}
+                          <span className="font-medium">Purpose:</span> {phiAccessed.purpose}
                         </div>
-                        {log.phiAccessed.dataElements && log.phiAccessed.dataElements.length > 0 && (
+                        {phiAccessed.dataElements && phiAccessed.dataElements.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1">
-                            {log.phiAccessed.dataElements.slice(0, 5).map((element: string, idx: number) => (
+                            {phiAccessed.dataElements.slice(0, 5).map((element: string, idx: number) => (
                               <Badge key={idx} variant="outline" className="text-xs">
                                 {element}
                               </Badge>
                             ))}
-                            {log.phiAccessed.dataElements.length > 5 && (
+                            {phiAccessed.dataElements.length > 5 && (
                               <Badge variant="outline" className="text-xs">
-                                +{log.phiAccessed.dataElements.length - 5} more
+                                +{phiAccessed.dataElements.length - 5} more
                               </Badge>
                             )}
                           </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* Additional Details */}
-                    {log.details && typeof log.details === 'object' && Object.keys(log.details).length > 0 && (
-                      <div className="mt-2 text-xs text-text-tertiary">
-                        {log.details.patientName && (
-                          <span>Patient: {log.details.patientName}</span>
                         )}
                       </div>
                     )}
@@ -378,7 +340,7 @@ export function PatientActivityTab({
         </div>
 
         {/* Load More */}
-        {hasMore && (
+        {logs.length >= limit && (
           <div className="mt-4 text-center">
             <Button 
               variant="outline" 

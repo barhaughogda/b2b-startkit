@@ -22,7 +22,6 @@ import { PatientActivityTab } from '@/components/patient/PatientActivityTab';
 import { ProviderModalProvider, useProviderPatientModals } from '@/components/provider/ProviderModalSystem';
 import { useCardSystem } from '@/components/cards/CardSystemProvider';
 import { Priority, TaskStatus } from '@/components/cards/types';
-import { Id } from '@/convex/_generated/dataModel';
 
 function PatientProfileContent() {
   const { data: session } = useZentheaSession();
@@ -34,7 +33,7 @@ function PatientProfileContent() {
   const [activeMedicalTab, setActiveMedicalTab] = useState('timeline');
   
   const patientId = params.patientId as string;
-  const patient = patients?.find(p => p._id === patientId);
+  const patient = patients?.find(p => p.id === patientId);
   
   // Convert dateOfBirth from timestamp (number) to string format (YYYY-MM-DD)
   const patientDateOfBirth = patient?.dateOfBirth 
@@ -46,7 +45,7 @@ function PatientProfileContent() {
     if (!patient) return;
 
     const baseProps = {
-      patientId: patient._id,
+      patientId: patient.id,
       patientName: patient.name,
       priority: 'medium' as Priority,
       status: 'new' as TaskStatus,
@@ -54,7 +53,7 @@ function PatientProfileContent() {
 
     openCard('appointment', {
       id: 'new',
-      patientId: patient._id,
+      patientId: patient.id,
       patientName: patient.name,
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
       date: new Date().toISOString().split('T')[0]!,
@@ -419,7 +418,7 @@ function PatientProfileContent() {
 
             <TabsContent value="care-team" className="space-y-6">
               <PatientCareTeamTab
-                patientId={patientId as Id<'patients'>}
+                patientId={patientId}
                 tenantId={session?.user?.tenantId || ''}
                 canEdit={true}
               />
@@ -427,7 +426,7 @@ function PatientProfileContent() {
 
             <TabsContent value="activity" className="space-y-6">
               <PatientActivityTab
-                patientId={patientId as Id<'patients'>}
+                patientId={patientId}
                 tenantId={session?.user?.tenantId || ''}
               />
             </TabsContent>

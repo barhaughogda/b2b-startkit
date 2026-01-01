@@ -8,9 +8,23 @@ import { convex } from "@/lib/convex";
 
 /**
  * Providers component to wrap the application with necessary contexts.
- * Includes ConvexProvider and CardSystemProvider.
+ * Includes ConvexProvider (if configured) and CardSystemProvider.
  */
 export function Providers({ children }: { children: React.ReactNode }) {
+  const isConvexEnabled = process.env.NEXT_PUBLIC_CONVEX_URL && 
+                         !process.env.NEXT_PUBLIC_CONVEX_URL.includes('dummy') &&
+                         !process.env.NEXT_PUBLIC_CONVEX_URL.includes('your-');
+
+  if (!isConvexEnabled) {
+    return (
+      <SessionTimeoutProvider>
+        <CardSystemProvider>
+          {children}
+        </CardSystemProvider>
+      </SessionTimeoutProvider>
+    );
+  }
+
   return (
     <ConvexProvider client={convex!}>
       <SessionTimeoutProvider>

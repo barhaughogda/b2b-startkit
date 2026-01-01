@@ -8,12 +8,12 @@ import { ConvexReactClient } from "convex/react";
  * ALWAYS returns a client instance to prevent build-time crashes.
  */
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "https://dummy.convex.cloud";
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "https://legacy-migration-placeholder.convex.cloud";
 
 function isValidConvexUrl(url: string | undefined): url is string {
   if (!url) return false;
   const trimmed = url.trim();
-  if (!trimmed || trimmed === '' || trimmed.includes('your-')) return false;
+  if (!trimmed || trimmed === '' || trimmed.includes('your-') || trimmed.includes('dummy')) return false;
   try {
     new URL(trimmed);
     return true;
@@ -23,7 +23,7 @@ function isValidConvexUrl(url: string | undefined): url is string {
 }
 
 // Always return a client to satisfy hooks during build/SSG
-export const convex = new ConvexReactClient(isValidConvexUrl(convexUrl) ? convexUrl : "https://dummy.convex.cloud");
+export const convex = new ConvexReactClient(isValidConvexUrl(convexUrl) ? convexUrl : "https://legacy-migration-placeholder.convex.cloud");
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   console.log('[Convex] Legacy client initialized');

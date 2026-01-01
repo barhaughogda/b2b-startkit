@@ -2,10 +2,9 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useQuery, useMutation } from 'convex/react';
 import { useZentheaSession } from '@/hooks/useZentheaSession';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import { useCareTeam } from '@/hooks/useCareTeam';
+import { useOrganizationUsers } from '@/hooks/useOrganizationUsers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +38,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 interface PatientCareTeamTabProps {
-  patientId: Id<'patients'>;
+  patientId: string;
   tenantId: string;
   /** If true, allows editing care team (requires appropriate permissions) */
   canEdit?: boolean;
@@ -70,13 +69,6 @@ const CARE_TEAM_ROLES = [
  * 
  * Displays and manages the care team for a patient.
  * Shows primary provider prominently and lists all care team members.
- * 
- * Features:
- * - Display primary provider with star indicator
- * - List all care team members with roles and sources
- * - Add/remove care team members
- * - Change primary provider with reason tracking
- * - View primary provider change history
  */
 export function PatientCareTeamTab({
   patientId,
@@ -84,7 +76,7 @@ export function PatientCareTeamTab({
   canEdit = false,
 }: PatientCareTeamTabProps) {
   const { data: session } = useZentheaSession();
-  const userId = session?.user?.id as Id<'users'> | undefined;
+  const currentUserId = session?.user?.id;
   
   // State
   const [isAddingMember, setIsAddingMember] = useState(false);
@@ -108,67 +100,107 @@ export function PatientCareTeamTab({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Queries
-  const primaryProvider = useQuery(
-    api.careTeam.getPrimaryProvider,
-    patientId && tenantId ? { patientId, tenantId } : 'skip'
-  );
-  
-  const careTeam = useQuery(
-    api.careTeam.getCareTeamForPatient,
-    patientId && tenantId ? { patientId, tenantId } : 'skip'
-  );
-  
-  const providerHistory = useQuery(
-    api.careTeam.getPrimaryProviderHistory,
-    showHistory && patientId && tenantId ? { patientId, tenantId, limit: 10 } : 'skip'
-  );
-  
-  const tenantUsers = useQuery(
-    api.users.getUsersByTenant,
-    tenantId ? { tenantId } : 'skip'
-  );
+  const { careTeam, primaryProvider, isLoading, error: careTeamError, refreshCareTeam } = useCareTeam(patientId) as any;
+  const { users: tenantUsers, isLoading: usersLoading } = useOrganizationUsers();
 
   // Mutations
-  const setPrimaryProvider = useMutation(api.careTeam.setPrimaryProvider);
-  const addCareTeamMember = useMutation(api.careTeam.addCareTeamMember);
-  const removeCareTeamMember = useMutation(api.careTeam.removeCareTeamMember);
-  const updateCareTeamMemberRole = useMutation(api.careTeam.updateCareTeamMemberRole);
+  const handleAddMember = async () => {
+    if (!selectedUserId || !currentUserId || !selectedRole) {
+      toast.error('Please select a user and role');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/patients/${patientId}/care-team`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add_member',
+          userId: selectedUserId,
+          role: selectedRole,
+        }),
+      });
+      
+      if (!res.ok) throw new Error('Failed to add member');
+      
+      toast.success('Care team member added successfully');
+      setSelectedUserId('');
+      setSelectedRole('');
+      setIsAddingMember(false);
+      if (refreshCareTeam) refreshCareTeam();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to add care team member');
+    }
+  };
+
+  const handleRemoveMember = async (memberUserId: string) => {
+    try {
+      const res = await fetch(`/api/patients/${patientId}/care-team?userId=${memberUserId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!res.ok) throw new Error('Failed to remove member');
+      
+      toast.success('Care team member removed');
+      if (refreshCareTeam) refreshCareTeam();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to remove care team member');
+    }
+  };
+
+  const handleChangePrimaryProvider = async () => {
+    if (!newPrimaryProviderId || !currentUserId || !changeReason) {
+      toast.error('Please select a provider and reason');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/patients/${patientId}/care-team`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'set_primary',
+          providerId: newPrimaryProviderId,
+          reason: changeReason,
+          notes: changeNotes || undefined,
+        }),
+      });
+      
+      if (!res.ok) throw new Error('Failed to update primary provider');
+      
+      toast.success('Primary provider updated successfully');
+      setIsChangePrimaryOpen(false);
+      setNewPrimaryProviderId('');
+      setChangeReason('');
+      setChangeNotes('');
+      if (refreshCareTeam) refreshCareTeam();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update primary provider');
+    }
+  };
 
   // Filter users for dropdowns
   const filteredUsers = useMemo(() => {
-    if (!tenantUsers || !userId) return [];
+    if (!tenantUsers) return [];
     
-    const existingMemberIds = new Set(careTeam?.members.map((m: { userId: string }) => m.userId) || []);
-    const companyEmployeeRoles = ['admin', 'provider', 'clinic_user', 'demo', 'super_admin'];
+    const existingMemberIds = new Set(careTeam.map((m: any) => m.userId));
     
-    return tenantUsers.filter(user => {
-      if (user.tenantId !== tenantId) return false;
-      if (user.role === 'patient') return false;
-      if (!companyEmployeeRoles.includes(user.role)) return false;
-      if (existingMemberIds.has(user._id)) return false;
+    return tenantUsers.filter((user: any) => {
+      if (existingMemberIds.has(user.id)) return false;
       
       const matchesSearch = !searchQuery || 
         user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (user.name || '').toLowerCase().includes(searchQuery.toLowerCase());
       
       return matchesSearch;
     });
-  }, [tenantUsers, userId, searchQuery, tenantId, careTeam]);
+  }, [tenantUsers, searchQuery, careTeam]);
 
-  // Available providers for primary selection (all staff, not just non-members)
+  // Available providers for primary selection
   const availableProviders = useMemo(() => {
     if (!tenantUsers) return [];
-    
-    const companyEmployeeRoles = ['admin', 'provider', 'clinic_user', 'super_admin'];
-    
-    return tenantUsers.filter(user => {
-      if (user.tenantId !== tenantId) return false;
-      if (user.role === 'patient') return false;
-      if (!companyEmployeeRoles.includes(user.role)) return false;
-      return true;
-    });
-  }, [tenantUsers, tenantId]);
+    return tenantUsers;
+  }, [tenantUsers]);
 
   // Update dropdown position
   const updateDropdownPosition = () => {
@@ -222,72 +254,6 @@ export function PatientCareTeamTab({
     setHighlightedIndex(-1);
   };
 
-  const handleAddMember = async () => {
-    if (!selectedUserId || !userId || !selectedRole) {
-      toast.error('Please select a user and role');
-      return;
-    }
-
-    try {
-      await addCareTeamMember({
-        patientId,
-        userId: selectedUserId as Id<'users'>,
-        role: selectedRole,
-        addedBy: userId,
-        tenantId,
-      });
-      
-      toast.success('Care team member added successfully');
-      setSelectedUserId('');
-      setSelectedRole('');
-      setIsAddingMember(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to add care team member');
-    }
-  };
-
-  const handleRemoveMember = async (memberUserId: string) => {
-    if (!userId) return;
-    
-    try {
-      await removeCareTeamMember({
-        patientId,
-        userId: memberUserId as Id<'users'>,
-        removedBy: userId,
-        tenantId,
-      });
-      toast.success('Care team member removed');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to remove care team member');
-    }
-  };
-
-  const handleChangePrimaryProvider = async () => {
-    if (!newPrimaryProviderId || !userId || !changeReason) {
-      toast.error('Please select a provider and reason');
-      return;
-    }
-
-    try {
-      await setPrimaryProvider({
-        patientId,
-        newProviderId: newPrimaryProviderId as Id<'users'>,
-        reason: changeReason,
-        notes: changeNotes || undefined,
-        changedBy: userId,
-        tenantId,
-      });
-      
-      toast.success('Primary provider updated successfully');
-      setIsChangePrimaryOpen(false);
-      setNewPrimaryProviderId('');
-      setChangeReason('');
-      setChangeNotes('');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update primary provider');
-    }
-  };
-
   const getInitials = (name: string): string => {
     return name
       .split(' ')
@@ -310,8 +276,7 @@ export function PatientCareTeamTab({
     }
   };
 
-  // Loading state
-  if (careTeam === undefined || primaryProvider === undefined) {
+  if (isLoading || usersLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-text-secondary" />
@@ -319,8 +284,7 @@ export function PatientCareTeamTab({
     );
   }
 
-  // Get selected user details
-  const selectedUser = tenantUsers?.find(u => u._id === selectedUserId);
+  const selectedUser = tenantUsers?.find((u: any) => u.id === selectedUserId);
 
   return (
     <div className="space-y-6">
@@ -338,7 +302,7 @@ export function PatientCareTeamTab({
                 variant="outline"
                 onClick={() => setIsChangePrimaryOpen(true)}
               >
-                {primaryProvider?.hasProvider ? 'Change' : 'Assign'}
+                {primaryProvider ? 'Change' : 'Assign'}
               </Button>
             )}
           </div>
@@ -347,21 +311,18 @@ export function PatientCareTeamTab({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {primaryProvider?.hasProvider && primaryProvider.primaryProvider ? (
+          {primaryProvider ? (
             <div className="flex items-center gap-4 p-4 bg-surface-elevated rounded-lg border border-border-primary">
               <Avatar className="h-12 w-12">
                 <AvatarFallback className="bg-interactive-primary text-white">
-                  {getInitials(primaryProvider.primaryProvider.name || primaryProvider.primaryProvider.email)}
+                  {getInitials(primaryProvider.name || primaryProvider.email)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <p className="font-medium text-text-primary">
-                  {primaryProvider.primaryProvider.name || primaryProvider.primaryProvider.email}
+                  {primaryProvider.name || primaryProvider.email}
                 </p>
-                <p className="text-sm text-text-secondary">{primaryProvider.primaryProvider.email}</p>
-                {primaryProvider.primaryProvider.phone && (
-                  <p className="text-sm text-text-tertiary">{primaryProvider.primaryProvider.phone}</p>
-                )}
+                <p className="text-sm text-text-secondary">{primaryProvider.email}</p>
               </div>
               <Badge className="bg-interactive-primary/10 text-interactive-primary border-interactive-primary/20">
                 <UserCheck className="h-3 w-3 mr-1" />
@@ -376,67 +337,6 @@ export function PatientCareTeamTab({
               </AlertDescription>
             </Alert>
           )}
-
-          {/* History Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-3 w-full justify-between"
-            onClick={() => setShowHistory(!showHistory)}
-          >
-            <span className="flex items-center gap-2">
-              <History className="h-4 w-4" />
-              Provider History
-            </span>
-            {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </Button>
-
-          {/* History Section */}
-          {showHistory && providerHistory && (
-            <div className="mt-3 space-y-2 max-h-48 overflow-y-auto">
-              {providerHistory.history.length === 0 ? (
-                <p className="text-sm text-text-tertiary text-center py-2">No history available</p>
-              ) : (
-                providerHistory.history.map((entry: { 
-                  _id: string; 
-                  createdAt: number;
-                  reason: string;
-                  notes: string | undefined;
-                  previousProvider: { _id: string; name: string; email: string; } | null;
-                  newProvider: { _id: string; name: string; email: string; } | null;
-                  changedBy: { _id: string; name: string; email: string; } | null;
-                }) => (
-                  <div key={entry._id} className="p-3 bg-background-secondary rounded-lg text-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-text-primary">
-                        {entry.previousProvider ? (
-                          <>
-                            {entry.previousProvider.name} → {entry.newProvider?.name}
-                          </>
-                        ) : (
-                          <>Initial: {entry.newProvider?.name}</>
-                        )}
-                      </span>
-                      <span className="text-text-tertiary text-xs">
-                        {new Date(entry.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {entry.reason.replace(/_/g, ' ') || 'Unknown'}
-                      </Badge>
-                      <span className="text-text-tertiary text-xs">
-                        by {entry.changedBy?.name}
-                      </span>
-                    </div>
-                    {entry.notes && (
-                      <p className="text-text-secondary mt-1 text-xs">{entry.notes}</p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -448,7 +348,7 @@ export function PatientCareTeamTab({
               <Users className="h-5 w-5 text-text-secondary" />
               <CardTitle className="text-lg">Care Team</CardTitle>
               <Badge variant="secondary" className="ml-2">
-                {careTeam?.totalCount || 0} members
+                {careTeam.length} members
               </Badge>
             </div>
             {canEdit && (
@@ -475,7 +375,7 @@ export function PatientCareTeamTab({
                 <Input
                   ref={searchInputRef}
                   placeholder="Search staff members..."
-                  value={selectedUser ? (selectedUser.name || `${selectedUser.firstName || ''} ${selectedUser.lastName || ''}`.trim()) : searchQuery}
+                  value={selectedUser ? (selectedUser.name || selectedUser.email) : searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setSelectedUserId('');
@@ -498,11 +398,11 @@ export function PatientCareTeamTab({
                       width: `${dropdownPosition.width}px`,
                     }}
                   >
-                    {filteredUsers.map((user, index) => (
+                    {filteredUsers.map((user: any, index: number) => (
                       <button
-                        key={user._id}
+                        key={user.id}
                         type="button"
-                        onClick={() => handleUserSelect(user._id)}
+                        onClick={() => handleUserSelect(user.id)}
                         onMouseEnter={() => setHighlightedIndex(index)}
                         className={`w-full text-left px-3 py-2 transition-colors cursor-pointer text-sm ${
                           highlightedIndex === index
@@ -511,7 +411,7 @@ export function PatientCareTeamTab({
                         }`}
                       >
                         <div className="font-medium text-text-primary">
-                          {user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim()}
+                          {user.name || user.email}
                         </div>
                         <div className="text-xs text-text-secondary">{user.email}</div>
                       </button>
@@ -551,21 +451,13 @@ export function PatientCareTeamTab({
 
           {/* Members List */}
           <div className="space-y-3">
-            {(!careTeam?.members || careTeam.members.length === 0) ? (
+            {careTeam.length === 0 ? (
               <p className="text-sm text-text-secondary text-center py-4">
                 No care team members yet.
               </p>
             ) : (
-              careTeam.members.map((member: { 
-                userId: string; 
-                name: string; 
-                role?: string; 
-                avatar?: string;
-                email?: string;
-                careTeamRole?: string;
-                source?: string;
-              }) => {
-                const isPrimary = primaryProvider?.primaryProvider?._id === member.userId;
+              careTeam.map((member: any) => {
+                const isPrimary = primaryProvider?.userId === member.userId;
                 
                 return (
                   <div 
@@ -578,23 +470,22 @@ export function PatientCareTeamTab({
                   >
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className={isPrimary ? 'bg-interactive-primary text-white' : ''}>
-                        {getInitials(member.name || member.email || '')}
+                        {getInitials(member.name || '')}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium text-text-primary truncate">
-                          {member.name || member.email}
+                          {member.name}
                         </p>
                         {isPrimary && (
                           <Star className="h-4 w-4 text-interactive-primary fill-interactive-primary flex-shrink-0" />
                         )}
                       </div>
-                      <p className="text-xs text-text-secondary">{member.email}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        {member.careTeamRole && (
+                        {member.role && (
                           <Badge variant="outline" className="text-xs">
-                            {member.careTeamRole}
+                            {member.role}
                           </Badge>
                         )}
                         {member.source && (
@@ -627,7 +518,7 @@ export function PatientCareTeamTab({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {primaryProvider?.hasProvider ? 'Change Primary Provider' : 'Assign Primary Provider'}
+              {primaryProvider ? 'Change Primary Provider' : 'Assign Primary Provider'}
             </DialogTitle>
             <DialogDescription>
               Select a new primary provider for this patient. This change will be logged for audit purposes.
@@ -642,13 +533,13 @@ export function PatientCareTeamTab({
                   <SelectValue placeholder="Select provider..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableProviders.map(provider => (
+                  {availableProviders.map((provider: any) => (
                     <SelectItem 
-                      key={provider._id} 
-                      value={provider._id}
-                      disabled={provider._id === primaryProvider?.primaryProvider?._id}
+                      key={provider.id} 
+                      value={provider.id}
+                      disabled={provider.id === primaryProvider?.userId}
                     >
-                      {provider.name || `${provider.firstName || ''} ${provider.lastName || ''}`.trim()} ({provider.email})
+                      {provider.name || provider.email}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -690,7 +581,7 @@ export function PatientCareTeamTab({
               onClick={handleChangePrimaryProvider}
               disabled={!newPrimaryProviderId || !changeReason}
             >
-              {primaryProvider?.hasProvider ? 'Change Provider' : 'Assign Provider'}
+              {primaryProvider ? 'Change Provider' : 'Assign Provider'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -698,4 +589,3 @@ export function PatientCareTeamTab({
     </div>
   );
 }
-
