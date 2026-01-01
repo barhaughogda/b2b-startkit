@@ -42,6 +42,8 @@ export function useAppointments(status: string = 'all') {
     fetcher
   )
 
+  const appointments = useMemo(() => Array.isArray(data) ? data : [], [data])
+
   /**
    * Create a new appointment
    */
@@ -62,7 +64,7 @@ export function useAppointments(status: string = 'all') {
   }
 
   return {
-    appointments: Array.isArray(data) ? data : [],
+    appointments,
     isLoading,
     error,
     createAppointment,
@@ -157,5 +159,27 @@ export function useAppointment(id: string) {
     removeMember,
     updateMemberStatus,
     refreshAppointment: mutate,
+  }
+}
+
+/**
+ * Custom hook for patient self-access to appointments
+ */
+export function usePatientAppointments() {
+  const { data: session } = useZentheaSession()
+  const tenantId = session?.user?.tenantId || 'demo-tenant'
+
+  const { data, error, isLoading, mutate } = useSWR<Appointment[]>(
+    session ? [`/api/patient/appointments`, tenantId] : null,
+    ([url, tId]) => fetch(url, { headers: { 'X-Tenant-ID': tId } }).then(res => res.json())
+  )
+
+  const appointments = useMemo(() => Array.isArray(data) ? data : [], [data])
+
+  return {
+    appointments,
+    isLoading,
+    error,
+    refreshAppointments: mutate,
   }
 }

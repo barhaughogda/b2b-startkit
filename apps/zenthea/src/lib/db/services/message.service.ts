@@ -194,6 +194,61 @@ export class MessageService {
   }
 
   /**
+   * Search messages for a user
+   */
+  static async searchMessages(userId: string, organizationId: string, searchTerm: string, limit: number = 50) {
+    return await db.select({
+      id: messages.id,
+      fromUserId: messages.fromUserId,
+      toUserId: messages.toUserId,
+      subject: messages.subject,
+      content: messages.content,
+      messageType: messages.messageType,
+      priority: messages.priority,
+      status: messages.status,
+      isRead: messages.isRead,
+      createdAt: messages.createdAt,
+      fromUserName: sql<string>`(SELECT name FROM users WHERE id = ${messages.fromUserId})`,
+      toUserName: sql<string>`(SELECT name FROM users WHERE id = ${messages.toUserId})`,
+    })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.organizationId, organizationId),
+        or(
+          eq(messages.fromUserId, userId),
+          eq(messages.toUserId, userId)
+        ),
+        sql`${messages.content} ILIKE ${'%' + searchTerm + '%'}`
+      )
+    )
+    .orderBy(desc(messages.createdAt))
+    .limit(limit)
+  }
+
+  /**
+   * Archive a thread for a user
+   */
+  static async archiveThread(threadId: string, userId: string, organizationId: string) {
+    return await db.update(messages)
+      .set({
+        status: 'archived',
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(messages.threadId, threadId),
+          eq(messages.organizationId, organizationId),
+          or(
+            eq(messages.fromUserId, userId),
+            eq(messages.toUserId, userId)
+          )
+        )
+      )
+      .returning()
+  }
+
+  /**
    * Delete a message (soft delete recommended)
    */
   static async deleteMessage(id: string, organizationId: string) {

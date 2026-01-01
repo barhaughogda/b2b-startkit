@@ -1,39 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getZentheaServerSession } from '@/lib/auth';
+import { requirePatientContext } from '@/lib/auth/patient-context';
+import { MessageService } from '@/lib/db/services/message.service';
+import { withTenant } from '@startkit/database/tenant';
 
-import { api } from '../../../../../../convex/_generated/api';
-import { ConvexHttpClient } from 'convex/browser';
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
-  { params }: any
+  { params }: { params: Promise<{ threadId: string }> }
 ) {
   try {
-    const session = await getZentheaServerSession();
+    const { clerkUserId, activeGrants } = await requirePatientContext();
+    const { threadId } = await params;
     
-    if (!session || session.user.role !== 'patient') {
+    const tenantId = request.headers.get('X-Tenant-ID');
+    
+    if (!tenantId || !activeGrants.some(g => g.organizationId === tenantId)) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'Unauthorized: No access grant for this organization' },
+        { status: 403 }
       );
     }
 
-    const tenantId = request.headers.get('X-Tenant-ID') || 'demo-tenant';
-    const { threadId } = params;
-
-    const messages = await convex.query(api.messages.getConversation, {
-      tenantId,
-      threadId,
-      userId: session.user.id as any
-    });
-
-    return NextResponse.json(messages);
-  } catch (error) {
+    return await withTenant(
+      { organizationId: tenantId, userId: clerkUserId },
+      async () => {
+        const messages = await MessageService.getThread(threadId, tenantId);
+        return NextResponse.json(messages);
+      }
+    );
+  } catch (error: any) {
     console.error('Error fetching conversation:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
@@ -41,37 +40,46 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: any
+  { params }: { params: Promise<{ threadId: string }> }
 ) {
   try {
-    const session = await getZentheaServerSession();
+    const { clerkUserId, activeGrants } = await requirePatientContext();
+    const { threadId } = await params;
     
-    if (!session || session.user.role !== 'patient') {
+    const tenantId = request.headers.get('X-Tenant-ID');
+
+    if (!tenantId || !activeGrants.some(g => g.organizationId === tenantId)) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'Unauthorized: No access grant for this organization' },
+        { status: 403 }
       );
     }
 
-    const tenantId = request.headers.get('X-Tenant-ID') || 'demo-tenant';
-    const { threadId } = params;
+    return await withTenant(
+      { organizationId: tenantId, userId: clerkUserId },
+      async () => {
+        // Find messages in the thread addressed to the current user and mark them as read
+        // For simplicity, we'll implement a markThreadAsRead in MessageService
+        // Wait, I should add that to MessageService first or implement it here.
+        // I'll add a simple version here for now.
+        const threadMessages = await MessageService.getThread(threadId, tenantId);
+        const toMarkRead = threadMessages.filter(m => m.toUserId === clerkUserId && !m.isRead);
+        
+        for (const msg of toMarkRead) {
+          await MessageService.markAsRead(msg.id, tenantId);
+        }
 
-    // Mark thread as read
-    const readCount = await convex.mutation(api.messages.markThreadAsRead, {
-      threadId,
-      userId: session.user.id as any,
-      tenantId
-    });
-
-    return NextResponse.json({
-      success: true,
-      readCount,
-      message: 'Thread marked as read'
-    });
-  } catch (error) {
+        return NextResponse.json({
+          success: true,
+          readCount: toMarkRead.length,
+          message: 'Thread marked as read'
+        });
+      }
+    );
+  } catch (error: any) {
     console.error('Error marking thread as read:', error);
     return NextResponse.json(
-      { error: 'Failed to mark thread as read' },
+      { error: error.message || 'Failed to mark thread as read' },
       { status: 500 }
     );
   }

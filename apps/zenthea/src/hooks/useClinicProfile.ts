@@ -1,4 +1,5 @@
 import useSWR from 'swr'
+import { useMemo } from 'react'
 import { useZentheaSession } from './useZentheaSession'
 
 const fetcher = (url: string) => fetch(url).then(async (res) => {
@@ -62,21 +63,25 @@ export function useClinicProfile(id?: string) {
   )
 
   // Transform data for compatibility with legacy components
-  const transformedData = data ? {
-    ...data,
-    contactInfo: {
-      phone: data.phone,
-      email: data.email || '', // Fallback since it's not in schema yet
-      website: data.website || '', // Fallback since it's not in schema yet
-      address: data.address || {
-        street: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: '',
+  const transformedData = useMemo(() => {
+    if (!data) return null;
+    
+    return {
+      ...data,
+      contactInfo: {
+        phone: data.phone,
+        email: data.email || '', // Fallback since it's not in schema yet
+        website: data.website || '', // Fallback since it's not in schema yet
+        address: data.address || {
+          street: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          country: '',
+        }
       }
-    }
-  } : null;
+    };
+  }, [data]);
 
   const updateClinic = async (updateData: any) => {
     const targetId = effectiveId || id
@@ -126,6 +131,21 @@ export function useClinicProfile(id?: string) {
     return updateClinic({ domains: domainData })
   }
 
+  const updateOrganization = async ({ name }: { name: string }) => {
+    const response = await fetch('/api/company/settings/organization', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to update organization')
+    }
+
+    return response.json()
+  }
+
   const canQuery = !!(session && tenantId)
 
   return {
@@ -141,5 +161,6 @@ export function useClinicProfile(id?: string) {
     updateBranding,    // Compatibility alias
     updateSlug,        // Compatibility alias
     updateDomains,     // Compatibility alias
+    updateOrganization,
   }
 }

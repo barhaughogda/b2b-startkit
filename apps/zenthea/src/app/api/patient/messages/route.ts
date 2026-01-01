@@ -1,62 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getZentheaServerSession } from '@/lib/auth';
+import { requirePatientContext } from '@/lib/auth/patient-context';
+import { MessageService } from '@/lib/db/services/message.service';
+import { withTenant } from '@startkit/database/tenant';
 
-import { api } from '../../../../../convex/_generated/api';
-import { ConvexHttpClient } from 'convex/browser';
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getZentheaServerSession();
+    const { clerkUserId, activeGrants } = await requirePatientContext();
     
-    if (!session || session.user.role !== 'patient') {
+    const { searchParams } = new URL(request.url);
+    const tenantId = request.headers.get('X-Tenant-ID');
+    
+    if (!tenantId || !activeGrants.some(g => g.organizationId === tenantId)) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'Unauthorized: No access grant for this organization' },
+        { status: 403 }
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const tenantId = request.headers.get('X-Tenant-ID') || 'demo-tenant';
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
-    const status = searchParams.get('status') || 'all';
-    const messageType = searchParams.get('messageType') || 'all';
-
-    const result = await convex.query(api.messages.getMessages, {
-      tenantId,
-      userId: session.user.id as any,
-      limit,
-      offset,
-      status: status as any,
-      messageType: messageType as any
-    });
-
-    return NextResponse.json(result);
-  } catch (error) {
+    return await withTenant(
+      { organizationId: tenantId, userId: clerkUserId },
+      async () => {
+        const messages = await MessageService.getUserMessages(clerkUserId, tenantId);
+        return NextResponse.json(messages);
+      }
+    );
+  } catch (error: any) {
     console.error('Error fetching messages:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: error.message || 'Internal server error' },
+      { status: error.message?.includes('Access denied') ? 403 : 500 }
     );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getZentheaServerSession();
+    const { clerkUserId, activeGrants } = await requirePatientContext();
     
-    if (!session || session.user.role !== 'patient') {
+    const body = await request.json();
+    const { toUserId, subject, content, messageType, priority, threadId, attachments } = body;
+    const tenantId = request.headers.get('X-Tenant-ID');
+
+    if (!tenantId || !activeGrants.some(g => g.organizationId === tenantId)) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'Unauthorized: No access grant for this organization' },
+        { status: 403 }
       );
     }
-
-    const body = await request.json();
-    const { toUserId, subject, content, messageType, priority, threadId, parentMessageId, attachments } = body;
-    const tenantId = request.headers.get('X-Tenant-ID') || 'demo-tenant';
 
     // Validate required fields
     if (!toUserId || !content) {
@@ -66,28 +58,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const messageId = await convex.mutation(api.messages.createMessage, {
-      tenantId,
-      fromUserId: session.user.id as any,
-      toUserId: toUserId as any,
-      subject,
-      content,
-      messageType: messageType || 'general',
-      priority: priority || 'normal',
-      threadId,
-      parentMessageId: parentMessageId as any,
-      attachments
-    });
+    return await withTenant(
+      { organizationId: tenantId, userId: clerkUserId },
+      async () => {
+        const message = await MessageService.sendMessage({
+          toUserId,
+          subject,
+          content,
+          messageType,
+          priority,
+          threadId,
+          attachments
+        }, tenantId, clerkUserId);
 
-    return NextResponse.json({
-      success: true,
-      messageId,
-      message: 'Message sent successfully'
-    });
-  } catch (error) {
+        return NextResponse.json({
+          success: true,
+          messageId: message.id,
+          message: 'Message sent successfully'
+        });
+      }
+    );
+  } catch (error: any) {
     console.error('Error creating message:', error);
     return NextResponse.json(
-      { error: 'Failed to send message' },
+      { error: error.message || 'Failed to send message' },
       { status: 500 }
     );
   }

@@ -12,7 +12,7 @@ import { DashboardPrescriptionsWidget } from '@/components/patient/dashboard/Das
 import { DashboardMessagesWidget } from '@/components/patient/dashboard/DashboardMessagesWidget';
 import { PrescriptionCard } from '@/components/cards/PrescriptionCard';
 import { MessageCard } from '@/components/cards/MessageCard';
-import { useAppointments, ConvexAppointment } from '@/hooks/useAppointments';
+import { usePatientAppointments } from '@/hooks/useAppointments';
 import { usePatientProfileData } from '@/hooks/usePatientProfileData';
 import { CardEventHandlers } from '@/components/cards/types';
 
@@ -24,8 +24,8 @@ export default function PatientDashboardPage() {
   const [messageCardData, setMessageCardData] = useState<any>(null);
   const [isLoadingMessage, setIsLoadingMessage] = useState(false);
   
-  // Fetch appointments using hook
-  const { appointments: convexAppointments, isLoading: appointmentsLoading } = useAppointments('all');
+  // Fetch appointments using patient-specific hook
+  const { appointments: convexAppointments, isLoading: appointmentsLoading } = usePatientAppointments();
 
   // Fetch patient profile for medications
   const { patientProfile, isLoading: profileLoading } = usePatientProfileData();

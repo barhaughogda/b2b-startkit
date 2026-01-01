@@ -90,16 +90,16 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       // Mock search results - in real implementation, this would call your API
       const mockResults = {
         patients: [
-          { id: '1', title: `Patient: ${query}`, type: 'patient' as const, subtitle: 'Last visit: 2 days ago', url: '/company/patients/1' },
+          { id: '550e8400-e29b-41d4-a716-446655440000', title: `Patient: ${query}`, type: 'patient' as const, subtitle: 'Last visit: 2 days ago', url: '/company/patients/550e8400-e29b-41d4-a716-446655440000' },
         ],
         tasks: [
-          { id: '1', title: `Task: ${query}`, type: 'task' as const, subtitle: 'Due: Tomorrow', url: '/company/tasks/1' },
+          { id: '550e8400-e29b-41d4-a716-446655440001', title: `Task: ${query}`, type: 'task' as const, subtitle: 'Due: Tomorrow', url: '/company/tasks/550e8400-e29b-41d4-a716-446655440001' },
         ],
         messages: [
-          { id: '1', title: `Message: ${query}`, type: 'message' as const, subtitle: 'From: Dr. Smith', url: '/company/messages/1' },
+          { id: '550e8400-e29b-41d4-a716-446655440002', title: `Message: ${query}`, type: 'message' as const, subtitle: 'From: Dr. Smith', url: '/company/messages/550e8400-e29b-41d4-a716-446655440002' },
         ],
         appointments: [
-          { id: '1', title: `Appointment: ${query}`, type: 'appointment' as const, subtitle: 'Tomorrow 2:00 PM', url: '/company/appointments/1' },
+          { id: '550e8400-e29b-41d4-a716-446655440003', title: `Appointment: ${query}`, type: 'appointment' as const, subtitle: 'Tomorrow 2:00 PM', url: '/company/appointments/550e8400-e29b-41d4-a716-446655440003' },
         ],
       };
 

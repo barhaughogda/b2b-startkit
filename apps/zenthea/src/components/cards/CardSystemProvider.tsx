@@ -240,7 +240,17 @@ export function CardSystemProvider({ children }: { children: ReactNode }) {
 
   // Open a new card
   const openCard = useCallback((type: CardType, data: Record<string, unknown>, baseProps: Partial<BaseCardProps>) => {
-    const id = generateCardId();
+    // Check if card with same ID already exists (if ID is provided in baseProps)
+    if (baseProps.id) {
+      const existingCard = cards.find(c => c.id === baseProps.id);
+      if (existingCard) {
+        // If it exists, focus it instead of opening a new one
+        handlers.onFocus?.(baseProps.id);
+        return;
+      }
+    }
+
+    const id = baseProps.id || generateCardId();
     const now = new Date().toISOString();
     
     const newCard: BaseCardProps = {
@@ -291,7 +301,7 @@ export function CardSystemProvider({ children }: { children: ReactNode }) {
 
     setCards(prev => [...prev, newCard]);
     setActiveCardId(id);
-  }, [cards.length, generateCardId]);
+  }, [cards, generateCardId, handlers.onFocus]);
 
   // Close a card
   const closeCard = useCallback((id: string) => {

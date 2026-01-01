@@ -52,7 +52,8 @@ export function ClinicProfileEditor() {
     isLoading, 
     hasError, 
     canQuery, 
-    updateContactInfo
+    updateContactInfo,
+    updateOrganization
   } = useClinicProfile();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -62,8 +63,9 @@ export function ClinicProfileEditor() {
   const {
     register,
     handleSubmit,
-    setValue,
+    reset,
     watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<ClinicProfileFormData>({
     defaultValues: {
@@ -84,20 +86,21 @@ export function ClinicProfileEditor() {
 
   // Populate form when tenant data loads
   useEffect(() => {
-    if (tenantData) {
-      // Basic info
-      setValue('name', tenantData.name || '');
-      // Contact info
-      setValue('phone', tenantData.contactInfo?.phone || '');
-      setValue('email', tenantData.contactInfo?.email || '');
-      setValue('website', tenantData.contactInfo?.website || '');
-      setValue('street', tenantData.contactInfo?.address?.street || '');
-      setValue('city', tenantData.contactInfo?.address?.city || '');
-      setValue('state', tenantData.contactInfo?.address?.state || '');
-      setValue('zipCode', tenantData.contactInfo?.address?.zipCode || '');
-      setValue('country', tenantData.contactInfo?.address?.country || '');
+    if (tenantData && !isDirty) {
+      reset({
+        name: tenantData.name || '',
+        type: tenantData.type || 'clinic',
+        phone: tenantData.contactInfo?.phone || '',
+        email: tenantData.contactInfo?.email || '',
+        website: tenantData.contactInfo?.website || '',
+        street: tenantData.contactInfo?.address?.street || '',
+        city: tenantData.contactInfo?.address?.city || '',
+        state: tenantData.contactInfo?.address?.state || '',
+        zipCode: tenantData.contactInfo?.address?.zipCode || '',
+        country: tenantData.contactInfo?.address?.country || '',
+      });
     }
-  }, [tenantData, setValue]);
+  }, [tenantData, isDirty, reset]);
 
   const onSubmit = async (data: ClinicProfileFormData) => {
     if (!tenantId || !canQuery) {
@@ -110,7 +113,12 @@ export function ClinicProfileEditor() {
     setSaveSuccess(false);
 
     try {
-      // Update contact info
+      // 1. Update organization name in Clerk if changed
+      if (data.name !== tenantData?.name && updateOrganization) {
+        await updateOrganization({ name: data.name });
+      }
+
+      // 2. Update contact info in Postgres
       if (updateContactInfo && tenantId) {
         await updateContactInfo({
           tenantId,
@@ -213,14 +221,13 @@ export function ClinicProfileEditor() {
               <Label htmlFor="name">Organization Name</Label>
               <Input
                 id="name"
-                {...register('name')}
-                placeholder="Enter clinic name"
-                disabled
-                className="bg-muted"
+                {...register('name', { required: 'Organization name is required' })}
+                placeholder="Enter organization name"
+                className={errors.name ? 'border-status-error' : ''}
               />
-              <p className="text-xs text-text-secondary mt-1">
-                Organization name cannot be changed from this page
-              </p>
+              {errors.name && (
+                <p className="text-xs text-status-error mt-1">{errors.name.message}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="type">Organization Type</Label>

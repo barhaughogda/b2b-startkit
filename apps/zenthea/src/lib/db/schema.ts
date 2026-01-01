@@ -14,6 +14,7 @@ import { users } from '@startkit/database/schema'
 // --- ENUMS ---
 
 export const patientStatusEnum = pgEnum('zenthea_patient_status', ['active', 'inactive', 'discharged'])
+export const patientOrgAccessStatusEnum = pgEnum('zenthea_patient_org_access_status', ['pending', 'active', 'revoked'])
 export const appointmentTypeEnum = pgEnum('zenthea_appointment_type', ['consultation', 'follow-up', 'procedure', 'emergency'])
 export const appointmentStatusEnum = pgEnum('zenthea_appointment_status', ['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled'])
 export const clinicTypeEnum = pgEnum('zenthea_clinic_type', ['office', 'hospital', 'telehealth'])
@@ -577,5 +578,55 @@ export const invitations = pgTable(
   (table) => [
     index('zenthea_invitations_org_idx').on(table.organizationId),
     index('zenthea_invitations_email_idx').on(table.email),
+  ]
+)
+
+// --- PATIENT ACCOUNT & CONSENT ---
+
+/**
+ * Patient Accounts table
+ * Global identity for patients across multiple organizations.
+ * Linked to a Clerk user ID.
+ */
+export const patientAccounts = pgTable(
+  'zenthea_patient_accounts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clerkUserId: text('clerk_user_id').notNull().unique(),
+    email: text('email'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('zenthea_patient_accounts_clerk_idx').on(table.clerkUserId),
+    index('zenthea_patient_accounts_email_idx').on(table.email),
+  ]
+)
+
+/**
+ * Patient Organization Access table
+ * Tracks patient consent/grants for organizations to access their data.
+ */
+export const patientOrgAccess = pgTable(
+  'zenthea_patient_org_access',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    patientAccountId: uuid('patient_account_id')
+      .notNull()
+      .references(() => patientAccounts.id, { onDelete: 'cascade' }),
+    organizationId: uuid('organization_id')
+      .notNull()
+      .references(() => organizations.id, { onDelete: 'cascade' }),
+    status: patientOrgAccessStatusEnum('status').notNull().default('pending'),
+    requestedByUserId: uuid('requested_by_user_id').references(() => users.id),
+    approvedAt: timestamp('approved_at', { withTimezone: true }),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('zenthea_patient_access_account_idx').on(table.patientAccountId),
+    index('zenthea_patient_access_org_idx').on(table.organizationId),
+    index('zenthea_patient_access_status_idx').on(table.status),
   ]
 )

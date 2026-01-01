@@ -19,6 +19,7 @@ import { validatePasswordComplexity, getPasswordComplexityErrorMessage } from '@
 import { usePatientProfileData } from '@/hooks/usePatientProfileData';
 import { TimezoneSelector } from '@/components/ui/timezone-selector';
 import { SettingsSection } from '@/components/settings/SettingsSection';
+import { PatientAccessManager } from '@/components/patient/PatientAccessManager';
 
 // Force dynamic rendering required because this page uses browser APIs:
 // - Notification API (Notification.permission, Notification.requestPermission)
@@ -530,75 +531,83 @@ function PatientSettingsContent() {
         {/* Security & Privacy Section */}
         <SettingsSection
           title="Security & Privacy"
-          description="Manage your account security and privacy settings"
+          description="Manage your account security, passwords, and medical team access permissions."
           icon={Shield}
           isExpanded={securityExpanded}
           onToggle={() => setSecurityExpanded(!securityExpanded)}
         >
-          <div className="space-y-4">
-            {!showPasswordFields ? (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowPasswordFields(true)}
-                className="w-full"
-              >
-                <Lock className="h-4 w-4 mr-2" />
-                Change Password
-              </Button>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="current-password">Current Password</Label>
-                  <Input
-                    id="current-password"
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter current password"
-                  />
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium text-text-primary">Account Password</h4>
+              {!showPasswordFields ? (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowPasswordFields(true)}
+                  className="w-full"
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  Change Password
+                </Button>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter current password"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handlePasswordChange} 
+                      className="flex-1"
+                      disabled={isChangingPassword}
+                    >
+                      {isChangingPassword ? 'Updating...' : 'Update Password'}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setShowPasswordFields(false);
+                        setCurrentPassword('');
+                        setNewPassword('');
+                        setConfirmPassword('');
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="new-password">New Password</Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={handlePasswordChange} 
-                    className="flex-1"
-                    disabled={isChangingPassword}
-                  >
-                    {isChangingPassword ? 'Updating...' : 'Update Password'}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setShowPasswordFields(false);
-                      setCurrentPassword('');
-                      setNewPassword('');
-                      setConfirmPassword('');
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            <div className="border-t border-border-primary pt-6">
+              <h4 className="text-sm font-medium text-text-primary mb-4">Medical Team Access</h4>
+              <PatientAccessManager />
+            </div>
           </div>
         </SettingsSection>
 

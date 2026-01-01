@@ -22,6 +22,10 @@ export class ClinicService {
    * Get a specific clinic by ID
    */
   static async getClinicById(id: string, organizationId: string) {
+    // Validate UUID format to prevent database errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) return null
+
     const [clinic] = await db.select()
       .from(clinics)
       .where(
