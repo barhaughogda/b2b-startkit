@@ -3,13 +3,10 @@
 // Force dynamic rendering - this page uses useCardSystem hook which requires CardSystemProvider context
 export const dynamic = 'force-dynamic';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useZentheaSession } from '@/hooks/useZentheaSession';
 import { useRouter } from 'next/navigation';
-import { useQuery } from 'convex/react';
-import { ConvexHttpClient } from 'convex/browser';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import { useConversations } from '@/hooks/useConversations';
 import { ClinicLayout } from '@/components/layout/ClinicLayout';
 import { useCardSystem } from '@/components/cards/CardSystemProvider';
 import { createMockMessageData, mockMessageHandlers } from '@/components/cards/mockData/MessageCardMockData';
@@ -46,40 +43,6 @@ interface Message {
   threadId: string;
 }
 
-interface Conversation {
-  threadId: string;
-  lastMessage: {
-    _id: string;
-    content: string;
-    fromUserId: string;
-    toUserId: string;
-    fromUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      role: string;
-    } | null;
-    toUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      role: string;
-    } | null;
-    isRead: boolean;
-    createdAt: number;
-    messageType: string;
-    priority: string;
-    attachments?: Array<{ id: string; name: string; type: string; size: number; url: string }>;
-  };
-  unreadCount: number;
-  otherUser: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  } | null;
-}
-
 export default function MessagesPage() {
   const { data: session } = useZentheaSession();
   const router = useRouter();
@@ -88,21 +51,13 @@ export default function MessagesPage() {
   // Bulk selection state
   const [selectedMessages, setSelectedMessages] = React.useState<string[]>([]);
 
-  const tenantId = session?.user?.tenantId || 'demo-tenant';
-  const userId = session?.user?.id as Id<'users'> | undefined;
+  const currentUserId = session?.user?.id;
 
-  // Fetch conversations from Convex
-  const conversations = useQuery(
-    api.messages.getConversations,
-    userId && tenantId ? {
-      tenantId,
-      userId,
-      limit: 50
-    } : 'skip'
-  ) as Conversation[] | undefined;
+  // Fetch conversations from Postgres
+  const { conversations, isLoading, error } = useConversations();
 
   // Transform conversations to Message format for DataTable
-  const transformConversationsToMessages = (convs: Conversation[] | undefined): Message[] => {
+  const transformConversationsToMessages = (convs: any[]): Message[] => {
     if (!convs) return [];
     
     return convs
@@ -111,7 +66,7 @@ export default function MessagesPage() {
         const otherUser = conv.otherUser;
         const lastMsg = conv.lastMessage;
         const patientName = otherUser 
-          ? `${otherUser.firstName || ''} ${otherUser.lastName || ''}`.trim() || 'Unknown Patient'
+          ? otherUser.name || `${otherUser.firstName || ''} ${otherUser.lastName || ''}`.trim() || 'Unknown Patient'
           : 'Unknown Patient';
         
         // Determine priority from message priority
@@ -126,7 +81,7 @@ export default function MessagesPage() {
         // Determine status based on unread count and last message
         let status: 'new' | 'in-progress' | 'replied' | 'archived' = 'new';
         if (conv.unreadCount === 0) {
-          status = lastMsg.fromUser?.role === 'provider' ? 'replied' : 'in-progress';
+          status = lastMsg.fromUserId === currentUserId ? 'replied' : 'in-progress';
         }
 
         // Format time
@@ -147,15 +102,12 @@ export default function MessagesPage() {
         }
 
         const dateStr = date.toISOString().split('T')[0]!;
-        if (!dateStr) {
-          throw new Error('Invalid date format');
-        }
 
         return {
           id: conv.threadId,
           patientId: otherUser?.id || '',
           patientName,
-          patientEmail: '', // Not available in conversation data
+          patientEmail: otherUser?.email || '',
           subject: lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '...' : ''),
           preview: lastMsg.content,
           time,
@@ -164,7 +116,7 @@ export default function MessagesPage() {
           priority,
           status,
           attachments: lastMsg.attachments?.length || 0,
-          threadCount: 1, // We'd need to fetch thread messages to get actual count
+          threadCount: 1, 
           lastActivity: time,
           threadId: conv.threadId,
         };
@@ -174,7 +126,7 @@ export default function MessagesPage() {
   const messages = transformConversationsToMessages(conversations);
 
   // Sort messages by priority and urgency
-  const sortedMessages = [...messages].sort((a, b) => {
+  const sortedMessages = useMemo(() => [...messages].sort((a, b) => {
     // First sort by priority (critical > high > medium > low)
     const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -186,11 +138,127 @@ export default function MessagesPage() {
     
     // Finally sort by time (newest first)
     return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
+  }), [messages]);
+
+  const handleRowClick = async (message: Message) => {
+    try {
+      const res = await fetch(`/api/messages/thread?threadId=${message.threadId}`);
+      if (!res.ok) throw new Error('Failed to fetch thread');
+      const threadMessages = await res.json();
+
+      const conversation = conversations?.find((c: any) => c.threadId === message.threadId);
+      const otherUser = conversation?.otherUser;
+
+      // Map thread messages with proper structure
+      const mappedThreadMessages = threadMessages.map((msg: any) => ({
+        id: msg.id,
+        sender: {
+          id: msg.fromUserId,
+          name: msg.fromUserName || 'Unknown',
+          role: msg.fromUserId === currentUserId ? 'provider' : 'patient',
+          initials: msg.fromUserName ? msg.fromUserName.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U',
+          isProvider: msg.fromUserId === currentUserId
+        },
+        content: msg.content,
+        timestamp: msg.createdAt,
+        isRead: msg.isRead,
+        messageType: msg.fromUserId === currentUserId ? 'outgoing' : 'incoming',
+        isInternal: false,
+        attachments: [] 
+      }));
+
+      // Use first thread message content, fall back to preview
+      const firstMessage = mappedThreadMessages.length > 0 ? mappedThreadMessages[0] : null;
+      const mainContent = firstMessage?.content || message.preview;
+
+      const sender = {
+        id: otherUser?.id || 'unknown',
+        name: otherUser ? (otherUser.name || `${otherUser.firstName || ''} ${otherUser.lastName || ''}`.trim()) : 'Unknown',
+        role: 'patient',
+        initials: otherUser ? `${otherUser.firstName?.[0] || ''}${otherUser.lastName?.[0] || ''}` : 'U',
+        isProvider: false
+      };
+
+      const recipient = {
+        id: session?.user?.id || '',
+        name: session?.user?.name || 'You',
+        role: session?.user?.role || 'provider',
+        initials: session?.user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U',
+        isProvider: true
+      };
+
+      const priorityMap: Record<'low' | 'medium' | 'high' | 'critical', 'urgent' | 'high' | 'normal' | 'low'> = {
+        'low': 'low',
+        'medium': 'normal',
+        'high': 'high',
+        'critical': 'urgent'
+      };
+
+      const mockMsgData = createMockMessageData({
+        id: message.threadId,
+        patientId: message.patientId,
+        patientName: message.patientName,
+        subject: message.subject,
+        content: mainContent,
+        priority: priorityMap[message.priority],
+        isRead: !message.unread,
+        timestamp: firstMessage?.timestamp || new Date(message.date).toISOString(),
+        sender,
+        recipient,
+        threadMessages: mappedThreadMessages.map((msg: any) => ({
+          ...msg,
+          messageType: msg.messageType as 'incoming' | 'outgoing' | 'system' | 'notification'
+        })),
+        attachments: []
+      });
+
+      openCard('message', {
+        messageData: mockMsgData,
+        handlers: mockMessageHandlers
+      }, {
+        id: message.threadId,
+        priority: message.priority === 'critical' ? 'high' : message.priority === 'high' ? 'high' : 'medium',
+        status: message.unread ? 'new' : 'inProgress',
+        patientId: message.patientId,
+        patientName: message.patientName,
+        dueDate: message.date,
+        size: { min: 400, max: 800, default: 600, current: 600 },
+        position: { x: 100, y: 100 },
+        dimensions: { width: 600, height: 700 },
+        isMinimized: false,
+        isMaximized: false,
+        zIndex: 1000,
+        config: {
+          type: 'message',
+          color: 'bg-status-success/5 border-status-success/20',
+          icon: () => null,
+          size: { min: 400, max: 800, default: 600, current: 600 },
+          layout: 'vertical',
+          interactions: {
+            resizable: true,
+            draggable: true,
+            stackable: true,
+            minimizable: true,
+            maximizable: true,
+            closable: true
+          },
+          priority: {
+            color: 'text-status-success',
+            borderColor: 'border-status-success',
+            icon: <div>Icon</div>,
+            badge: 'Message'
+          }
+        },
+        createdAt: new Date(message.date).toISOString(),
+        accessCount: 0
+      });
+    } catch (error) {
+      console.error('Error fetching conversation thread:', error);
+    }
+  };
 
   // Define table columns
   const columns: Column<Message>[] = [
-    // Checkbox column for bulk selection
     {
       key: 'id',
       label: (
@@ -359,7 +427,6 @@ export default function MessagesPage() {
     },
   ];
 
-  // Define filter options
   const filterOptions: FilterOption[] = [
     {
       key: 'priority',
@@ -390,207 +457,7 @@ export default function MessagesPage() {
     },
   ];
 
-  const handleRowClick = async (message: Message) => {
-    // Fetch the full conversation thread using ConvexHttpClient
-    try {
-      if (!userId || !process.env.NEXT_PUBLIC_CONVEX_URL) {
-        console.error('Missing userId or Convex URL');
-        return;
-      }
-
-      let convexClient: ConvexHttpClient;
-      try {
-        convexClient = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL);
-      } catch (error) {
-        console.error('Failed to initialize Convex client:', error);
-        return;
-      }
-      const threadMessages = await convexClient.query(api.messages.getConversation, {
-        tenantId,
-        threadId: message.threadId,
-        userId
-      });
-
-      const conversation = conversations?.find(c => c.threadId === message.threadId);
-      const otherUser = conversation?.otherUser;
-
-      // Map thread messages with proper structure
-      const mappedThreadMessages = threadMessages.map((msg: any) => ({
-        id: msg._id,
-        sender: {
-          id: msg.fromUser?.id || msg.fromUserId,
-          name: msg.fromUser ? `${msg.fromUser.firstName || ''} ${msg.fromUser.lastName || ''}`.trim() : 'Unknown',
-          role: msg.fromUser?.role || 'patient',
-          initials: msg.fromUser ? `${msg.fromUser.firstName?.[0] || ''}${msg.fromUser.lastName?.[0] || ''}` : 'U',
-          isProvider: msg.fromUser?.role === 'provider'
-        },
-        content: msg.content,
-        timestamp: new Date(msg.createdAt).toISOString(),
-        isRead: msg.isRead,
-        messageType: msg.fromUser?.role === 'provider' ? 'outgoing' : 'incoming',
-        isInternal: false,
-        attachments: msg.attachments || []
-      }));
-
-      // Use first thread message content, fall back to preview
-      const firstMessage = mappedThreadMessages.length > 0 ? mappedThreadMessages[0] : null;
-      const mainContent = firstMessage?.content || message.preview;
-
-      // Collect all attachments from thread messages
-      const allAttachments: Array<{
-        id: string;
-        name: string;
-        type: string;
-        size: number;
-        url: string;
-        thumbnail?: string;
-      }> = [];
-      
-      mappedThreadMessages.forEach((msg: any) => {
-        if (msg.attachments && Array.isArray(msg.attachments)) {
-          msg.attachments.forEach((att: any) => {
-            // Avoid duplicates by checking if attachment with same id already exists
-            if (!allAttachments.find(a => a.id === att.id)) {
-              allAttachments.push({
-                id: att.id || `att-${Date.now()}-${Math.random()}`,
-                name: att.name || 'Attachment',
-                type: att.type || 'application/octet-stream',
-                size: att.size || 0,
-                url: att.url || '',
-                thumbnail: att.thumbnail
-              });
-            }
-          });
-        }
-      });
-
-      // Determine sender and recipient based on first message
-      const sender = firstMessage?.sender || {
-        id: otherUser?.id || 'unknown',
-        name: otherUser ? `${otherUser.firstName || ''} ${otherUser.lastName || ''}`.trim() : 'Unknown',
-        role: otherUser?.role || 'patient',
-        initials: otherUser ? `${otherUser.firstName?.[0] || ''}${otherUser.lastName?.[0] || ''}` : 'U',
-        isProvider: otherUser?.role === 'provider'
-      };
-
-      const recipient = {
-        id: session?.user?.id || '',
-        name: session?.user?.name || 'You',
-        role: session?.user?.role || 'provider',
-        initials: session?.user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U',
-        isProvider: true
-      };
-
-      // Map priority from Message format to MessageData format
-      const priorityMap: Record<'low' | 'medium' | 'high' | 'critical', 'urgent' | 'high' | 'normal' | 'low'> = {
-        'low': 'low',
-        'medium': 'normal',
-        'high': 'high',
-        'critical': 'urgent'
-      };
-
-      // Create message data for card
-      const mockMessageData = createMockMessageData({
-        id: message.threadId,
-        patientId: message.patientId,
-        patientName: message.patientName,
-        subject: message.subject,
-        content: mainContent,
-        priority: priorityMap[message.priority],
-        isRead: !message.unread,
-        timestamp: firstMessage?.timestamp || new Date(message.date).toISOString(),
-        sender,
-        recipient,
-        threadMessages: mappedThreadMessages.map(msg => ({
-          ...msg,
-          messageType: msg.messageType as 'incoming' | 'outgoing' | 'system' | 'notification'
-        })),
-        attachments: allAttachments
-      });
-
-      // Open message card
-      openCard('message', {
-        messageData: mockMessageData,
-        handlers: mockMessageHandlers
-      }, {
-        id: message.threadId,
-        priority: message.priority === 'critical' ? 'high' : message.priority === 'high' ? 'high' : 'medium',
-        status: message.unread ? 'new' : 'inProgress',
-        patientId: message.patientId,
-        patientName: message.patientName,
-        dueDate: message.date,
-        size: {
-          min: 400,
-          max: 800,
-          default: 600,
-          current: 600
-        },
-        position: {
-          x: 100,
-          y: 100
-        },
-        dimensions: {
-          width: 600,
-          height: 700
-        },
-        isMinimized: false,
-        isMaximized: false,
-        zIndex: 1000,
-        config: {
-          type: 'message',
-          color: 'bg-status-success/5 border-status-success/20',
-          icon: () => null,
-          size: {
-            min: 400,
-            max: 800,
-            default: 600,
-            current: 600
-          },
-          layout: 'vertical',
-          interactions: {
-            resizable: true,
-            draggable: true,
-            stackable: true,
-            minimizable: true,
-            maximizable: true,
-            closable: true
-          },
-          priority: {
-            color: 'text-status-success',
-            borderColor: 'border-status-success',
-            icon: <div>Icon</div>,
-            badge: 'Message'
-          }
-        },
-        createdAt: new Date(message.date).toISOString(),
-        accessCount: 0
-      });
-    } catch (error) {
-      console.error('Error fetching conversation thread:', error);
-    }
-  };
-
-  // Bulk action handlers
-  const handleBulkArchive = () => {
-    console.log('Archiving messages:', selectedMessages);
-    // TODO: Implement bulk archive functionality
-    setSelectedMessages([]);
-  };
-
-  const handleBulkMarkAsRead = () => {
-    console.log('Marking as read:', selectedMessages);
-    // TODO: Implement bulk mark as read functionality
-    setSelectedMessages([]);
-  };
-
-  const handleBulkDelete = () => {
-    console.log('Deleting messages:', selectedMessages);
-    // TODO: Implement bulk delete functionality
-    setSelectedMessages([]);
-  };
-
-  // Loading state
-  if (conversations === undefined) {
+  if (isLoading) {
     return (
       <ClinicLayout showSearch={true}>
         <div className="flex-1 pb-6">
@@ -610,8 +477,6 @@ export default function MessagesPage() {
           <div className="mb-6 relative">
             <h1 className="text-3xl font-bold text-text-primary">Messages</h1>
             <p className="text-text-secondary mt-1">Communicate with your patients and colleagues</p>
-            
-            {/* Absolute positioned New Message button */}
             <Button 
               size="sm" 
               className="absolute top-0 right-0 bg-zenthea-teal hover:bg-zenthea-teal-600 text-white rounded-full w-[50px] h-[50px] p-0"
@@ -629,41 +494,21 @@ export default function MessagesPage() {
                     {selectedMessages.length} message{selectedMessages.length !== 1 ? 's' : ''} selected
                   </span>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleBulkMarkAsRead}
-                      className="text-zenthea-teal border-zenthea-teal hover:bg-zenthea-teal hover:text-white"
-                    >
+                    <Button variant="outline" size="sm" className="text-zenthea-teal border-zenthea-teal hover:bg-zenthea-teal hover:text-white">
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Mark as Read
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleBulkArchive}
-                      className="text-zenthea-teal-purple border-zenthea-purple hover:bg-zenthea-purple hover:text-white"
-                    >
+                    <Button variant="outline" size="sm" className="text-zenthea-teal-purple border-zenthea-purple hover:bg-zenthea-purple hover:text-white">
                       <Archive className="h-4 w-4 mr-2" />
                       Archive
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleBulkDelete}
-                      className="text-status-error border-status-error hover:bg-status-error hover:text-white"
-                    >
+                    <Button variant="outline" size="sm" className="text-status-error border-status-error hover:bg-status-error hover:text-white">
                       <Trash2 className="h-4 w-4 mr-2" />
                       Delete
                     </Button>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedMessages([])}
-                  className="text-text-secondary"
-                >
+                <Button variant="ghost" size="sm" onClick={() => setSelectedMessages([])} className="text-text-secondary">
                   Clear Selection
                 </Button>
               </div>
@@ -706,4 +551,3 @@ export default function MessagesPage() {
     </ClinicLayout>
   );
 }
-
