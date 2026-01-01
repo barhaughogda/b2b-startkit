@@ -118,11 +118,12 @@ export function ClinicProfileEditor() {
         await updateOrganization({ name: data.name });
       }
 
-      // 2. Update contact info in Postgres
+      // 2. Update clinic details in Postgres
       if (updateContactInfo && tenantId) {
         await updateContactInfo({
           tenantId,
           contactInfo: {
+            type: data.type,
             phone: data.phone,
             email: data.email,
             website: data.website || undefined,

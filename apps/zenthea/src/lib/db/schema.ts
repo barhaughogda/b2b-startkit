@@ -36,6 +36,8 @@ export const clinics = pgTable(
     description: text('description'),
     address: jsonb('address'), // { street, city, state, zipCode, country }
     phone: text('phone'),
+    email: text('email'),
+    website: text('website'),
     type: clinicTypeEnum('type').notNull().default('office'),
     timezone: text('timezone'), // IANA timezone
     isActive: boolean('is_active').notNull().default(true),

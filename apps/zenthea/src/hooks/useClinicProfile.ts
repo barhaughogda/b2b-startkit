@@ -70,8 +70,8 @@ export function useClinicProfile(id?: string) {
       ...data,
       contactInfo: {
         phone: data.phone,
-        email: data.email || '', // Fallback since it's not in schema yet
-        website: data.website || '', // Fallback since it's not in schema yet
+        email: data.email || '',
+        website: data.website || '',
         address: data.address || {
           street: '',
           city: '',
@@ -106,8 +106,9 @@ export function useClinicProfile(id?: string) {
   const updateContactInfo = async ({ contactInfo }: { contactInfo: any }) => {
     // Map contactInfo back to our clinic structure
     const mappedData = {
+      type: contactInfo.type,
       phone: contactInfo.phone,
-      email: contactInfo.email, // Note: clinics table doesn't have email/website yet, but we'll send it
+      email: contactInfo.email,
       website: contactInfo.website,
       address: contactInfo.address,
     }
@@ -143,7 +144,15 @@ export function useClinicProfile(id?: string) {
       throw new Error(errorData.error || 'Failed to update organization')
     }
 
-    return response.json()
+    const result = await response.json()
+    
+    // Optimistically update the clinic profile data with the new organization name
+    // This ensures the sidebar and other UI elements update immediately
+    if (data) {
+      await mutate({ ...data, name }, { revalidate: true })
+    }
+
+    return result
   }
 
   const canQuery = !!(session && tenantId)
