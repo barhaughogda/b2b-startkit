@@ -18,7 +18,7 @@ export class AppointmentService {
   static async getAppointments(
     organizationId: string, 
     userId: string,
-    options: { status?: string; startDate?: Date; endDate?: Date } = {}
+    options: { status?: string; startDate?: Date; endDate?: Date; patientId?: string } = {}
   ) {
     let query = db.select({
       id: appointments.id,
@@ -36,6 +36,10 @@ export class AppointmentService {
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .leftJoin(clinics, eq(appointments.clinicId, clinics.id))
     .where(eq(appointments.organizationId, organizationId))
+
+    if (options.patientId) {
+      query = query.where(eq(appointments.patientId, options.patientId as any))
+    }
 
     if (options.status && options.status !== 'all') {
       query = query.where(eq(appointments.status, options.status as any))

@@ -21,18 +21,20 @@ export async function GET(request: NextRequest) {
     return await withTenant(
       { organizationId: tenantId, userId: clerkUserId },
       async () => {
-        // Need to find the patient record ID first
         const { PatientService } = await import('@/lib/db/services/patient.service');
-        const patients = await PatientService.getPatients(tenantId, clerkUserId);
         const session = await import('@/lib/auth').then(m => m.getZentheaServerSession());
-        const patient = patients.find(p => p.email === session?.user?.email);
-
-        if (!patient) {
-          return NextResponse.json([], { status: 200 }); // No patient, no appointments
+        
+        if (!session?.user?.email) {
+          return NextResponse.json({ error: 'User email not found' }, { status: 400 });
         }
 
-        const list = await AppointmentService.getAppointments({ 
-          organizationId: tenantId,
+        const patient = await PatientService.getPatientByEmail(session.user.email, tenantId);
+
+        if (!patient) {
+          return NextResponse.json([], { status: 200 }); // No patient record, no appointments
+        }
+
+        const list = await AppointmentService.getAppointments(tenantId, clerkUserId, { 
           patientId: patient.id 
         });
         return NextResponse.json(list);

@@ -65,6 +65,23 @@ export class PatientService {
   }
 
   /**
+   * Get a specific patient by email within an organization
+   */
+  static async getPatientByEmail(email: string, organizationId: string) {
+    const [patient] = await db.select()
+      .from(patients)
+      .where(
+        and(
+          eq(patients.email, email),
+          eq(patients.organizationId, organizationId)
+        )
+      )
+      .limit(1)
+    
+    return patient || null
+  }
+
+  /**
    * Create a new patient record
    */
   static async createPatient(data: any, organizationId: string, userId: string) {
