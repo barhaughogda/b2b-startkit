@@ -210,8 +210,6 @@ export default function TenantBookingPage() {
         : wizardFormData.type;
 
       // IMPORTANT: userId must be the PROVIDER's user ID for conflict checking
-      // The appointments.userId field represents who owns the appointment slot (the provider)
-      // The patient's ID is tracked via patientId, not userId
       const providerUserId = wizardFormData.userId;
       if (!providerUserId) {
         throw new Error('Provider user ID is required for appointment creation');
@@ -271,15 +269,10 @@ export default function TenantBookingPage() {
     setWizardSaveError(null);
 
     try {
-      // Use providerTableId (providers table ID) if available, otherwise leave undefined
-      // providerTableId is resolved from publicProviderProfile -> providerProfile -> providers table
       const appointmentProviderId = publicFormData.providerTableId 
         ? (publicFormData.providerTableId as Id<'providers'>)
         : undefined;
 
-      // IMPORTANT: userId must be the PROVIDER's user ID for conflict checking
-      // The appointments.userId field represents who owns the appointment slot (the provider)
-      // providerUserId is the user ID from the public provider profile
       const providerUserId = publicFormData.providerUserId;
       if (!providerUserId) {
         throw new Error('Provider user ID is required for appointment creation');
@@ -426,7 +419,6 @@ export default function TenantBookingPage() {
     }
 
     // Show public booking wizard (browse-first experience)
-    // Both authenticated and unauthenticated users see this
     return (
       <div className="min-h-screen bg-background-primary flex flex-col" style={brandingStyles}>
         <header className="border-b border-border-primary" style={{ backgroundColor: backgroundColor }}>
@@ -461,7 +453,6 @@ export default function TenantBookingPage() {
           <Card>
             <CardContent className="pt-6">
               <ErrorBoundary
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 fallback={({ error: _error, resetError }) => (
                   <div className="p-6 text-center">
                     <AlertCircle className="h-12 w-12 text-status-error mx-auto mb-4" />
@@ -512,7 +503,7 @@ export default function TenantBookingPage() {
     );
   }
 
-  // Account required mode - requires auth upfront (existing patient direct scheduling)
+  // Account required mode - requires auth upfront
   if (bookingMode === "account_required") {
     const isPatient = session?.user?.role === 'patient';
     const isAuthenticated = authStatus === 'authenticated' && isPatient;
@@ -521,7 +512,6 @@ export default function TenantBookingPage() {
     if (!isAuthenticated) {
       return (
         <div className="min-h-screen bg-background-primary flex flex-col" style={brandingStyles}>
-          {/* Header */}
           <header className="border-b border-border-primary" style={{ backgroundColor: backgroundColor }}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <Link 
@@ -535,7 +525,6 @@ export default function TenantBookingPage() {
             </div>
           </header>
 
-          {/* Login/Register Options */}
           <main className="flex-1 flex items-center justify-center px-4 py-12">
             <div className="text-center max-w-md mx-auto">
               <div 
@@ -580,21 +569,9 @@ export default function TenantBookingPage() {
                   </Button>
                 </Link>
               </div>
-              
-              <p className="text-sm text-text-tertiary mt-6">
-                Need help? Contact us at{" "}
-                <a 
-                  href={`tel:${tenant.contactInfo.phone}`}
-                  className="underline hover:no-underline"
-                  style={{ color: primaryColor }}
-                >
-                  {tenant.contactInfo.phone}
-                </a>
-              </p>
             </div>
           </main>
 
-          {/* Footer */}
           <footer className="border-t border-border-primary py-6" style={{ backgroundColor: backgroundColor }}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-text-secondary">
               <p>© {new Date().getFullYear()} {tenant.name}. Powered by <a href="https://zenthea.ai" className="hover:underline">Zenthea</a></p>
@@ -604,21 +581,17 @@ export default function TenantBookingPage() {
       );
     }
 
-    // Authenticated - check for patient profile loading
     if (patientLoading || careTeamLoading) {
       return <BookingPageSkeleton />;
     }
 
-    // Authenticated but no patient record - redirect to intake
     if (!patientId) {
       router.push(`/patient/onboarding/intake?redirect=${encodeURIComponent(`/clinic/${slug}/book`)}`);
       return <BookingPageSkeleton />;
     }
 
-    // Check if patient has a care team
     const hasCareTeam = careTeam && careTeam.length > 0;
 
-    // No care team - show message and redirect to intake
     if (!hasCareTeam) {
       return (
         <div className="min-h-screen bg-background-primary flex flex-col" style={brandingStyles}>
@@ -659,12 +632,6 @@ export default function TenantBookingPage() {
                     Complete Intake Form
                   </Button>
                 </Link>
-                <Link href={`/clinic/${slug}`}>
-                  <Button variant="outline" className="w-full">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Return to Home
-                  </Button>
-                </Link>
               </div>
             </div>
           </main>
@@ -678,7 +645,6 @@ export default function TenantBookingPage() {
       );
     }
 
-    // Booking success state
     if (bookingSuccess) {
       return (
         <div 
@@ -715,7 +681,6 @@ export default function TenantBookingPage() {
       );
     }
 
-    // Authenticated with care team - show booking wizard
     return (
       <div className="min-h-screen bg-background-primary flex flex-col" style={brandingStyles}>
           <header className="border-b border-border-primary" style={{ backgroundColor: backgroundColor }}>
@@ -750,7 +715,6 @@ export default function TenantBookingPage() {
           <Card>
             <CardContent className="pt-6">
               <ErrorBoundary
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 fallback={({ error: _error, resetError }) => (
                   <div className="p-6 text-center">
                     <AlertCircle className="h-12 w-12 text-status-error mx-auto mb-4" />
@@ -797,7 +761,7 @@ export default function TenantBookingPage() {
     );
   }
 
-  // Request mode - show booking request form (original behavior)
+  // Request mode
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -849,7 +813,6 @@ export default function TenantBookingPage() {
     }));
   };
 
-  // Success state for request mode
   if (submitSuccess) {
     return (
       <div 
@@ -882,7 +845,6 @@ export default function TenantBookingPage() {
     );
   }
 
-  // Request mode form
   return (
     <div 
       className="min-h-screen bg-background-primary"
@@ -1070,10 +1032,6 @@ export default function TenantBookingPage() {
                   </>
                 )}
               </Button>
-
-              <p className="text-xs text-text-tertiary text-center">
-                By submitting this form, you agree to be contacted by {tenant.name} regarding your appointment request.
-              </p>
             </form>
           </CardContent>
         </Card>

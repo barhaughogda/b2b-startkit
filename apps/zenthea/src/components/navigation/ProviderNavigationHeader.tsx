@@ -26,55 +26,7 @@ import {
 import {
   NavigationHeaderProps
 } from '@/types/navigation';
-import { convex } from '@/lib/convex';
-import { ConvexErrorBoundary } from '@/components/utils/ConvexErrorBoundary';
 import { useProviderProfile } from '@/hooks/useProviderProfile';
-
-// Conditionally render profile completion badge
-// Only shows when Convex is configured and ConvexProvider wraps the app
-function ConditionalProfileBadge({ userId, tenantId }: { userId?: string; tenantId?: string }) {
-  const [BadgeComponent, setBadgeComponent] = React.useState<React.ComponentType<{ userId?: string; tenantId?: string }> | null>(null);
-  const [hasError, setHasError] = React.useState(false);
-
-  React.useEffect(() => {
-    // Check if Convex is configured BEFORE trying to import
-    // Note: Only NEXT_PUBLIC_* env vars are available in client components
-    if (!convex || !process.env.NEXT_PUBLIC_CONVEX_URL || !userId || !tenantId) {
-      return;
-    }
-
-    // Dynamically import only when Convex is available
-    // This prevents the module from being executed when Convex isn't configured
-    import('./ProfileCompletionBadge')
-      .then((module) => {
-        setBadgeComponent(() => module.ProfileCompletionBadge);
-      })
-      .catch((error) => {
-        // If import fails, don't render badge
-        if (process.env.NODE_ENV === 'development') {
-          console.debug('ProfileCompletionBadge not available:', error);
-        }
-        setHasError(true);
-      });
-  }, [userId, tenantId]);
-
-  // Don't render if Convex isn't available, component isn't loaded, or there was an error
-  // Note: Only NEXT_PUBLIC_* env vars are available in client components
-  // CRITICAL: If convex is null, ConvexProvider won't be rendered, so we can't use Convex hooks
-  if (!convex || !process.env.NEXT_PUBLIC_CONVEX_URL || !userId || !tenantId || !BadgeComponent || hasError) {
-    return null;
-  }
-
-  // Re-enable badge rendering with error boundary protection
-  // ConvexProvider wraps the entire app at root level (src/app/layout.tsx),
-  // so Radix UI dropdown portals should maintain React context.
-  // The error boundary provides additional safety for edge cases.
-  return (
-    <ConvexErrorBoundary fallback={null}>
-      <BadgeComponent userId={userId} tenantId={tenantId} />
-    </ConvexErrorBoundary>
-  );
-}
 
 /**
  * Shared navigation header component for provider pages
@@ -139,7 +91,7 @@ export function ProviderNavigationHeader({
             <Button
               variant="ghost"
               className="h-12 w-12 rounded-full hover:bg-surface-interactive transition-colors"
-              aria-label="User avatar"
+              aria-label="User menu"
             >
               <Avatar className="h-12 w-12">
                 <AvatarImage src={providerAvatar || undefined} alt="User avatar" />
@@ -162,10 +114,6 @@ export function ProviderNavigationHeader({
             <DropdownMenuItem onClick={() => handleNavigation('/company/user/profile')}>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
-              <ConditionalProfileBadge
-                userId={session?.user?.id}
-                tenantId={session?.user?.tenantId}
-              />
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleNavigation('/company/user/settings')}>
               <Settings className="mr-2 h-4 w-4" />

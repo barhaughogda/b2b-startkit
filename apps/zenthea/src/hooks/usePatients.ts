@@ -25,6 +25,8 @@ export interface Patient {
   organizationId: string
   /** Patient status */
   status: 'active' | 'inactive' | 'discharged'
+  /** Primary provider ID */
+  primaryProviderId?: string | null
   /** Record creation timestamp */
   createdAt: string
   /** Record last update timestamp */
@@ -113,8 +115,11 @@ export function usePatients() {
 export function usePatient(id: string) {
   const { data: session } = useZentheaSession()
   
+  // Validate UUID format to prevent 400 errors from API
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
   const { data, error, isLoading, mutate } = useSWR<Patient>(
-    session && id ? `/api/patients/${id}` : null,
+    session && id && isUuid ? `/api/patients/${id}` : null,
     fetcher
   )
 

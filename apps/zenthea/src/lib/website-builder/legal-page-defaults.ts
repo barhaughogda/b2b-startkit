@@ -6,7 +6,7 @@
  * clinics can customize for their needs.
  */
 
-import type { BlockInstance } from './schema';
+import type { BlockInstance } from './types';
 
 // =============================================================================
 // TERMS OF SERVICE DEFAULT CONTENT

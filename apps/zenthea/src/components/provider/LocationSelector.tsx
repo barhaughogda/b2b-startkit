@@ -1,10 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { useZentheaSession } from '@/hooks/useZentheaSession';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import { useClinics } from '@/hooks/useClinicProfile';
 import {
   Select,
   SelectContent,
@@ -14,12 +12,11 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { MapPin } from 'lucide-react';
-import { canUseConvexQuery } from '@/lib/convexIdValidation';
 
 interface LocationSelectorProps {
   value?: string; // locationId as string
   onValueChange: (locationId: string) => void;
-  providerId?: Id<'providers'>; // Optional: filter by provider's locations
+  providerId?: string; // Optional: filter by provider's locations (Legacy Convex type was Id<'providers'>)
   tenantId?: string; // Optional: override tenant ID
   label?: string;
   placeholder?: string;
@@ -32,15 +29,13 @@ interface LocationSelectorProps {
 /**
  * LocationSelector Component
  * 
- * A reusable component for selecting locations from the Convex database.
- * Can filter by provider's assigned locations or show all tenant locations.
+ * A reusable component for selecting locations from the Postgres database.
  * 
  * @example
  * ```tsx
  * <LocationSelector
  *   value={selectedLocationId}
  *   onValueChange={setSelectedLocationId}
- *   providerId={providerId}
  *   label="Appointment Location"
  * />
  * ```
@@ -58,34 +53,13 @@ export function LocationSelector({
   className,
 }: LocationSelectorProps) {
   const { data: session } = useZentheaSession();
-  const tenantId = overrideTenantId || session?.user?.tenantId || 'demo-tenant';
+  
+  // Use Postgres-based clinics hook
+  const { clinics, isLoading: clinicsLoading } = useClinics();
 
-  // Check if we can use Convex queries
-  const canQuery = canUseConvexQuery(session?.user?.id, tenantId);
-
-  // Fetch locations based on whether we're filtering by provider
-  const providerLocations = useQuery(
-    (api as any).locations?.getProviderLocations,
-    canQuery && providerId && tenantId
-      ? {
-          providerId,
-          tenantId,
-        }
-      : 'skip'
-  );
-
-  const allLocations = useQuery(
-    (api as any).locations?.getLocationsByTenant,
-    canQuery && !providerId && tenantId
-      ? {
-          tenantId,
-          limit: 100,
-        }
-      : 'skip'
-  );
-
-  // Determine which locations to use
-  const locations = providerId ? providerLocations : allLocations;
+  // Determine which locations to use - currently we don't have provider-specific 
+  // location filtering in Postgres, so we show all organization clinics
+  const locations = clinics;
 
   // Filter out telehealth if not wanted
   const filteredLocations = React.useMemo(() => {
@@ -96,7 +70,7 @@ export function LocationSelector({
       : locations.filter((loc: any) => loc?.type !== 'telehealth');
     
     // Sort by name
-    return filtered.sort((a: any, b: any) => {
+    return [...filtered].sort((a: any, b: any) => {
       if (!a || !b) return 0;
       if (!a.name || !b.name) return 0;
       return a.name.localeCompare(b.name);
@@ -104,7 +78,7 @@ export function LocationSelector({
   }, [locations, showTelehealth]);
 
   // Loading state
-  const isLoading = canQuery && locations === undefined;
+  const isLoading = clinicsLoading;
 
   // Handle value change - convert to string if needed
   const handleValueChange = (newValue: string) => {
@@ -118,7 +92,8 @@ export function LocationSelector({
   // Find the selected location to display clean value
   const selectedLocation = React.useMemo(() => {
     if (!value || value === 'none' || !filteredLocations) return null;
-    return filteredLocations.find((loc: any) => loc?._id === value);
+    // Handle both _id (Convex) and id (Postgres) for compatibility during transition
+    return filteredLocations.find((loc: any) => (loc?.id === value || loc?._id === value));
   }, [value, filteredLocations]);
 
   // Format display value for the trigger (name + type only)
@@ -172,7 +147,8 @@ export function LocationSelector({
           {filteredLocations.map((location: any) => {
             if (!location) return null;
             
-            const locationId = location._id as string;
+            // Handle both id and _id
+            const locationId = (location.id || location._id) as string;
             const locationType = location.type;
             const typeLabel = 
               locationType === 'telehealth' ? ' (Telehealth)' :

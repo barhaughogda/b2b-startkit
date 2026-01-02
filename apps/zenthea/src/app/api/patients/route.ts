@@ -9,7 +9,8 @@ import { PatientService } from '@/lib/db/services/patient.service'
  */
 export async function GET() {
   try {
-    const { organization, user } = await requireOrganization()
+    const auth = await requireOrganization()
+    const { organization, user } = auth
     
     return await withTenant(
       { organizationId: organization.organizationId, userId: user.userId },

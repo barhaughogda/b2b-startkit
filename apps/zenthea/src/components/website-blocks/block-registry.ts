@@ -7,11 +7,11 @@
 
 import { ComponentType } from 'react';
 import { 
-  BlockType, 
-  BlockProps, 
-  BlockInstance,
-  BlockAppearance,
-  ThemeConfig,
+  type BlockType, 
+  type BlockProps, 
+  type BlockInstance,
+  type BlockAppearance,
+  type ThemeConfig,
   blockMetadata,
   getBlockPropsSchema,
 } from '@/lib/website-builder/schema';

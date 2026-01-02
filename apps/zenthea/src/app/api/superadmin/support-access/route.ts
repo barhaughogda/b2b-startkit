@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySuperAdminAuth } from "@/lib/superadmin-auth";
 import { ConvexHttpClient } from "convex/browser";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { sendSupportAccessRequestEmail } from "@/lib/email/support-access-email";
 

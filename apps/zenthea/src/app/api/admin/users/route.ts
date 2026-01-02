@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import * as bcrypt from "bcryptjs";
 import { verifyAdminAuth } from "@/lib/admin-auth";
 import { logAdminAction } from "@/lib/security/audit-logger";

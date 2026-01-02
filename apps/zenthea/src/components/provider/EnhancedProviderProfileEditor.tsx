@@ -2,13 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useZentheaSession } from '@/hooks/useZentheaSession';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { ProviderProfile } from '@/types';
-import { getDefaultVisibilitySettings } from '@/lib/profileVisibility';
-import { convex } from '@/lib/convex';
-import { canUseConvexQuery } from '@/lib/convexIdValidation';
+import { useProviderProfile } from '@/hooks/useProviderProfile';
 import { useProviderProfileForm } from '@/hooks/useProviderProfileForm';
 import { useProviderProfileSave } from '@/hooks/useProviderProfileSave';
 import { useProviderSectionCompleteness } from '@/hooks/useProviderSectionCompleteness';
@@ -38,7 +33,6 @@ import {
 import { ProfileSection } from '@/components/patient/profile/ProfileSection';
 import { ProviderProfileCompletenessIndicator, ALL_SECTIONS as PROVIDER_SECTIONS } from './ProviderProfileCompletenessIndicator';
 import { PatientAvatarUpload } from '@/components/patient/PatientAvatarUpload';
-import { ConvexErrorBoundary } from '@/components/utils/ConvexErrorBoundary';
 import { toast } from 'sonner';
 
 interface EnhancedProviderProfileEditorProps {
@@ -48,101 +42,8 @@ interface EnhancedProviderProfileEditorProps {
 
 /**
  * Enhanced Provider Profile Editor
- * 
- * Refactored to match patient profile UX/UI design pattern.
- * Uses expandable sections instead of wizard navigation.
- * 
- * Features:
- * - 3-column grid layout (sidebar + content)
- * - Expandable ProfileSection components
- * - Profile completeness tracking
- * - Avatar upload integration
- * - Form validation with React Hook Form + Zod
- * 
- * @example
- * ```tsx
- * <EnhancedProviderProfileEditor
- *   profileId="profile-123"
- *   onSave={() => console.log('Saved')}
- * />
- * ```
  */
 export function EnhancedProviderProfileEditor({
-  profileId,
-  onSave
-}: EnhancedProviderProfileEditorProps) {
-  // Check if Convex is configured
-  // Note: Only NEXT_PUBLIC_* env vars are available in client components
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  // Check if convex client exists (it will be null if URL validation failed)
-  const isConvexConfigured = !!convex;
-
-  // Debug logging (development only)
-  React.useEffect(() => {
-    logger.debug('[Convex Debug]', {
-      hasConvexClient: !!convex,
-      hasConvexUrl: !!convexUrl,
-      convexUrl: convexUrl || 'NOT SET',
-      isConvexConfigured,
-      nodeEnv: process.env.NODE_ENV
-    });
-  }, [convex, convexUrl, isConvexConfigured]);
-
-  if (!isConvexConfigured) {
-    return (
-      <div className="max-w-5xl mx-auto p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-text-primary mb-2">Your Profile</h1>
-          <p className="text-text-secondary">Complete your professional profile to help patients find and connect with you</p>
-        </div>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 p-4 bg-status-warning/10 border border-status-warning rounded-md">
-                <AlertCircle className="h-5 w-5 text-status-warning" />
-                <div>
-                  <h3 className="font-semibold text-text-primary mb-1">Convex Not Available</h3>
-                  <p className="text-sm text-text-secondary">
-                    Convex is required to use the provider profile editor. Please ensure:
-                    <br />1. The Convex dev server is running: <code className="bg-surface-elevated px-1 rounded">npx convex dev</code>
-                    <br />2. The <code className="bg-surface-elevated px-1 rounded">NEXT_PUBLIC_CONVEX_URL</code> environment variable is set correctly in Vercel.
-                    <br />
-                    <br />
-                    <span className="text-xs text-text-tertiary block mt-2 p-2 bg-surface-elevated rounded">
-                      <strong>Debug Info:</strong>
-                      <br />• Convex client: {convex ? '✓ Available' : '✗ Not Available'}
-                      <br />• NEXT_PUBLIC_CONVEX_URL: {convexUrl ? `✓ Set (${convexUrl.substring(0, 30)}...)` : '✗ NOT SET'}
-                      {convexUrl && !convex && (
-                        <>
-                          <br /><span className="text-status-error">⚠️ URL is set but validation failed. Check browser console (F12) for details.</span>
-                        </>
-                      )}
-                      {!convexUrl && (
-                        <>
-                          <br /><span className="text-status-error">⚠️ Environment variable is missing. Set NEXT_PUBLIC_CONVEX_URL in Vercel → Settings → Environment Variables</span>
-                          <br /><span className="text-status-error">⚠️ Make sure it's set for Preview environment (not just Production)</span>
-                        </>
-                      )}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-      </div>
-    );
-  }
-
-  return (
-    <ConvexErrorBoundary
-      title="Your Profile"
-      description="Complete your professional profile to help patients find and connect with you"
-    >
-      <EnhancedProviderProfileEditorInner profileId={profileId} onSave={onSave} />
-    </ConvexErrorBoundary>
-  );
-}
-
-function EnhancedProviderProfileEditorInner({
   profileId,
   onSave
 }: EnhancedProviderProfileEditorProps) {
@@ -150,50 +51,28 @@ function EnhancedProviderProfileEditorInner({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['identity']));
   const profileLoadedRef = useRef(false);
 
+  // Get profile using refactored hook
+  const { profile: existingProfile, isLoading } = useProviderProfile(profileId);
+
   // Use extracted form hook
   const { handleSubmit, watch, setValue, formState: { errors }, updateField, updateVisibility } = useProviderProfileForm();
   
-  // Watch form values - memoize to prevent unnecessary re-renders
-  // The completeness calculation is memoized separately, so watching all fields is acceptable
+  // Watch form values
   const formData = watch() as ProviderProfileUpdateData;
-
-  // Check if we can use Convex queries (user ID must be valid Convex ID, not demo ID)
-  const canQuery = canUseConvexQuery(session?.user?.id, session?.user?.tenantId);
-  
-  // Get existing profile
-  const existingProfile = useQuery(
-    api.providerProfiles.getProviderProfileByUserId,
-    canQuery
-      ? {
-          userId: session!.user!.id as Id<'users'>,
-          tenantId: session!.user!.tenantId!
-        }
-      : 'skip'
-  );
-
-  // Get user data (firstName, lastName, phone, dateOfBirth are stored in users table, not providerProfiles)
-  const userData = useQuery(
-    api.users.getUserById,
-    canQuery
-      ? { userId: session!.user!.id as Id<'users'> }
-      : 'skip'
-  );
 
   // Use extracted save hook
   const { saveProfile, isSaving } = useProviderProfileSave({
     session: session ? {
       user: {
         id: session.user.id!,
-        tenantId: session.user.tenantId!,
+        tenantId: session.user.tenantId || '',
       },
     } : null,
-    existingProfile: existingProfile || null,
+    existingProfile: (existingProfile as any) || null,
     onSave: async () => {
-      // Refresh the session to update name across the portal
       if (updateSession) {
         await updateSession();
       }
-      // Call the original onSave callback if provided
       onSave?.();
     },
   });
@@ -203,91 +82,34 @@ function EnhancedProviderProfileEditorInner({
     session: session ? {
       user: {
         id: session.user.id!,
-        tenantId: session.user.tenantId!,
+        tenantId: session.user.tenantId || '',
       },
     } : null,
-    existingProfile: existingProfile || null,
+    existingProfile: (existingProfile as any) || null,
   });
 
-  // Only update form data once when profile is loaded
-  // Use a ref to track if we've loaded to prevent duplicate updates
+  // Load profile data into form once it's loaded
   useEffect(() => {
-    // existingProfile can be: undefined (loading), null (not found), or object (found)
-    // Only initialize when we have a definitive answer (null or object), not while loading (undefined)
-    // Also wait for userData to be loaded (not undefined) to get user identity fields
-    
-    if (existingProfile && userData && !profileLoadedRef.current) {
-      // Profile exists - load it into form
+    if (existingProfile && !profileLoadedRef.current) {
       profileLoadedRef.current = true;
-      const profileData = existingProfile as Partial<ProviderProfile>;
-      
-      // Parse name from userData.name or session.user.name as fallback for firstName/lastName
-      const nameSource = userData.name || session?.user?.name || '';
-      const nameParts = nameSource.split(' ');
-      const fallbackFirstName = nameParts[0] || '';
-      const fallbackLastName = nameParts.slice(1).join(' ') || '';
-      
-      
-      // Load profile fields
-      Object.keys(profileData).forEach((key) => {
-        const value = profileData[key as keyof ProviderProfile];
+      Object.keys(existingProfile).forEach((key) => {
+        const value = (existingProfile as any)[key];
         if (value !== undefined) {
           setValue(key as keyof ProviderProfileUpdateData, value as any, { shouldValidate: false });
         }
       });
       
-      // Load user identity fields from users table (firstName, lastName, phone, dateOfBirth, email)
-      // These fields are stored in the users table, not providerProfiles
-      // Use fallback from name parsing if firstName/lastName not populated
-      const firstNameToUse = userData.firstName || fallbackFirstName;
-      const lastNameToUse = userData.lastName || fallbackLastName;
-      const emailToUse = userData.email || session?.user?.email;
-      
-      if (firstNameToUse) setValue('firstName', firstNameToUse, { shouldValidate: false });
-      if (lastNameToUse) setValue('lastName', lastNameToUse, { shouldValidate: false });
-      if (userData.phone) setValue('phone', userData.phone, { shouldValidate: false });
-      if (userData.dateOfBirth) setValue('dateOfBirth', userData.dateOfBirth, { shouldValidate: false });
-      if (emailToUse) setValue('email', emailToUse, { shouldValidate: false });
-      
-    } else if (existingProfile === null && userData && !profileLoadedRef.current) {
-      // Profile doesn't exist but user does - load user fields
-      profileLoadedRef.current = true;
-      
-      // Parse name from userData.name or session.user.name as fallback for firstName/lastName
-      const nameSource = userData.name || session?.user?.name || '';
-      const nameParts = nameSource.split(' ');
-      const fallbackFirstName = nameParts[0] || '';
-      const fallbackLastName = nameParts.slice(1).join(' ') || '';
-      
-      
-      // Use fallback from name parsing if firstName/lastName not populated
-      const firstNameToUse = userData.firstName || fallbackFirstName;
-      const lastNameToUse = userData.lastName || fallbackLastName;
-      const emailToUse = userData.email || session?.user?.email;
-      
-      if (firstNameToUse) setValue('firstName', firstNameToUse, { shouldValidate: false });
-      if (lastNameToUse) setValue('lastName', lastNameToUse, { shouldValidate: false });
-      if (userData.phone) setValue('phone', userData.phone, { shouldValidate: false });
-      if (userData.dateOfBirth) setValue('dateOfBirth', userData.dateOfBirth, { shouldValidate: false });
-      if (emailToUse) setValue('email', emailToUse, { shouldValidate: false });
-      
-    } else if (existingProfile === null && userData === null && session?.user && !profileLoadedRef.current) {
-      // No profile and no user data - fallback to session
-      profileLoadedRef.current = true;
-      const sessionName = session.user.name || '';
-      const nameParts = sessionName.split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
-      
-      if (firstName) setValue('firstName', firstName, { shouldValidate: false });
-      if (lastName) setValue('lastName', lastName, { shouldValidate: false });
-      if (session.user.email) setValue('email', session.user.email, { shouldValidate: false });
-    } else if (existingProfile === null && userData === null && !session?.user) {
-      // Everything cleared - reset the ref to allow re-initialization
-      profileLoadedRef.current = false;
+      // Load name from session as fallback
+      if (session?.user?.name) {
+        const nameParts = session.user.name.split(' ');
+        if (!watch('firstName')) setValue('firstName', nameParts[0] || '', { shouldValidate: false });
+        if (!watch('lastName')) setValue('lastName', nameParts.slice(1).join(' ') || '', { shouldValidate: false });
+      }
+      if (session?.user?.email && !watch('email')) {
+        setValue('email', session.user.email, { shouldValidate: false });
+      }
     }
-    // If existingProfile is undefined (still loading), do nothing - wait for definitive answer
-  }, [existingProfile, userData, setValue, session]);
+  }, [existingProfile, setValue, session, watch]);
 
   // Use extracted section completeness hook
   const { sectionsCompleted, getSectionCompleteness } = useProviderSectionCompleteness(formData);
@@ -304,36 +126,19 @@ function EnhancedProviderProfileEditorInner({
     });
   };
 
-  // Get provider name for avatar
-  const getProviderName = () => {
-    if (session?.user?.name) {
-      return session.user.name;
-    }
-    if (existingProfile) {
-      // Try to get name from user query if available
-      return 'Provider';
-    }
-    return 'Provider';
-  };
+  const getProviderName = () => session?.user?.name || 'Provider';
 
   const handleSave = handleSubmit(
     (data) => {
-      logger.debug('[Profile Form] Submitting form data:', data);
       saveProfile(data);
     },
     (errors) => {
       logger.error('[Profile Form] Validation errors:', errors);
-      toast.error('Please fix validation errors before saving', {
-        description: Object.keys(errors).length > 0 
-          ? `Errors in: ${Object.keys(errors).join(', ')}`
-          : 'Please check all required fields',
-      });
+      toast.error('Please fix validation errors before saving');
     }
   );
 
-
-  // Loading state - wait for both profile and user data
-  if (existingProfile === undefined || userData === undefined) {
+  if (isLoading) {
     return (
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
@@ -344,6 +149,24 @@ function EnhancedProviderProfileEditorInner({
             </CardContent>
           </Card>
         </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="max-w-5xl mx-auto p-6 space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 p-4 bg-status-warning/10 border border-status-warning rounded-md">
+              <AlertCircle className="h-5 w-5 text-status-warning" />
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1">Not Authenticated</h3>
+                <p className="text-sm text-text-secondary">Please sign in to view your profile.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -486,4 +309,3 @@ function EnhancedProviderProfileEditorInner({
     </div>
   );
 }
-

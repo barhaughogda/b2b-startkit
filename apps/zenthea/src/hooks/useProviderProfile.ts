@@ -4,84 +4,56 @@
  * React hook for managing provider profile data with appointment and messaging integration
  */
 
-import { useQuery, useMutation } from 'convex/react';
+import useSWR from 'swr';
 import { useZentheaSession } from './useZentheaSession';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { ProviderProfile } from '@/types';
-import { filterProfileByVisibility } from '@/lib/profileVisibility';
-import { canUseConvexQuery } from '@/lib/convexIdValidation';
-import { isClinicUser } from '@/lib/auth-utils';
+
+const fetcher = (url: string) => fetch(url).then(async (res) => {
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch provider profile');
+  }
+  return res.json();
+});
 
 export function useProviderProfile(profileId?: string) {
   const { data: session } = useZentheaSession();
   
-  // Check if we can use Convex queries (user ID must be valid Convex ID, not demo ID)
-  const canQueryByUserId = canUseConvexQuery(session?.user?.id, session?.user?.tenantId);
-  
-  // Get profile by user ID (for provider editing their own profile)
-  const profileData = useQuery(
-    (api as any).providerProfiles.getProviderProfileByUserId,
-    canQueryByUserId
-      ? {
-          userId: session!.user!.id as Id<'users'>,
-          tenantId: session!.user!.tenantId!
-        }
-      : 'skip'
+  // Use SWR to fetch profile data from the new API
+  // If profileId is provided, we might need a different endpoint, but for now 
+  // let's assume the API handles the current user's profile.
+  const { data, error, isLoading, mutate } = useSWR(
+    session ? `/api/provider/profile${profileId ? `?id=${profileId}` : ''}` : null,
+    fetcher
   );
   
-  // Check if profileId is valid Convex ID
-  const canQueryByProfileId = profileId && 
-    canUseConvexQuery(profileId, session?.user?.tenantId);
-  
-  // Get specific profile by ID (for viewing)
-  const specificProfile = useQuery(
-    (api as any).providerProfiles.getProviderProfile,
-    canQueryByProfileId
-      ? {
-          profileId: profileId as Id<'providerProfiles'>,
-          viewerRole: isClinicUser(session!.user!) ? (session!.user!.role === 'admin' ? 'admin' : 'provider') : 'patient',
-          tenantId: session!.user!.tenantId!
-        }
-      : 'skip'
-  );
-  
-  const updateProfile = useMutation((api as any).providerProfiles.updateProviderProfile);
-  const createProfile = useMutation((api as any).providerProfiles.createProviderProfile);
-  
-  const profile = profileId ? specificProfile : profileData;
-  
-  return {
-    profile: profile as ProviderProfile | null | undefined,
-    isLoading: profile === undefined,
-    isDemoMode: !canQueryByUserId, // Indicate if we're in demo mode
-    updateProfile: async (updates: Partial<ProviderProfile>) => {
-      if (!session?.user?.id || !session?.user?.tenantId) {
-        throw new Error('Not authenticated');
-      }
-      
-      // In demo mode, don't try to update Convex
-      if (!canUseConvexQuery(session.user.id, session.user.tenantId)) {
-        throw new Error('Cannot update profile in demo mode. Please use a real Convex account.');
-      }
-      
-      if (profile?._id) {
-        return await updateProfile({
-          profileId: profile._id as Id<'providerProfiles'>,
-          userId: session.user.id as Id<'users'>,
-          tenantId: session.user.tenantId,
-          updates
-        });
-      } else {
-        return await createProfile({
-          userId: session.user.id as Id<'users'>,
-          tenantId: session.user.tenantId,
-          specialties: updates.specialties || [],
-          languages: updates.languages || [],
-          visibility: updates.visibility
-        });
-      }
+  const updateProfile = async (updates: Partial<ProviderProfile>) => {
+    if (!session?.user?.id) {
+      throw new Error('Not authenticated');
     }
+    
+    const response = await fetch('/api/provider/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to update profile');
+    }
+    
+    const result = await response.json();
+    await mutate();
+    return result.provider;
+  };
+
+  return {
+    profile: data?.provider as ProviderProfile | null | undefined,
+    isLoading,
+    isDemoMode: false,
+    updateProfile,
+    refreshProfile: mutate,
   };
 }
 

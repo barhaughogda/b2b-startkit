@@ -1,9 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -27,16 +24,19 @@ import { cn } from '@/lib/utils';
 type ViewMode = 'own' | 'all' | 'custom';
 
 interface CalendarFiltersBarProps {
-  userId: Id<'users'>;
+  userId: string;
   tenantId: string;
   // Clinic filter props
-  clinics: Array<{ _id: Id<'clinics'>; name: string }> | undefined;
-  selectedClinicId: Id<'clinics'> | undefined;
-  onClinicChange: (clinicId: Id<'clinics'> | undefined) => void;
+  clinics: Array<{ id: string; name: string }> | undefined;
+  selectedClinicId: string | undefined;
+  onClinicChange: (clinicId: string | undefined) => void;
   // Calendar selection props
   selectedUserIds: string[];
   onSelectionChange: (userIds: string[]) => void;
 }
+
+// Shared calendars migration pending
+const SHARED_CALENDARS_PLACEHOLDER: any[] = [];
 
 export function CalendarFiltersBar({
   userId,
@@ -49,39 +49,38 @@ export function CalendarFiltersBar({
 }: CalendarFiltersBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('own');
-  const [customSelections, setCustomSelections] = useState<Set<Id<'users'>>>(new Set([userId]));
+  const [customSelections, setCustomSelections] = useState<Set<string>>(new Set([userId]));
   
   // Store callback in ref to avoid including it in useEffect dependencies
-  // Parent component should memoize onSelectionChange with useCallback
   const onSelectionChangeRef = useRef(onSelectionChange);
   useEffect(() => {
     onSelectionChangeRef.current = onSelectionChange;
   }, [onSelectionChange]);
 
-  // Get calendars shared with current user
-  // Note: Convex queries return undefined when loading or on error
-  // The component handles undefined gracefully by showing loading states
-  const sharedCalendars = useQuery(
-    api.calendarShares.getSharedCalendars,
-    userId && tenantId
-      ? {
-          userId,
-          tenantId,
-        }
-      : 'skip'
-  );
+  const sharedCalendars = SHARED_CALENDARS_PLACEHOLDER;
 
   // Update custom selections when shared calendars change
   useEffect(() => {
-    if (sharedCalendars) {
-      const ownerIds = sharedCalendars.map((share: { ownerUserId: Id<'users'> }) => share.ownerUserId);
+    if (sharedCalendars && sharedCalendars.length > 0) {
+      const ownerIds = (sharedCalendars as any[]).map((share) => share.ownerUserId);
       setCustomSelections(prev => {
+        // Optimization: Only update if content actually changes
+        let changed = false;
+        if (!prev.has(userId)) changed = true;
+        
+        for (const id of ownerIds) {
+          if (!prev.has(id)) {
+            changed = true;
+            break;
+          }
+        }
+        
+        if (!changed) return prev;
+
         const newSet = new Set(prev);
         newSet.add(userId);
-        ownerIds.forEach((id: Id<'users'>) => {
-          if (prev.has(id)) {
-            newSet.add(id);
-          }
+        ownerIds.forEach((id) => {
+          newSet.add(id);
         });
         return newSet;
       });
@@ -89,32 +88,41 @@ export function CalendarFiltersBar({
   }, [sharedCalendars, userId]);
 
   // Update selectedUserIds based on view mode
-  // Note: onSelectionChange is not in dependencies to avoid infinite loops
-  // Parent component should memoize it with useCallback
   useEffect(() => {
+    let nextSelection: string[] = [];
+    
     if (viewMode === 'own') {
-      onSelectionChangeRef.current([userId as string]);
+      nextSelection = [userId];
     } else if (viewMode === 'all') {
-      const allUserIds: string[] = [userId as string];
+      nextSelection = [userId];
       if (sharedCalendars) {
-        sharedCalendars.forEach((share: { ownerUserId: Id<'users'> }) => {
-          const ownerId = share.ownerUserId as string;
-          if (!allUserIds.includes(ownerId)) {
-            allUserIds.push(ownerId);
+        (sharedCalendars as any[]).forEach((share) => {
+          const ownerId = share.ownerUserId;
+          if (!nextSelection.includes(ownerId)) {
+            nextSelection.push(ownerId);
           }
         });
       }
-      onSelectionChangeRef.current(allUserIds);
     } else {
-      onSelectionChangeRef.current(Array.from(customSelections) as string[]);
+      nextSelection = Array.from(customSelections);
     }
-  }, [viewMode, userId, sharedCalendars, customSelections]);
+
+    // Only call parent update if selection has actually changed
+    // to prevent unnecessary re-renders or potential loops
+    const current = selectedUserIds || [];
+    const isSame = current.length === nextSelection.length && 
+                   nextSelection.every(id => current.includes(id));
+    
+    if (!isSame) {
+      onSelectionChangeRef.current(nextSelection);
+    }
+  }, [viewMode, userId, sharedCalendars, customSelections, selectedUserIds]);
 
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
   };
 
-  const handleCustomToggle = (targetUserId: Id<'users'>) => {
+  const handleCustomToggle = (targetUserId: string) => {
     setCustomSelections(prev => {
       const newSet = new Set(prev);
       if (newSet.has(targetUserId)) {
@@ -130,9 +138,9 @@ export function CalendarFiltersBar({
   };
 
   const allAvailableUserIds = useMemo(() => {
-    const ids: Id<'users'>[] = [userId];
+    const ids: string[] = [userId];
     if (sharedCalendars) {
-      sharedCalendars.forEach((share: { ownerUserId: Id<'users'> }) => {
+      (sharedCalendars as any[]).forEach((share) => {
         if (!ids.includes(share.ownerUserId)) {
           ids.push(share.ownerUserId);
         }
@@ -144,7 +152,7 @@ export function CalendarFiltersBar({
   // Get current clinic name for summary
   const selectedClinicName = useMemo(() => {
     if (!selectedClinicId || !clinics) return 'All Clinics';
-    const clinic = clinics.find(c => c._id === selectedClinicId);
+    const clinic = clinics.find(c => (c as any).id === selectedClinicId);
     return clinic?.name || 'All Clinics';
   }, [selectedClinicId, clinics]);
 
@@ -241,13 +249,13 @@ export function CalendarFiltersBar({
                 ) : (
                   <select
                     value={selectedClinicId ?? 'all'}
-                    onChange={(e) => onClinicChange(e.target.value === 'all' ? undefined : (e.target.value as Id<'clinics'>))}
+                    onChange={(e) => onClinicChange(e.target.value === 'all' ? undefined : e.target.value)}
                     className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent text-text-primary px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="all">All Clinics</option>
                     {clinics && clinics.length > 0 ? (
                       clinics.map((clinic) => (
-                        <option key={clinic._id} value={clinic._id}>
+                        <option key={clinic.id} value={clinic.id}>
                           {clinic.name}
                         </option>
                       ))
@@ -295,45 +303,32 @@ export function CalendarFiltersBar({
                 {/* Custom Selection Checkboxes */}
                 {viewMode === 'custom' && (
                   <div className="space-y-2 pt-2 border-t border-border-primary">
-                    <Label className="text-xs text-text-secondary">Select calendars:</Label>
-                    {sharedCalendars === undefined ? (
-                      <p className="text-xs text-text-secondary">Loading calendars...</p>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                        {allAvailableUserIds.map((targetUserId) => {
-                          const isOwn = targetUserId === userId;
-                          const share = sharedCalendars?.find(
-                            (s: { ownerUserId: Id<'users'>; owner?: { firstName?: string; lastName?: string; name?: string } | null }) => 
-                              s.ownerUserId === targetUserId
-                          );
-                          const userName = isOwn
-                            ? 'My Calendar'
-                            : share?.owner
-                              ? `${share.owner.firstName || ''} ${share.owner.lastName || ''}`.trim() || share.owner.name || 'Unknown User'
-                              : 'Unknown User';
+                    <div className="grid grid-cols-2 gap-2">
+                      {allAvailableUserIds.map((targetUserId) => {
+                        const isOwn = targetUserId === userId;
+                        const userName = isOwn ? 'My Calendar' : 'Unknown User';
 
-                          return (
-                            <div key={targetUserId} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`calendar-filter-${targetUserId}`}
-                                checked={customSelections.has(targetUserId)}
-                                onCheckedChange={() => handleCustomToggle(targetUserId)}
-                                disabled={isOwn}
-                              />
-                              <Label
-                                htmlFor={`calendar-filter-${targetUserId}`}
-                                className={cn(
-                                  "text-xs cursor-pointer truncate",
-                                  isOwn && "font-medium"
-                                )}
-                              >
-                                {userName}
-                              </Label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                        return (
+                          <div key={targetUserId} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`calendar-filter-${targetUserId}`}
+                              checked={customSelections.has(targetUserId)}
+                              onCheckedChange={() => handleCustomToggle(targetUserId)}
+                              disabled={isOwn}
+                            />
+                            <Label
+                              htmlFor={`calendar-filter-${targetUserId}`}
+                              className={cn(
+                                "text-xs cursor-pointer truncate",
+                                isOwn && "font-medium"
+                              )}
+                            >
+                              {userName}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>

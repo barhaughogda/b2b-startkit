@@ -8,6 +8,13 @@
       "when": 1767085660830,
       "tag": "0000_great_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1767267691766,
+      "tag": "0001_cultured_bucky",
+      "breakpoints": true
     }
   ]
 }

@@ -8,11 +8,13 @@ import { convex } from "@/lib/convex";
 
 /**
  * Providers component to wrap the application with necessary contexts.
- * Includes ConvexProvider and CardSystemProvider.
+ * Includes ConvexProvider (legacy) and CardSystemProvider.
  */
 export function Providers({ children }: { children: React.ReactNode }) {
+  // Always include ConvexProvider because some legacy components still use useQuery/useMutation
+  // The client itself handles fallback URLs if NEXT_PUBLIC_CONVEX_URL is missing
   return (
-    <ConvexProvider client={convex!}>
+    <ConvexProvider client={convex}>
       <SessionTimeoutProvider>
         <CardSystemProvider>
           {children}

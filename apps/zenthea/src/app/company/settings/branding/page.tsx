@@ -13,7 +13,6 @@ import { Building2, Palette, Save, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { BackButton } from "@/components/ui/back-button";
 import { useClinicProfile } from "@/hooks/useClinicProfile";
-import { ConvexErrorBoundary } from "@/components/utils/ConvexErrorBoundary";
 
 interface BrandingFormData {
   logo: string;
@@ -152,10 +151,10 @@ export default function BrandingSettingsPage() {
                 <AlertCircle className="h-5 w-5 text-status-warning" />
                 <div>
                   <p className="text-sm font-medium text-text-primary">
-                    Convex not configured
+                    Not Authenticated
                   </p>
                   <p className="text-xs text-text-secondary mt-1">
-                    Branding settings require Convex to be configured.
+                    Please sign in to access branding settings.
                   </p>
                 </div>
               </div>
@@ -193,21 +192,6 @@ export default function BrandingSettingsPage() {
 
   return (
     <ClinicLayout>
-      <ConvexErrorBoundary fallback={
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <BackButton />
-          <Card className="mt-6">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 p-4 bg-status-error/10 border border-status-error rounded-md">
-                <AlertCircle className="h-5 w-5 text-status-error" />
-                <p className="text-sm text-text-primary">
-                  Error loading branding settings. Please try refreshing the page.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      }>
         <div className="max-w-4xl mx-auto px-4 py-6">
           <BackButton />
           
@@ -399,7 +383,6 @@ export default function BrandingSettingsPage() {
             </div>
           </form>
         </div>
-      </ConvexErrorBoundary>
     </ClinicLayout>
   );
 }

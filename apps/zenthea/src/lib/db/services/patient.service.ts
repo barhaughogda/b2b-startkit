@@ -36,6 +36,10 @@ export class PatientService {
    * Get a specific patient by ID
    */
   static async getPatientById(id: string, organizationId: string, userId: string) {
+    // Validate UUID format to prevent database errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) return null
+
     const [patient] = await db.select()
       .from(patients)
       .where(

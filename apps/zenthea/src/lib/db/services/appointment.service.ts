@@ -62,6 +62,10 @@ export class AppointmentService {
    * Get a specific appointment by ID with members
    */
   static async getAppointmentById(id: string, organizationId: string, userId: string) {
+    // Validate UUID format to prevent database errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) return null
+
     const [appointment] = await db.select()
       .from(appointments)
       .where(

@@ -53,11 +53,10 @@ export async function setTenantContext(
   const sql = getPostgresClient()
 
   // Set session variables that RLS policies can access
-  // Using SET (not SET LOCAL) so they persist for the connection session
-  // Note: These will be reset when the connection is returned to the pool
-  await sql`SET app.current_org_id = ${organizationId}`
-  await sql`SET app.current_user_id = ${userId}`
-  await sql`SET app.is_superadmin = ${isSuperadmin.toString()}`
+  // Using SELECT set_config for parameter safety
+  await sql`SELECT set_config('app.current_org_id', ${organizationId}, false)`
+  await sql`SELECT set_config('app.current_user_id', ${userId}, false)`
+  await sql`SELECT set_config('app.is_superadmin', ${isSuperadmin.toString()}, false)`
 }
 
 /**
@@ -91,9 +90,10 @@ export async function withTenant<T>(
     // Execute within a transaction to ensure session variables persist
     return sql.begin(async (tx) => {
       // Set Postgres session variables for RLS within transaction
-      await tx`SET LOCAL app.current_org_id = ${context.organizationId}`
-      await tx`SET LOCAL app.current_user_id = ${context.userId}`
-      await tx`SET LOCAL app.is_superadmin = ${(context.isSuperadmin ?? false).toString()}`
+      // Using SELECT set_config for parameter safety
+      await tx`SELECT set_config('app.current_org_id', ${context.organizationId}, true)`
+      await tx`SELECT set_config('app.current_user_id', ${context.userId}, true)`
+      await tx`SELECT set_config('app.is_superadmin', ${(context.isSuperadmin ?? false).toString()}, true)`
 
       // Execute the function - all queries will use the session variables
       return fn()

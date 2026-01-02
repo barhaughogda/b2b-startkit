@@ -29,6 +29,10 @@ export class MedicalRecordService {
    * Get a specific medical record by ID with shared members
    */
   static async getRecordById(id: string, organizationId: string) {
+    // Validate UUID format to prevent database errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) return null
+
     const [record] = await db.select()
       .from(medicalRecords)
       .where(

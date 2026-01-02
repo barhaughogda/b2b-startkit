@@ -13,6 +13,13 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+
+    // Validate UUID format to prevent database errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json({ error: 'Invalid appointment ID format' }, { status: 400 })
+    }
+
     const { organization, user } = await requireOrganization()
     
     return await withTenant(
@@ -44,6 +51,13 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params
+
+    // Validate UUID format to prevent database errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json({ error: 'Invalid appointment ID format' }, { status: 400 })
+    }
+
     const { organization, user } = await requireOrganization()
     const body = await req.json()
     
@@ -78,6 +92,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
+
+    // Validate UUID format to prevent database errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json({ error: 'Invalid appointment ID format' }, { status: 400 })
+    }
+
     const { organization, user } = await requireOrganization()
     
     return await withTenant(

@@ -185,7 +185,10 @@ export function UrlDomainSettingsTab({ disabled }: UrlDomainSettingsTabProps) {
   if (!canQuery) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-interactive-primary" />
+        <div className="text-center p-4 bg-status-warning/10 border border-status-warning rounded-md">
+          <p className="text-sm font-medium text-text-primary">Not Authenticated</p>
+          <p className="text-xs text-text-secondary mt-1">Please sign in to manage URL settings.</p>
+        </div>
       </div>
     );
   }

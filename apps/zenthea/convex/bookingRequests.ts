@@ -8,6 +8,11 @@ import { Id } from "./_generated/dataModel";
  * Handles public booking requests from tenant landing pages.
  * These are different from direct appointments - they're requests
  * that need to be reviewed and confirmed by clinic staff.
+ * 
+ * @deprecated 
+ * ATTENTION: This mutation handles PHI (Patient Health Information).
+ * We are migrating booking and intake flows to AWS for enhanced HIPAA compliance.
+ * New implementations should use the AWS-hosted booking system (Option A).
  */
 
 // Create a new booking request (public - no auth required)

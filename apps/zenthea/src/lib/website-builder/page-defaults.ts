@@ -6,7 +6,7 @@
  * rather than starting from scratch.
  */
 
-import type { BlockInstance } from './schema';
+import type { BlockInstance } from './types';
 
 // =============================================================================
 // SERVICES PAGE DEFAULTS

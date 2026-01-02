@@ -1,7 +1,8 @@
 import { faker } from '@faker-js/faker'
 import { PatientService } from './services/patient.service'
+import { MessageService } from './services/message.service'
 import { getSuperadminDb } from '@startkit/database'
-import { organizations } from '@startkit/database/schema'
+import { organizations, users, organizationMembers } from '@startkit/database/schema'
 import { eq } from 'drizzle-orm'
 
 /**
@@ -13,6 +14,7 @@ import { eq } from 'drizzle-orm'
 
 async function seed() {
   const orgId = process.argv[2]
+  const { drizzle } = getSuperadminDb()
   
   if (!orgId) {
     console.log('❌ Error: Please provide an organization_id as an argument.')
@@ -21,7 +23,6 @@ async function seed() {
     // Attempt to find the first organization as a fallback
     console.log('🔍 Looking for an available organization in the database...')
     try {
-      const { drizzle } = getSuperadminDb()
       const [firstOrg] = await drizzle.select().from(organizations).limit(1)
       
       if (firstOrg) {
@@ -37,9 +38,25 @@ async function seed() {
     process.exit(1)
   }
 
-  console.log(`🌱 Seeding demo patients for organization: ${orgId}...`)
+  // Get a provider (organization member) to send/receive messages
+  console.log(`🔍 Finding a provider for organization: ${orgId}...`)
+  const [member] = await drizzle
+    .select({ userId: organizationMembers.userId })
+    .from(organizationMembers)
+    .where(eq(organizationMembers.organizationId, orgId))
+    .limit(1)
 
-  const patientsToCreate = 10
+  if (!member) {
+    console.error(`❌ Error: No members found for organization ${orgId}. Please add a user to this organization first.`)
+    process.exit(1)
+  }
+
+  const providerId = member.userId
+  console.log(`👤 Using provider ID: ${providerId}`)
+
+  console.log(`🌱 Seeding demo patients and messages for organization: ${orgId}...`)
+
+  const patientsToCreate = 5
 
   for (let i = 0; i < patientsToCreate; i++) {
     const firstName = faker.person.firstName()
@@ -90,14 +107,48 @@ async function seed() {
     }
 
     try {
-      await PatientService.createPatient(patientData, orgId)
-      console.log(`✅ Created patient: ${firstName} ${lastName}`)
+      const patient = await PatientService.createPatient(patientData, orgId)
+      console.log(`✅ Created patient: ${firstName} ${lastName} (${patient.id})`)
+
+      // Seed some messages for this patient
+      console.log(`   ✉️ Seeding messages for ${firstName}...`)
+      
+      // Create a thread
+      const threadId = crypto.randomUUID()
+      
+      // Initial message from patient
+      await MessageService.sendMessage({
+        threadId,
+        fromUserId: patient.id,
+        toUserId: providerId,
+        subject: `Question regarding my ${faker.helpers.arrayElement(['medication', 'appointment', 'results', 'symptoms'])}`,
+        content: faker.lorem.paragraph(),
+        messageType: 'general',
+        priority: faker.helpers.arrayElement(['low', 'normal', 'high']),
+        status: 'sent',
+        isRead: false
+      }, orgId, patient.id)
+
+      // Response from provider
+      if (faker.datatype.boolean(0.7)) {
+        await MessageService.sendMessage({
+          threadId,
+          fromUserId: providerId,
+          toUserId: patient.id,
+          content: faker.lorem.paragraph(),
+          messageType: 'general',
+          priority: 'normal',
+          status: 'sent',
+          isRead: true
+        }, orgId, providerId)
+      }
+
     } catch (error) {
-      console.error(`❌ Failed to create patient ${i + 1}:`, error)
+      console.error(`❌ Failed to seed data for patient ${i + 1}:`, error)
     }
   }
 
-  console.log(`✨ Seeding complete! Created ${patientsToCreate} patients.`)
+  console.log(`✨ Seeding complete! Created ${patientsToCreate} patients with initial conversations.`)
   process.exit(0)
 }
 

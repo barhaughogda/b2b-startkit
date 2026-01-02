@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import useSWR from 'swr'
 import { useZentheaSession } from './useZentheaSession'
 
@@ -42,6 +43,8 @@ export function useAppointments(status: string = 'all') {
     fetcher
   )
 
+  const appointments = useMemo(() => Array.isArray(data) ? data : [], [data])
+
   /**
    * Create a new appointment
    */
@@ -62,7 +65,7 @@ export function useAppointments(status: string = 'all') {
   }
 
   return {
-    appointments: Array.isArray(data) ? data : [],
+    appointments,
     isLoading,
     error,
     createAppointment,
@@ -76,8 +79,11 @@ export function useAppointments(status: string = 'all') {
 export function useAppointment(id: string) {
   const { data: session } = useZentheaSession()
   
+  // Validate UUID format (8-4-4-4-12)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
   const { data, error, isLoading, mutate } = useSWR<Appointment & { members: any[] }>(
-    session && id ? `/api/appointments/${id}` : null,
+    session && id && isUuid ? `/api/appointments/${id}` : null,
     fetcher
   )
 
@@ -109,11 +115,75 @@ export function useAppointment(id: string) {
     return await response.json()
   }
 
+  const addMember = async (userId: string, role: string) => {
+    const response = await fetch(`/api/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        members: [...(data?.members || []), { userId, role }] 
+      }),
+    })
+    if (!response.ok) throw new Error('Failed to add member')
+    await mutate()
+  }
+
+  const removeMember = async (userId: string) => {
+    const response = await fetch(`/api/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        members: (data?.members || []).filter((m: any) => m.userId !== userId)
+      }),
+    })
+    if (!response.ok) throw new Error('Failed to remove member')
+    await mutate()
+  }
+
+  const updateMemberStatus = async (userId: string, status: string) => {
+    const response = await fetch(`/api/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        members: (data?.members || []).map((m: any) => 
+          m.userId === userId ? { ...m, status } : m
+        )
+      }),
+    })
+    if (!response.ok) throw new Error('Failed to update member status')
+    await mutate()
+  }
+
   return {
     appointment: data,
     isLoading,
     error,
     updateAppointment,
     deleteAppointment,
+    addMember,
+    removeMember,
+    updateMemberStatus,
+    refreshAppointment: mutate,
+  }
+}
+
+/**
+ * Custom hook for patient self-access to appointments
+ */
+export function usePatientAppointments() {
+  const { data: session } = useZentheaSession()
+  const tenantId = session?.user?.tenantId || 'demo-tenant'
+
+  const { data, error, isLoading, mutate } = useSWR<Appointment[]>(
+    session ? [`/api/patient/appointments`, tenantId] : null,
+    ([url, tId]) => fetch(url, { headers: { 'X-Tenant-ID': tId } }).then(res => res.json())
+  )
+
+  const appointments = useMemo(() => Array.isArray(data) ? data : [], [data])
+
+  return {
+    appointments,
+    isLoading,
+    error,
+    refreshAppointments: mutate,
   }
 }

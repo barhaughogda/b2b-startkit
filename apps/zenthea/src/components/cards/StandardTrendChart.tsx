@@ -72,7 +72,7 @@ export const StandardTrendChart: React.FC<StandardTrendChartProps> = ({
 
   if (compact) {
     return (
-      <div className="h-16 w-full">
+      <div className="h-16 w-full min-h-[64px]">
         <ChartErrorBoundary>
           <ResponsiveContainer width="100%" height="100%">
             <RechartsLineChart data={chartData}>

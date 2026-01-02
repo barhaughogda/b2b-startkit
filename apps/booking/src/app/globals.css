@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --zenthea-teal: #008080;
+  --zenthea-purple: #5F284A;
+  --zenthea-coral: #E07B7E;
+  --zenthea-cream: #F2DDC9;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+}

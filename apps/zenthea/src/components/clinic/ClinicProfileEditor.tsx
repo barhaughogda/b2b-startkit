@@ -24,8 +24,6 @@ import {
   MapPin
 } from 'lucide-react';
 import { useClinicProfile } from '@/hooks/useClinicProfile';
-import { ConvexErrorBoundary } from '@/components/utils/ConvexErrorBoundary';
-import { convex } from '@/lib/convex';
 import { toast } from 'sonner';
 
 interface ClinicProfileFormData {
@@ -54,7 +52,8 @@ export function ClinicProfileEditor() {
     isLoading, 
     hasError, 
     canQuery, 
-    updateContactInfo
+    updateContactInfo,
+    updateOrganization
   } = useClinicProfile();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -64,8 +63,9 @@ export function ClinicProfileEditor() {
   const {
     register,
     handleSubmit,
-    setValue,
+    reset,
     watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<ClinicProfileFormData>({
     defaultValues: {
@@ -86,24 +86,25 @@ export function ClinicProfileEditor() {
 
   // Populate form when tenant data loads
   useEffect(() => {
-    if (tenantData) {
-      // Basic info
-      setValue('name', tenantData.name || '');
-      // Contact info
-      setValue('phone', tenantData.contactInfo?.phone || '');
-      setValue('email', tenantData.contactInfo?.email || '');
-      setValue('website', tenantData.contactInfo?.website || '');
-      setValue('street', tenantData.contactInfo?.address?.street || '');
-      setValue('city', tenantData.contactInfo?.address?.city || '');
-      setValue('state', tenantData.contactInfo?.address?.state || '');
-      setValue('zipCode', tenantData.contactInfo?.address?.zipCode || '');
-      setValue('country', tenantData.contactInfo?.address?.country || '');
+    if (tenantData && !isDirty) {
+      reset({
+        name: tenantData.name || '',
+        type: tenantData.type || 'clinic',
+        phone: tenantData.contactInfo?.phone || '',
+        email: tenantData.contactInfo?.email || '',
+        website: tenantData.contactInfo?.website || '',
+        street: tenantData.contactInfo?.address?.street || '',
+        city: tenantData.contactInfo?.address?.city || '',
+        state: tenantData.contactInfo?.address?.state || '',
+        zipCode: tenantData.contactInfo?.address?.zipCode || '',
+        country: tenantData.contactInfo?.address?.country || '',
+      });
     }
-  }, [tenantData, setValue]);
+  }, [tenantData, isDirty, reset]);
 
   const onSubmit = async (data: ClinicProfileFormData) => {
-    if (!tenantId || !canQuery || !convex) {
-      setSaveError('Cannot save: Convex not configured or tenant ID not available');
+    if (!tenantId || !canQuery) {
+      setSaveError('Cannot save: Session not found or tenant ID not available');
       return;
     }
 
@@ -112,11 +113,17 @@ export function ClinicProfileEditor() {
     setSaveSuccess(false);
 
     try {
-      // Update contact info
+      // 1. Update organization name in Clerk if changed
+      if (data.name !== tenantData?.name && updateOrganization) {
+        await updateOrganization({ name: data.name });
+      }
+
+      // 2. Update clinic details in Postgres
       if (updateContactInfo && tenantId) {
         await updateContactInfo({
           tenantId,
           contactInfo: {
+            type: data.type,
             phone: data.phone,
             email: data.email,
             website: data.website || undefined,
@@ -153,10 +160,10 @@ export function ClinicProfileEditor() {
               <AlertCircle className="h-5 w-5 text-status-warning" />
               <div>
                 <p className="text-sm font-medium text-text-primary">
-                  Convex not configured
+                  Not Authenticated
                 </p>
                 <p className="text-xs text-text-secondary mt-1">
-                  Clinic profile editing requires Convex to be configured.
+                  Please sign in to edit your clinic profile.
                 </p>
               </div>
             </div>
@@ -202,15 +209,7 @@ export function ClinicProfileEditor() {
   }
 
   return (
-    <ConvexErrorBoundary fallback={
-      <div className="flex items-center gap-3 p-4 bg-status-error/10 border border-status-error rounded-md">
-        <AlertCircle className="h-5 w-5 text-status-error" />
-        <p className="text-sm text-text-primary">
-          Error loading clinic profile. Please try refreshing the page.
-        </p>
-      </div>
-    }>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
         <div className="space-y-4 pb-4 border-b border-border-primary">
           <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
@@ -223,14 +222,13 @@ export function ClinicProfileEditor() {
               <Label htmlFor="name">Organization Name</Label>
               <Input
                 id="name"
-                {...register('name')}
-                placeholder="Enter clinic name"
-                disabled
-                className="bg-muted"
+                {...register('name', { required: 'Organization name is required' })}
+                placeholder="Enter organization name"
+                className={errors.name ? 'border-status-error' : ''}
               />
-              <p className="text-xs text-text-secondary mt-1">
-                Organization name cannot be changed from this page
-              </p>
+              {errors.name && (
+                <p className="text-xs text-status-error mt-1">{errors.name.message}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="type">Organization Type</Label>
@@ -379,7 +377,6 @@ export function ClinicProfileEditor() {
           </Button>
         </div>
       </form>
-    </ConvexErrorBoundary>
   );
 }
 

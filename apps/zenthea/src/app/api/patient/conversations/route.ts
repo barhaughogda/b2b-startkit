@@ -1,82 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getZentheaServerSession } from '@/lib/auth';
+import { requirePatientContext } from '@/lib/auth/patient-context';
+import { MessageService } from '@/lib/db/services/message.service';
+import { withTenant } from '@startkit/database/tenant';
 
-import { api } from '../../../../../convex/_generated/api';
-import { ConvexHttpClient } from 'convex/browser';
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
-// Force dynamic rendering - this route uses getZentheaServerSession and request.headers
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // In Next.js 13+ App Router, getZentheaServerSession automatically uses headers() from next/headers
-    const session = await getZentheaServerSession();
+    const { clerkUserId, activeGrants } = await requirePatientContext();
     
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized - No session found. Please log in.' },
-        { status: 401 }
-      );
-    }
+    const tenantId = request.headers.get('X-Tenant-ID');
     
-    if (session.user.role !== 'patient') {
+    if (!tenantId || !activeGrants.some(g => g.organizationId === tenantId)) {
       return NextResponse.json(
-        { error: `Unauthorized - Expected role 'patient', got '${session.user.role}'` },
-        { status: 401 }
+        { error: 'Unauthorized: No access grant for this organization' },
+        { status: 403 }
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const tenantId = request.headers.get('X-Tenant-ID') || 'demo-tenant';
-    const limit = parseInt(searchParams.get('limit') || '20');
-    let userId = session.user.id as any;
-
-    // If userId looks like a demo ID (not a Convex ID), try to look up the real Convex user ID
-    if (userId && (userId.startsWith('demo-') || userId.startsWith('demo-user-'))) {
-      try {
-        const user = await convex.query(api.users.getUserByEmail, {
-          email: session.user.email || '',
-          tenantId: tenantId
-        });
-        if (user) {
-          userId = user._id;
-        } else {
-          return NextResponse.json(
-            { error: 'User not found in Convex. Please ensure demo users are seeded.' },
-            { status: 404 }
-          );
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        console.error('Error looking up user:', errorMessage);
-        return NextResponse.json(
-          { error: 'Failed to look up user in Convex' },
-          { status: 500 }
-        );
+    return await withTenant(
+      { organizationId: tenantId, userId: clerkUserId },
+      async () => {
+        const conversations = await MessageService.getConversations(clerkUserId, tenantId);
+        return NextResponse.json(conversations);
       }
-    }
-
-    const conversations = await convex.query(api.messages.getConversations, {
-      tenantId,
-      userId,
-      limit
-    });
-    return NextResponse.json(conversations);
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error('Error fetching conversations:', errorMessage);
+    );
+  } catch (error: any) {
+    console.error('Error fetching conversations:', error);
     return NextResponse.json(
-      { 
-        error: 'Internal server error', 
-        message: errorMessage,
-        ...(process.env.NODE_ENV === 'development' && {
-          details: {
-            stack: error instanceof Error ? error.stack : undefined,
-          },
-        }),
-      },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }

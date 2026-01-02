@@ -48,6 +48,7 @@ async function listUsers() {
       allUsers.forEach(u => {
         console.log(`  - ${u.email}`)
         console.log(`    ID: ${u.id}`)
+        console.log(`    Clerk ID: ${u.clerkId || 'N/A'}`)
         console.log(`    Name: ${u.name || 'N/A'}`)
         console.log(`    Superadmin: ${u.isSuperadmin ? '✅ Yes' : '❌ No'}`)
         console.log('')
