@@ -100,8 +100,9 @@ pnpm dev
 ```
 
 This starts:
-- `web-template` app at http://localhost:3000
-- `superadmin` app at http://localhost:3001 (if configured)
+- `zenthea` app at http://localhost:3000
+- `web-template` app at http://localhost:4500
+- `superadmin` app at http://localhost:4501 (if configured)
 
 ## Step 7: Verify Everything Works (30 seconds)
 

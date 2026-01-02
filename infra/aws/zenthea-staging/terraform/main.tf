@@ -86,24 +86,6 @@ resource "aws_ecr_repository" "zenthea" {
   }
 }
 
-# ECR Repository for Booking app
-resource "aws_ecr_repository" "booking" {
-  name                 = "${var.environment}-booking"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Name = "${var.environment}-booking-ecr"
-  }
-}
-
 # ECR Lifecycle Policy (keep last 10 images)
 resource "aws_ecr_lifecycle_policy" "zenthea" {
   repository = aws_ecr_repository.zenthea.name
@@ -207,32 +189,6 @@ resource "aws_lb_target_group" "zenthea" {
   }
 }
 
-# ALB Target Group for Booking app
-resource "aws_lb_target_group" "booking" {
-  name        = "${var.environment}-booking-tg"
-  port        = 3001
-  protocol    = "HTTP"
-  vpc_id      = module.vpc.vpc_id
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    timeout             = 5
-    interval            = 30
-    path                = "/api/health"
-    protocol            = "HTTP"
-    matcher             = "200"
-  }
-
-  deregistration_delay = 30
-
-  tags = {
-    Name = "${var.environment}-booking-tg"
-  }
-}
-
 # ALB HTTPS Listener (ACM certificate is now ISSUED)
 resource "aws_lb_listener" "zenthea_https" {
   load_balancer_arn = aws_lb.zenthea.arn
@@ -244,23 +200,6 @@ resource "aws_lb_listener" "zenthea_https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.zenthea.arn
-  }
-}
-
-# ALB Listener Rule for Booking app (book.domain.com)
-resource "aws_lb_listener_rule" "booking" {
-  listener_arn = aws_lb_listener.zenthea_https.arn
-  priority     = 10
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.booking.arn
-  }
-
-  condition {
-    host_header {
-      values = ["book.${var.domain_name}"]
-    }
   }
 }
 
@@ -556,78 +495,6 @@ resource "aws_ecs_task_definition" "zenthea" {
   }
 }
 
-# ECS Task Definition for Booking app
-resource "aws_ecs_task_definition" "booking" {
-  family                   = "${var.environment}-booking"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = var.task_cpu
-  memory                   = var.task_memory
-  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  task_role_arn            = aws_iam_role.ecs_task.arn
-
-  container_definitions = jsonencode([{
-    name  = "booking"
-    image = "${aws_ecr_repository.booking.repository_url}:latest"
-
-    portMappings = [{
-      containerPort = 3001
-      protocol      = "tcp"
-    }]
-
-    environment = [
-      {
-        name  = "NODE_ENV"
-        value = var.environment
-      },
-      {
-        name  = "AWS_REGION"
-        value = var.aws_region
-      },
-      {
-        name  = "NEXT_PUBLIC_APP_URL"
-        value = "https://book.${var.domain_name}"
-      }
-    ]
-
-    secrets = [
-      {
-        name      = "DATABASE_URL"
-        valueFrom = "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${var.environment}/zenthea/DATABASE_URL"
-      },
-      {
-        name      = "CLERK_SECRET_KEY"
-        valueFrom = "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${var.environment}/zenthea/CLERK_SECRET_KEY"
-      },
-      {
-        name      = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
-        valueFrom = "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${var.environment}/zenthea/NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
-      }
-    ]
-
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        "awslogs-group"         = aws_cloudwatch_log_group.zenthea.name
-        "awslogs-region"        = var.aws_region
-        "awslogs-stream-prefix" = "ecs-booking"
-      }
-    }
-
-    healthCheck = {
-      command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1"]
-      interval    = 30
-      timeout     = 5
-      retries     = 3
-      startPeriod = 60
-    }
-  }])
-
-  tags = {
-    Name = "${var.environment}-booking-task"
-  }
-}
-
 # ECS Service
 resource "aws_ecs_service" "zenthea" {
   name            = "${var.environment}-zenthea-service"
@@ -654,36 +521,6 @@ resource "aws_ecs_service" "zenthea" {
 
   tags = {
     Name = "${var.environment}-zenthea-service"
-  }
-}
-
-# ECS Service for Booking app
-resource "aws_ecs_service" "booking" {
-  name            = "${var.environment}-booking-service"
-  cluster         = aws_ecs_cluster.zenthea.id
-  task_definition = aws_ecs_task_definition.booking.arn
-  desired_count  = 1 # Start with 1 for booking
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets          = module.vpc.private_subnet_ids
-    security_groups  = [aws_security_group.ecs_service.id]
-    assign_public_ip = false
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.booking.arn
-    container_name   = "booking"
-    container_port   = 3001
-  }
-
-  depends_on = [
-    aws_lb_listener.zenthea_http,
-    aws_lb_listener_rule.booking
-  ]
-
-  tags = {
-    Name = "${var.environment}-booking-service"
   }
 }
 
