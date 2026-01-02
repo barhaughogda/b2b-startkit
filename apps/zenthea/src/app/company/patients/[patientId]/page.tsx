@@ -7,6 +7,7 @@ import { ClinicLayout } from '@/components/layout/ClinicLayout';
 import { ArrowLeft, User, Phone, Mail, Calendar, FileText, Activity, Heart, AlertTriangle, Plus, Users, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { PatientStatus } from '@/components/ui/healthcare-status';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -130,15 +131,9 @@ function PatientProfileContent() {
                 <h1 className="text-3xl font-bold text-text-primary">{patient.name}</h1>
                 <p className="text-text-secondary mt-1">{patient.email}</p>
                 <div className="flex items-center gap-4 mt-3">
-                  <Badge 
-                    variant={patient.status === 'Active' ? 'default' : 'secondary'}
-                    className={patient.status === 'Active' 
-                      ? 'bg-status-success/10 text-status-success border-status-success/20' 
-                      : 'bg-status-warning/10 text-status-warning border-status-warning/20'
-                    }
-                  >
+                  <PatientStatus status={patient.status}>
                     {patient.status}
-                  </Badge>
+                  </PatientStatus>
                   <span className="text-sm text-muted-foreground">
                     {patient.age} years old • {patient.gender}
                   </span>

@@ -36,14 +36,14 @@ export default async function BookingPage({ params }: BookingPageProps) {
       <div className="max-w-2xl mx-auto">
         {/* Branding / Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-teal-600/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Calendar className="h-8 w-8 text-teal-600" />
+          <div className="w-16 h-16 bg-zenthea-teal/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Calendar className="h-8 w-8 text-zenthea-teal" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Book an Appointment</h1>
           <p className="text-slate-600">Secure booking for {org.name}</p>
         </div>
 
-        <Card className="border-teal-100 shadow-sm">
+        <Card className="border-zenthea-teal/20 shadow-sm">
           <CardHeader>
             <CardTitle>Your Information</CardTitle>
             <CardDescription>
@@ -68,12 +68,17 @@ export default async function BookingPage({ params }: BookingPageProps) {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="preferredDate">Preferred Date</Label>
+                <Input id="preferredDate" name="preferredDate" type="date" required />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="notes">Reason for Visit</Label>
                 <Textarea id="notes" name="notes" placeholder="Please briefly describe why you'd like to book an appointment..." rows={4} />
               </div>
 
               <div className="pt-4">
-                <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+                <Button type="submit" className="w-full bg-zenthea-teal hover:bg-zenthea-teal/90 text-white">
                   Submit Booking Request
                 </Button>
               </div>

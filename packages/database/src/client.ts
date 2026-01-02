@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/postgres-js'
+import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import postgres, { type Sql } from 'postgres'
 import * as schema from './schema'
 
@@ -6,7 +6,7 @@ import * as schema from './schema'
  * Database client wrapper that includes both Drizzle ORM and raw postgres client
  */
 export interface DbClient {
-  drizzle: ReturnType<typeof drizzle>
+  drizzle: PostgresJsDatabase<typeof schema>
   postgres: Sql
 }
 
@@ -107,9 +107,9 @@ export function getPostgresClient(): Sql {
 }
 
 // Export a lazy getter for convenience (returns Drizzle ORM client)
-export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+export const db = new Proxy({} as PostgresJsDatabase<typeof schema>, {
   get(_, prop) {
-    return getDb().drizzle[prop as keyof ReturnType<typeof drizzle>]
+    return getDb().drizzle[prop as keyof PostgresJsDatabase<typeof schema>]
   },
 })
 
@@ -117,8 +117,8 @@ export const db = new Proxy({} as ReturnType<typeof drizzle>, {
  * Superadmin database client (bypasses RLS)
  * Use ONLY for webhooks, migrations, and superadmin operations
  */
-export const superadminDb = new Proxy({} as ReturnType<typeof drizzle>, {
+export const superadminDb = new Proxy({} as PostgresJsDatabase<typeof schema>, {
   get(_, prop) {
-    return getSuperadminDb().drizzle[prop as keyof ReturnType<typeof drizzle>]
+    return getSuperadminDb().drizzle[prop as keyof PostgresJsDatabase<typeof schema>]
   },
 })

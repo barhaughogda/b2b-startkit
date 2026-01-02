@@ -26,12 +26,13 @@ export async function submitBookingRequest(slug: string, formData: FormData) {
   }
 
   // 2. Validate data
+  const preferredDate = formData.get('preferredDate') as string;
   const rawData = {
     patientName: formData.get('patientName') as string,
     patientEmail: formData.get('patientEmail') as string,
     patientPhone: formData.get('patientPhone') as string,
     notes: formData.get('notes') as string,
-    preferredDates: [new Date().toISOString().split('T')[0]], // Placeholder for now
+    preferredDates: preferredDate ? [preferredDate] : [],
   };
 
   const validatedData = bookingSchema.parse(rawData);

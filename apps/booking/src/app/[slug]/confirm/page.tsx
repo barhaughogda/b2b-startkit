@@ -26,8 +26,8 @@ export default async function ConfirmPage({ params }: ConfirmPageProps) {
   return (
     <div className="min-h-screen py-12 px-4 flex items-center justify-center">
       <div className="max-w-md w-full text-center">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="h-10 w-10 text-green-600" />
+        <div className="w-20 h-20 bg-zenthea-teal/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="h-10 w-10 text-zenthea-teal" />
         </div>
         
         <h1 className="text-3xl font-bold text-slate-900 mb-2">Request Received!</h1>
@@ -40,15 +40,15 @@ export default async function ConfirmPage({ params }: ConfirmPageProps) {
             <h3 className="font-semibold text-slate-900 mb-2 text-sm uppercase tracking-wider">Next Steps</h3>
             <ul className="space-y-3 text-sm text-slate-600">
               <li className="flex gap-2">
-                <span className="font-bold text-teal-600">1.</span>
+                <span className="font-bold text-zenthea-teal">1.</span>
                 <span>Our clinical staff will review your availability preferences.</span>
               </li>
               <li className="flex gap-2">
-                <span className="font-bold text-teal-600">2.</span>
+                <span className="font-bold text-zenthea-teal">2.</span>
                 <span>You'll receive an email or call to confirm the final time slot.</span>
               </li>
               <li className="flex gap-2">
-                <span className="font-bold text-teal-600">3.</span>
+                <span className="font-bold text-zenthea-teal">3.</span>
                 <span>Instructions for your visit will be provided upon confirmation.</span>
               </li>
             </ul>

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, varchar, integer, pgEnum, boolean, jsonb } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, varchar, integer, pgEnum, boolean, jsonb, uuid } from 'drizzle-orm/pg-core'
 import { organizations } from './organizations'
 import { users } from './users'
 import { relations } from 'drizzle-orm'
@@ -23,7 +23,7 @@ export const appointmentTypeEnum = pgEnum('appointment_type', [
 
 export const bookingRequests = pgTable('booking_requests', {
   id: varchar('id', { length: 255 }).primaryKey(),
-  organizationId: varchar('organization_id', { length: 255 })
+  organizationId: uuid('organization_id')
     .notNull()
     .references(() => organizations.id),
   clinicId: varchar('clinic_id', { length: 255 }),
@@ -47,12 +47,12 @@ export const bookingRequests = pgTable('booking_requests', {
 
 export const appointments = pgTable('appointments', {
   id: varchar('id', { length: 255 }).primaryKey(),
-  organizationId: varchar('organization_id', { length: 255 })
+  organizationId: uuid('organization_id')
     .notNull()
     .references(() => organizations.id),
   patientId: varchar('patient_id', { length: 255 }).notNull(),
   providerId: varchar('provider_id', { length: 255 }).notNull(),
-  userId: varchar('user_id', { length: 255 })
+  userId: uuid('user_id')
     .notNull()
     .references(() => users.id), // The provider's user ID
   scheduledAt: timestamp('scheduled_at').notNull(),
@@ -61,7 +61,7 @@ export const appointments = pgTable('appointments', {
   notes: text('notes'),
   locationId: varchar('location_id', { length: 255 }),
   status: text('status').default('scheduled').notNull(),
-  createdBy: varchar('created_by', { length: 255 }).notNull().references(() => users.id),
+  createdBy: uuid('created_by').notNull().references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
