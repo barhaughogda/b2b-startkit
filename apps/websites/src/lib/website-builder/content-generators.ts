@@ -166,6 +166,14 @@ export function createDefaultWebsiteDefinition(
     header: {
       variant: 'sticky-simple',
       navItems: getDefaultNavItems(siteStructure),
+      showSignIn: true,
+      signInText: 'Sign In',
+      signInUrl: '/login',
+      showBook: true,
+      bookText: 'Book Appointment',
+      bookUrl: '/book',
+      sticky: true,
+      transparent: true,
       showBookingButton: true,
       bookingButtonText: 'Book Appointment',
       showLoginButton: true,
@@ -174,6 +182,8 @@ export function createDefaultWebsiteDefinition(
     },
     footer: {
       variant: 'multi-column',
+      columns: [],
+      showLogo: true,
       showSocial: true,
       socialLinks: [
         { id: '1', platform: 'facebook', url: '#', enabled: true },
@@ -182,13 +192,15 @@ export function createDefaultWebsiteDefinition(
       ],
       showNewsletter: true,
       newsletterHeadline: 'Stay healthy with our updates',
+      legalLinks: [],
       copyrightText: `© ${new Date().getFullYear()} Zenthea Healthcare. All rights reserved.`,
+      poweredByZenthea: true,
     },
     blocks: createHomePageBlocks(),
     pages: siteStructure === 'multi-page' ? getDefaultPages() : [],
     seo: {
-      titleTemplate: '%s | Zenthea Healthcare',
-      defaultDescription: 'Quality healthcare services provided by Zenthea clinics.',
+      title: 'Zenthea Healthcare',
+      description: 'Quality healthcare services provided by Zenthea clinics.',
     },
   };
 }

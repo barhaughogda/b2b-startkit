@@ -1,4 +1,5 @@
 import { ConvexReactClient } from "convex/react";
+import { logger } from "./logger";
 
 /**
  * Convex Client - Legacy
@@ -29,8 +30,8 @@ export const convex = new ConvexReactClient(isValidConvexUrl(convexUrl) ? convex
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   if (isValidConvexUrl(convexUrl)) {
-    console.log('[Convex] Legacy client initialized');
+    logger.info('[Convex] Legacy client initialized');
   } else {
-    console.warn('[Convex] No valid NEXT_PUBLIC_CONVEX_URL found. Convex features may not work.');
+    logger.warn('[Convex] No valid NEXT_PUBLIC_CONVEX_URL found. Convex features may not work.');
   }
 }

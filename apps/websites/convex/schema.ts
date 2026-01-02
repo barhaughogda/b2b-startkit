@@ -167,10 +167,14 @@ export default defineSchema({
           sticky: v.boolean(),
           transparent: v.boolean(),
           // Navigation color customization
-          headerBackgroundColor: v.optional(v.string()), // Hex color for header background
-          headerTextColor: v.optional(v.string()), // Hex color for header text/links
-          headerMobileBackgroundColor: v.optional(v.string()), // Hex color for mobile menu background
-          headerMobileTextColor: v.optional(v.string()), // Hex color for mobile menu text
+          backgroundColor: v.optional(v.string()), // Primary name for frontend
+          textColor: v.optional(v.string()),
+          mobileBackgroundColor: v.optional(v.string()),
+          mobileTextColor: v.optional(v.string()),
+          headerBackgroundColor: v.optional(v.string()), // Legacy/Secondary names
+          headerTextColor: v.optional(v.string()),
+          headerMobileBackgroundColor: v.optional(v.string()),
+          headerMobileTextColor: v.optional(v.string()),
           useThemeColors: v.optional(v.boolean()), // Toggle to use global theme colors instead of custom
         }),
         // Footer configuration
@@ -262,8 +266,10 @@ export default defineSchema({
           copyrightText: v.optional(v.string()),
           poweredByZenthea: v.boolean(),
           // Navigation color customization
-          footerBackgroundColor: v.optional(v.string()), // Hex color for footer background
-          footerTextColor: v.optional(v.string()), // Hex color for footer text/links
+          backgroundColor: v.optional(v.string()), // Primary name for frontend
+          textColor: v.optional(v.string()),
+          footerBackgroundColor: v.optional(v.string()), // Legacy/Secondary names
+          footerTextColor: v.optional(v.string()),
           useThemeColors: v.optional(v.boolean()), // Toggle to use global theme colors instead of custom
         }),
         // Theme configuration

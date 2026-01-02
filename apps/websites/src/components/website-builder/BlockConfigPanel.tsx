@@ -739,7 +739,7 @@ function ButtonAppearanceForm({
   onUpdate,
   disabled,
 }: ButtonAppearanceFormProps) {
-  const blockProps = props as (CTABandBlockProps | HeroBlockProps);
+  const blockProps = props as unknown as (CTABandBlockProps | HeroBlockProps);
   
   // Primary button appearance
   const primaryBtnAppearance = blockProps.primaryButtonAppearance || {};

@@ -4,7 +4,7 @@ import React from 'react';
 import { useTheme } from '@/lib/theme-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 interface ThemeToggleProps {
   className?: string;

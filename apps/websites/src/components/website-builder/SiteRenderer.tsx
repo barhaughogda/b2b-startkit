@@ -81,6 +81,7 @@ export function SiteRenderer({
   websiteBuilder,
   tenantName,
   tenantId,
+  tenantSlug,
   logoUrl,
   contactInfo,
   bookUrl,

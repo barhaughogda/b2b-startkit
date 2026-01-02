@@ -404,6 +404,34 @@ export const hasWebsiteBuilder = query({
   },
 })
 
+/**
+ * Get published website configuration by tenant slug
+ */
+export const getPublishedWebsiteBySlug = query({
+  args: {
+    slug: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await ctx.db
+      .query('tenants')
+      .withIndex('by_slug', (q) => q.eq('slug', args.slug))
+      .first()
+
+    if (!tenant || !tenant.websiteBuilder?.publishedAt) {
+      return null
+    }
+
+    return {
+      websiteBuilder: tenant.websiteBuilder,
+      tenantName: tenant.name,
+      tenantId: tenant.id,
+      logoUrl: tenant.branding.logo,
+      contactInfo: tenant.contactInfo,
+      bookingSettings: tenant.bookingSettings,
+    }
+  },
+})
+
 // =============================================================================
 // AUDIT LOGGING HELPER
 // =============================================================================
@@ -1599,16 +1627,14 @@ export const publishWebsite = mutation({
 
     const publishedAt = Date.now()
 
-    // TODO: Version history functionality requires websiteBuilderVersions table in schema
-    // Version snapshot creation temporarily disabled until table is added
-    // const latestVersion = await ctx.db
-    //   .query('websiteBuilderVersions')
-    //   .withIndex('by_tenant_created', (q) => q.eq('tenantId', args.tenantId))
-    //   .order('desc')
-    //   .first()
-    // const newVersionNumber = (latestVersion?.versionNumber ?? 0) + 1
-    // const version = `1.${newVersionNumber}.0`
-    const version = '1.0.0'
+    // Create a version snapshot for the published state
+    const latestVersion = await ctx.db
+      .query('websiteBuilderVersions')
+      .withIndex('by_tenant_created', (q) => q.eq('tenantId', args.tenantId))
+      .order('desc')
+      .first()
+    const newVersionNumber = (latestVersion?.versionNumber ?? 0) + 1
+    const version = `1.${newVersionNumber}.0`
 
     // Update the tenant with new published state
     await ctx.db.patch(tenant._id, {
@@ -1624,6 +1650,26 @@ export const publishWebsite = mutation({
         enabled: true,
       },
       updatedAt: publishedAt,
+    })
+
+    // Create the version in history
+    await ctx.db.insert('websiteBuilderVersions', {
+      tenantId: args.tenantId,
+      version,
+      versionNumber: newVersionNumber,
+      label: args.createdBy || 'Published',
+      snapshot: {
+        templateId: tenant.websiteBuilder.templateId,
+        header: tenant.websiteBuilder.header,
+        footer: tenant.websiteBuilder.footer,
+        theme: tenant.websiteBuilder.theme,
+        blocks: tenant.websiteBuilder.blocks,
+        seo: tenant.websiteBuilder.seo,
+      },
+      isPublished: true,
+      createdBy: args.createdBy,
+      createdAt: publishedAt,
+      note: 'Auto-snapshot on publish',
     })
 
     // Log audit event

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { logger } from "@/lib/logger";
 import type { GooglePlaceResult } from "@/types/google-maps";
 
 interface AddressAutocompleteProps {
@@ -429,7 +430,7 @@ export function AddressAutocomplete({
     // Handle place selection
     const listener = autocomplete.addListener("place_changed", () => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Google Maps place_changed event fired');
+        logger.debug('Google Maps place_changed event fired');
       }
       
       // Set flags IMMEDIATELY to prevent input onChange from interfering
@@ -441,7 +442,7 @@ export function AddressAutocomplete({
       setTimeout(() => {
         const place = autocomplete.getPlace();
         if (process.env.NODE_ENV === 'development') {
-          console.log('Place object:', place);
+          logger.debug('Place object:', place);
         }
         
         // Check if place is valid
@@ -534,14 +535,14 @@ export function AddressAutocomplete({
             // Don't update if we're currently setting a place from Google Maps
             if (isSettingPlaceRef.current) {
               if (process.env.NODE_ENV === 'development') {
-                console.log('Ignoring onChange because place is being set');
+                logger.debug('Ignoring onChange because place is being set');
               }
               return;
             }
             // Don't update if user is clicking on dropdown (place selection in progress)
             if (isClickingDropdownRef.current) {
               if (process.env.NODE_ENV === 'development') {
-                console.log('Ignoring onChange because dropdown click detected');
+                logger.debug('Ignoring onChange because dropdown click detected');
               }
               return;
             }
@@ -549,7 +550,7 @@ export function AddressAutocomplete({
             isUserTypingRef.current = true;
             const newValue = e.target.value;
             if (process.env.NODE_ENV === 'development') {
-              console.log('Input onChange fired with value:', newValue);
+              logger.debug('Input onChange fired with value:', newValue);
             }
             setInputValue(newValue);
             // Update parent component
@@ -625,7 +626,7 @@ export function AddressAutocomplete({
                     try {
                       const place = autocompleteRef.current.getPlace();
                       if (process.env.NODE_ENV === 'development') {
-                        console.log('Enter pressed, place:', place);
+                        logger.debug('Enter pressed, place:', place);
                       }
                     if (place && place.place_id) {
                       // Place was selected - extract address and update
@@ -649,7 +650,7 @@ export function AddressAutocomplete({
                       
                       if (addressToSet) {
                         if (process.env.NODE_ENV === 'development') {
-                          console.log('Setting address from Enter key:', addressToSet);
+                          logger.debug('Setting address from Enter key:', addressToSet);
                         }
                         isSettingPlaceRef.current = true;
                         onChangeRef.current(addressToSet);

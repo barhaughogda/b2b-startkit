@@ -123,13 +123,15 @@ export function useClinicProfile(id?: string) {
   }
 
   // Compatibility mapping for slug updates
-  const updateSlug = async ({ slug }: { slug: string }) => {
+  const updateSlug = async ({ slug, tenantId: _tenantId }: { slug: string, tenantId?: string }) => {
     return updateClinic({ slug })
   }
 
   // Compatibility mapping for domain updates
   const updateDomains = async (domainData: any) => {
-    return updateClinic({ domains: domainData })
+    // If domainData contains tenantId, it's coming from a component that passes it
+    const { tenantId: _tenantId, ...data } = domainData;
+    return updateClinic({ domains: data })
   }
 
   const updateOrganization = async ({ name }: { name: string }) => {

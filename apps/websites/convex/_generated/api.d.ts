@@ -73,6 +73,7 @@ import type * as publicProfiles from "../publicProfiles.js";
 import type * as scheduled_auditRetention from "../scheduled/auditRetention.js";
 import type * as scheduled_calendarSync from "../scheduled/calendarSync.js";
 import type * as sessions from "../sessions.js";
+import type * as slotLocks from "../slotLocks.js";
 import type * as superadmin_supportAccess from "../superadmin/supportAccess.js";
 import type * as superadmin from "../superadmin.js";
 import type * as tenantBranding from "../tenantBranding.js";
@@ -82,6 +83,7 @@ import type * as users from "../users.js";
 import type * as utils_authorization from "../utils/authorization.js";
 import type * as utils_shareValidation from "../utils/shareValidation.js";
 import type * as validators from "../validators.js";
+import type * as websiteBuilder from "../websiteBuilder.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -152,6 +154,7 @@ declare const fullApi: ApiFromModules<{
   "scheduled/auditRetention": typeof scheduled_auditRetention;
   "scheduled/calendarSync": typeof scheduled_calendarSync;
   sessions: typeof sessions;
+  slotLocks: typeof slotLocks;
   "superadmin/supportAccess": typeof superadmin_supportAccess;
   superadmin: typeof superadmin;
   tenantBranding: typeof tenantBranding;
@@ -161,6 +164,7 @@ declare const fullApi: ApiFromModules<{
   "utils/authorization": typeof utils_authorization;
   "utils/shareValidation": typeof utils_shareValidation;
   validators: typeof validators;
+  websiteBuilder: typeof websiteBuilder;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

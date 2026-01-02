@@ -235,6 +235,14 @@ export default function WebsiteBuilderPage() {
     markDirty('pages', pages);
   };
 
+  const handleToggleBlockEnabled = (blockId: string) => {
+    const activeBlocks = getActiveBlocks();
+    const newBlocks = activeBlocks.map(b => 
+      b.id === blockId ? { ...b, enabled: !b.enabled } : b
+    );
+    handleBlocksChange(newBlocks);
+  };
+
   const handleNavigate = (pageId: string) => {
     setCurrentPageId(pageId);
     setShowSettingsModal(false);
@@ -242,13 +250,68 @@ export default function WebsiteBuilderPage() {
 
   const saveAllChanges = async () => {
     if (!tenantId || !user?.primaryEmailAddress?.emailAddress) return;
+    const userEmail = user.primaryEmailAddress.emailAddress;
+    
     setIsSaving(true);
     try {
+      const promises: Promise<any>[] = [];
+
+      if (pendingChanges.siteStructure) {
+        promises.push(updateSiteStructureMutation({
+          tenantId,
+          userEmail,
+          siteStructure: pendingChanges.siteStructure,
+        }));
+      }
+
+      if (pendingChanges.header) {
+        promises.push(updateHeader({
+          tenantId,
+          userEmail,
+          header: pendingChanges.header,
+        }));
+      }
+
+      if (pendingChanges.footer) {
+        promises.push(updateFooter({
+          tenantId,
+          userEmail,
+          footer: pendingChanges.footer,
+        }));
+      }
+
+      if (pendingChanges.theme) {
+        promises.push(updateTheme({
+          tenantId,
+          userEmail,
+          theme: pendingChanges.theme,
+        }));
+      }
+
+      if (pendingChanges.blocks) {
+        promises.push(updateBlocks({
+          tenantId,
+          userEmail,
+          blocks: pendingChanges.blocks,
+        }));
+      }
+
+      if (pendingChanges.pages) {
+        promises.push(updatePagesMutation({
+          tenantId,
+          userEmail,
+          pages: pendingChanges.pages,
+        }));
+      }
+
+      await Promise.all(promises);
+      
       setHasUnsavedChanges(false);
       setPendingChanges({});
       toast.success('Changes saved');
     } catch (e) {
-      toast.error('Failed to save');
+      logger.error('Failed to save changes:', e);
+      toast.error('Failed to save changes. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -456,6 +519,7 @@ export default function WebsiteBuilderPage() {
         blocks={activePageBlocks}
         onSelectBlock={setSelectedBlockId}
         onBlocksChange={handleBlocksChange}
+        onToggleBlockEnabled={handleToggleBlockEnabled}
       />
     </div>
   );

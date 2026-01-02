@@ -22,6 +22,14 @@ export const TemplateIds = [
 ] as const;
 export type TemplateId = (typeof TemplateIds)[number];
 
+export interface TemplateMetadata {
+  name: string;
+  description: string;
+  thumbnail: string;
+  defaultBlocks: BlockType[];
+  recommendedBlocks: BlockType[];
+}
+
 // =============================================================================
 // HEADER & FOOTER VARIANTS
 // =============================================================================
@@ -31,6 +39,13 @@ export type HeaderVariant = (typeof HeaderVariants)[number];
 
 export const FooterVariants = ['multi-column', 'minimal'] as const;
 export type FooterVariant = (typeof FooterVariants)[number];
+
+export interface ExternalLink {
+  id: string;
+  label: string;
+  url: string;
+  openInNewTab?: boolean;
+}
 
 // =============================================================================
 // BLOCK TYPES
@@ -73,15 +88,15 @@ export const MAX_CUSTOM_PAGES = 5;
 /**
  * Metadata for standard page types
  */
-export const PAGE_METADATA: Record<PageType, { name: string; description: string; icon: string }> = {
-  home: { name: 'Home', description: 'Main landing page', icon: 'Home' },
-  services: { name: 'Services', description: 'List of services offered', icon: 'Briefcase' },
-  team: { name: 'Our Team', description: 'Meet the providers', icon: 'Users' },
-  locations: { name: 'Locations', description: 'Clinic locations and maps', icon: 'MapPin' },
-  contact: { name: 'Contact', description: 'Contact information and hours', icon: 'Mail' },
-  terms: { name: 'Terms of Service', description: 'Legal terms and conditions', icon: 'FileText' },
-  privacy: { name: 'Privacy Policy', description: 'Data protection and privacy', icon: 'ShieldCheck' },
-  custom: { name: 'Custom Page', description: 'Flexible custom content page', icon: 'FilePlus' },
+export const PAGE_METADATA: Record<PageType, { name: string; description: string; icon: string; canDisable?: boolean; canDelete?: boolean }> = {
+  home: { name: 'Home', description: 'Main landing page', icon: 'Home', canDisable: false, canDelete: false },
+  services: { name: 'Services', description: 'List of services offered', icon: 'Briefcase', canDisable: true, canDelete: false },
+  team: { name: 'Our Team', description: 'Meet the providers', icon: 'Users', canDisable: true, canDelete: false },
+  locations: { name: 'Locations', description: 'Clinic locations and maps', icon: 'MapPin', canDisable: true, canDelete: false },
+  contact: { name: 'Contact', description: 'Contact information and hours', icon: 'Mail', canDisable: true, canDelete: false },
+  terms: { name: 'Terms of Service', description: 'Legal terms and conditions', icon: 'FileText', canDisable: true, canDelete: false },
+  privacy: { name: 'Privacy Policy', description: 'Data protection and privacy', icon: 'ShieldCheck', canDisable: true, canDelete: false },
+  custom: { name: 'Custom Page', description: 'Flexible custom content page', icon: 'FilePlus', canDisable: true, canDelete: true },
 };
 
 /**
@@ -90,6 +105,24 @@ export const PAGE_METADATA: Record<PageType, { name: string; description: string
 export function canAddCustomPage(pages: PageConfig[]): boolean {
   const customPages = pages.filter(p => p.type === 'custom');
   return customPages.length < 5; // Limit to 5 custom pages
+}
+
+/**
+ * Gets pages that should appear in header navigation
+ */
+export function getHeaderNavPages(pages: PageConfig[]): PageConfig[] {
+  return pages
+    .filter((p) => p.enabled && p.showInHeader)
+    .sort((a, b) => a.order - b.order);
+}
+
+/**
+ * Gets pages that should appear in footer navigation
+ */
+export function getFooterNavPages(pages: PageConfig[]): PageConfig[] {
+  return pages
+    .filter((p) => p.enabled && p.showInFooter)
+    .sort((a, b) => a.order - b.order);
 }
 
 /**
@@ -159,6 +192,16 @@ export interface HeroBlockProps {
   backgroundImage?: string;
   backgroundOverlay: number;
   alignment: 'left' | 'center' | 'right';
+  primaryButtonAppearance?: ButtonAppearance;
+  secondaryButtonAppearance?: ButtonAppearance;
+  headingTextAppearance?: {
+    textToken?: TextToken;
+    textCustom?: string;
+  };
+  taglineTextAppearance?: {
+    textToken?: TextToken;
+    textCustom?: string;
+  };
 }
 
 export interface CareTeamBlockProps {
@@ -221,11 +264,20 @@ export interface HowItWorksStep {
   icon?: string;
 }
 
+export type HowItWorksLayout = 'numbered-circles' | 'timeline' | 'cards' | 'minimal';
+export type HowItWorksIconShape = 'circle' | 'rounded-square' | 'square';
+export type HowItWorksIcon =
+  | 'calendar' | 'clock' | 'calendar-check' | 'timer'
+  | 'map-pin' | 'building-2' | 'home' | 'navigation'
+  | 'heart' | 'stethoscope' | 'pill' | 'thermometer' | 'activity' | 'heart-pulse'
+  | 'phone' | 'mail' | 'message-circle' | 'video'
+  | 'check-circle' | 'star' | 'shield' | 'users' | 'file-text' | 'award';
+
 export interface HowItWorksBlockProps {
   title: string;
   subtitle?: string;
-  layout: 'numbered-circles' | 'timeline' | 'cards' | 'minimal';
-  iconShape: 'circle' | 'rounded-square' | 'square';
+  layout: HowItWorksLayout;
+  iconShape: HowItWorksIconShape;
   steps: HowItWorksStep[];
 }
 
@@ -240,11 +292,13 @@ export interface TestimonialItem {
   testimonial: string;
 }
 
+export type TestimonialsLayout = 'hero-card' | 'carousel-cards' | 'grid-cards' | 'stacked-list' | 'centered-quote';
+
 export interface TestimonialsBlockProps {
   title: string;
   subtitle?: string;
   testimonials: TestimonialItem[];
-  layout: 'hero-card' | 'carousel-cards' | 'grid-cards' | 'stacked-list' | 'centered-quote';
+  layout: TestimonialsLayout;
   maxVisible: number;
 }
 
@@ -280,6 +334,8 @@ export interface CTABandBlockProps {
   secondaryCtaText?: string;
   secondaryCtaLink?: string;
   backgroundColor?: 'primary' | 'secondary' | 'gradient';
+  primaryButtonAppearance?: ButtonAppearance;
+  secondaryButtonAppearance?: ButtonAppearance;
 }
 
 export interface CustomTextBlockProps {
@@ -308,7 +364,7 @@ export interface MediaBlockProps {
   imageMode: 'single' | 'gallery';
   imageUrl?: string;
   imageAlt?: string;
-  galleryImages: { id: string; url: string }[];
+  galleryImages: { id: string; url: string; alt?: string }[];
   videoUrl?: string;
 }
 
@@ -387,26 +443,92 @@ export interface PageConfig {
 
 export interface HeaderConfig {
   variant: HeaderVariant;
+  logoUrl?: string;
+  logoAlt?: string;
   navItems: NavItem[];
-  showBookingButton: boolean;
-  bookingButtonText: string;
-  showLoginButton: boolean;
-  isSticky: boolean;
-  transparentOnHero: boolean;
+  showSignIn: boolean;
+  signInText: string;
+  signInUrl: string;
+  showBook: boolean;
+  bookText: string;
+  bookUrl: string;
+  infoBarPhone?: string;
+  infoBarHours?: string;
+  infoBarText?: string;
+  sticky: boolean;
+  transparent: boolean;
   backgroundColor?: string;
   textColor?: string;
+  mobileBackgroundColor?: string;
+  mobileTextColor?: string;
+  headerBackgroundColor?: string;
+  headerTextColor?: string;
+  headerMobileBackgroundColor?: string;
+  headerMobileTextColor?: string;
+  useThemeColors?: boolean;
+  // Legacy/Compatibility fields
+  showBookingButton?: boolean;
+  bookingButtonText?: string;
+  showLoginButton?: boolean;
+  isSticky?: boolean;
+  transparentOnHero?: boolean;
+}
+
+export interface FooterColumn {
+  id: string;
+  title: string;
+  links: NavItem[];
+}
+
+export interface FooterMenuPageItem {
+  id: string;
+  kind: 'page';
+  pageId: string;
+}
+
+export interface FooterMenuExternalItem {
+  id: string;
+  kind: 'external';
+  label: string;
+  url: string;
+  openInNewTab?: boolean;
+}
+
+export type FooterMenuItem = FooterMenuPageItem | FooterMenuExternalItem;
+
+export interface FooterMenuSection {
+  id: string;
+  title: string;
+  items: FooterMenuItem[];
+}
+
+export interface FooterMenuColumn {
+  id: string;
+  layoutOrder: number;
+  sections: FooterMenuSection[];
 }
 
 export interface FooterConfig {
   variant: FooterVariant;
+  columns: FooterColumn[];
+  menuColumns?: FooterMenuColumn[];
+  showLogo: boolean;
+  tagline?: string;
   showSocial: boolean;
   socialLinks: SocialLink[];
+  externalLinks?: ExternalLink[];
   showNewsletter: boolean;
-  newsletterHeadline?: string;
+  newsletterTitle?: string;
+  legalLinks: { id: string; label: string; href: string }[];
   copyrightText?: string;
+  poweredByZenthea: boolean;
   backgroundColor?: string;
   textColor?: string;
-  externalLinks?: { id: string; label: string; url: string; openInNewTab?: boolean }[];
+  footerBackgroundColor?: string;
+  footerTextColor?: string;
+  useThemeColors?: boolean;
+  // Legacy/Compatibility fields
+  newsletterHeadline?: string;
 }
 
 export interface ThemeConfig {
@@ -424,10 +546,15 @@ export interface ThemeConfig {
 }
 
 export interface SEOConfig {
-  titleTemplate: string;
-  defaultDescription: string;
-  faviconUrl?: string;
-  ogImageUrl?: string;
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  twitterCard?: 'summary' | 'summary_large_image';
+  canonicalUrl?: string;
+  noIndex?: boolean;
 }
 
 export interface WebsiteDefinition {
