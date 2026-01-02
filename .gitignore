@@ -23,6 +23,9 @@ out/
 *.swp
 *.swo
 
+# Clerk (generated temp files)
+apps/websites/.clerk/.tmp/
+
 # OS
 .DS_Store
 Thumbs.db
