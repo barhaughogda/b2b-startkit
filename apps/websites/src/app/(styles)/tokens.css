@@ -1,0 +1,92 @@
+/* Design System Tokens */
+:root {
+  /* Colors - Light Theme */
+  --color-bg: 0 0% 100%;
+  --color-fg: 222.2 84% 4.9%;
+  --color-muted: 210 40% 96%;
+  --color-border: 214.3 31.8% 91.4%;
+  --color-primary: 221.2 83.2% 53.3%;
+  --color-primary-fg: 210 40% 98%;
+  
+  /* Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Shadows */
+  --shadow-1: 0 1px 2px hsl(0 0% 0% / 0.06);
+  --shadow-2: 0 8px 24px hsl(0 0% 0% / 0.08);
+  
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, Inter, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  
+  /* Legacy shadcn variables for compatibility */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: var(--color-interactive-primary);
+  --primary-foreground: var(--color-text-inverse);
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+}
+
+/* Dark Theme - Modern Dark Theme */
+html[data-theme="dark"] {
+  /* Use our new modern dark theme colors */
+  --color-bg: 0 0% 6%;                    /* #0f0f0f - Very dark gray */
+  --color-fg: 0 0% 100%;                  /* #ffffff - Pure white */
+  --color-muted: 0 0% 15%;                /* #262626 - Medium dark gray */
+  --color-border: 0 0% 22%;                /* #374151 - Dark gray */
+  --color-primary: 180 100% 25%;          /* #008080 - Brand teal */
+  --color-primary-fg: 0 0% 100%;          /* #ffffff - Pure white */
+  
+  /* Legacy shadcn dark theme - Updated to match our new theme */
+  --background: 0 0% 6%;                   /* #0f0f0f - Very dark gray */
+  --foreground: 0 0% 100%;                 /* #ffffff - Pure white */
+  --card: 0 0% 10%;                        /* #1a1a1a - Dark gray */
+  --card-foreground: 0 0% 100%;            /* #ffffff - Pure white */
+  --popover: 0 0% 15%;                     /* #262626 - Medium dark gray */
+  --popover-foreground: 0 0% 100%;          /* #ffffff - Pure white */
+  --primary: 180 100% 25%;                 /* #008080 - Brand teal */
+  --primary-foreground: 0 0% 100%;        /* #ffffff - Pure white */
+  --secondary: 270 50% 25%;                /* #5F284A - Brand purple */
+  --secondary-foreground: 0 0% 100%;      /* #ffffff - Pure white */
+  --muted: 0 0% 15%;                       /* #262626 - Medium dark gray */
+  --muted-foreground: 0 0% 65%;           /* #a6a6a6 - Medium gray */
+  --accent: 180 100% 25%;                  /* #008080 - Brand teal */
+  --accent-foreground: 0 0% 100%;         /* #ffffff - Pure white */
+  --destructive: 0 84% 60%;               /* #ef4444 - Red */
+  --destructive-foreground: 0 0% 100%;    /* #ffffff - Pure white */
+  --border: 0 0% 22%;                      /* #374151 - Dark gray */
+  --input: 0 0% 22%;                       /* #374151 - Dark gray */
+  --ring: 180 100% 25%;                    /* #008080 - Brand teal */
+}
+
+/* Brand Theme Example */
+html[data-theme="brand-b"] {
+  --color-primary: 142.1 76.2% 36.3%;
+  --primary: 142.1 76.2% 36.3%;
+}
