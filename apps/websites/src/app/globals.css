@@ -1,0 +1,1249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FullCalendar Styles - Imported via JavaScript components */
+/* CSS is handled by FullCalendar React components */
+
+/* FullCalendar Font Consistency - Match portal typography */
+.fc,
+.fc *,
+.fc *::before,
+.fc *::after {
+  font-family: inherit !important; /* Use portal's font family (Inter) */
+  font-size: inherit !important; /* Use portal's base font size */
+}
+
+/* Ensure specific FullCalendar text elements use consistent font sizing */
+.fc .fc-toolbar-title {
+  font-size: 1.5rem !important; /* Match portal heading sizes */
+  font-weight: 600 !important;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-daygrid-day-top {
+  font-size: 0.875rem !important; /* Match portal text-sm (14px) */
+  font-weight: 500 !important;
+}
+
+.fc .fc-event-title,
+.fc .fc-event-title-container {
+  font-size: 0.875rem !important; /* Match portal text-sm (14px) */
+  font-weight: 500 !important;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  font-size: 0.75rem !important; /* Match portal text-xs (12px) */
+  font-weight: 400 !important;
+}
+
+.fc .fc-event-time {
+  font-size: 0.75rem !important; /* Match portal text-xs (12px) */
+  font-weight: 500 !important;
+}
+
+.fc .fc-button {
+  font-size: 0.875rem !important; /* Match portal button text size */
+  font-weight: 500 !important;
+}
+
+.fc .fc-more-link {
+  font-size: 0.875rem !important; /* Match portal text-sm */
+  font-weight: 500 !important;
+}
+
+/* Appointment Selection Visual Indicator */
+.appointment-selection {
+  border-style: dashed !important;
+  border-width: 2px !important;
+  opacity: 0.8 !important;
+  animation: pulse-selection 2s ease-in-out infinite !important;
+}
+
+@keyframes pulse-selection {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Ensure selection appears above other events */
+.fc-event.appointment-selection {
+  z-index: 10 !important;
+}
+
+/* Availability background blocks - semi-transparent to show clinic availability windows */
+.fc-bg-event.availability-block {
+  opacity: 0.6;
+  border-left: 3px solid var(--zenthea-teal-600);
+}
+
+/* Shared appointment styling - slightly more transparent */
+.fc-event.shared-appointment {
+  opacity: 0.75;
+}
+
+/* Calendar mobile optimizations */
+@media (max-width: 768px) {
+  .fc .fc-timegrid-slot {
+    height: 2.5em; /* Taller slots on mobile for easier touch */
+  }
+  
+  .fc .fc-event {
+    font-size: 0.75rem !important; /* Match portal text-xs on mobile */
+    padding: 2px 4px;
+  }
+  
+  .fc .fc-col-header-cell-cushion {
+    font-size: 0.75rem !important; /* Match portal text-xs on mobile */
+    padding: 4px 2px;
+  }
+  
+  .fc .fc-timegrid-slot-label-cushion {
+    font-size: 0.65rem !important; /* Slightly smaller for time labels on mobile */
+  }
+  
+  .fc .fc-event-title,
+  .fc .fc-event-title-container {
+    font-size: 0.75rem !important; /* Match portal text-xs on mobile */
+  }
+  
+  .fc .fc-event-time {
+    font-size: 0.7rem !important; /* Slightly smaller for time on mobile */
+  }
+}
+
+/* Card System Z-Index Override - Must be higher than ALL Tailwind z-index classes */
+.card-system-card {
+  z-index: 9999999 !important;
+}
+
+.card-system-card[data-z-index] {
+  z-index: 9999999 !important;
+}
+
+/* Card System Scroll Prevention */
+.card-system-card {
+  /* Allow internal scrolling while preventing document scroll */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* Ensure cards can scroll internally */
+  overflow: visible;
+  /* Ensure proper height calculation */
+  box-sizing: border-box;
+}
+
+/* Prevent body scroll when cards are active */
+body.card-scroll-locked {
+  overflow: hidden !important;
+  /* Remove position: fixed to allow card internal scrolling */
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Hide scrollbars while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+
+/* 
+ * ZENTHEA WORLD-CLASS COLOR SYSTEM
+ * Single source of truth for all colors across the application
+ * Optimized for Vercel, shadcn/ui, and modern web development
+ * 
+ * Architecture:
+ * - Brand colors (from Huemint Brand Intersection)
+ * - Semantic colors (background, text, borders, etc.)
+ * - Healthcare colors (medical status indicators)
+ * - Status colors (success, warning, error, info)
+ * - Theme support (light, dark, system)
+ * - shadcn/ui compatibility
+ */
+
+@layer base {
+  :root {
+    /* ========================================
+     * BRAND COLORS - From Huemint Brand Intersection
+     * ======================================== */
+    
+    /* Core Brand Colors */
+    --zenthea-teal: #008080;        /* Primary brand color */
+    --zenthea-purple: #5F284A;      /* Secondary brand color */
+    --zenthea-coral: #E07B7E;       /* Accent brand color */
+    --zenthea-cream: #F2DDC9;       /* Neutral brand color */
+    
+    /* Brand Color Alpha Variants (for overlays and backgrounds) */
+    --zenthea-teal-alpha-15: rgba(0, 128, 128, 0.15);
+    --zenthea-teal-alpha-30: rgba(0, 128, 128, 0.30);
+    --zenthea-purple-alpha-15: rgba(95, 40, 74, 0.15);
+    --zenthea-purple-alpha-30: rgba(95, 40, 74, 0.30);
+    --zenthea-coral-alpha-15: rgba(224, 123, 126, 0.15);
+    --zenthea-coral-alpha-30: rgba(224, 123, 126, 0.30);
+    
+    /* Brand Color Variations */
+    --zenthea-teal-50: #f0fdfa;
+    --zenthea-teal-100: #ccfbf1;
+    --zenthea-teal-200: #99f6e4;
+    --zenthea-teal-300: #5eead4;
+    --zenthea-teal-400: #2dd4bf;
+    --zenthea-teal-500: #008080;    /* Base teal */
+    --zenthea-teal-600: #0d9488;
+    --zenthea-teal-700: #0f766e;
+    --zenthea-teal-800: #115e59;
+    --zenthea-teal-900: #134e4a;
+    --zenthea-teal-950: #042f2e;
+    
+    --zenthea-purple-50: #faf5ff;
+    --zenthea-purple-100: #f3e8ff;
+    --zenthea-purple-200: #e9d5ff;
+    --zenthea-purple-300: #d8b4fe;
+    --zenthea-purple-400: #c084fc;
+    --zenthea-purple-500: #5F284A;  /* Base purple */
+    --zenthea-purple-600: #7c3aed;
+    --zenthea-purple-700: #6d28d9;
+    --zenthea-purple-800: #5b21b6;
+    --zenthea-purple-900: #4c1d95;
+    --zenthea-purple-950: #2e1065;
+    
+    --zenthea-coral-50: #fef2f2;
+    --zenthea-coral-100: #fee2e2;
+    --zenthea-coral-200: #fecaca;
+    --zenthea-coral-300: #fca5a5;
+    --zenthea-coral-400: #f87171;
+    --zenthea-coral-500: #E07B7E;  /* Base coral */
+    --zenthea-coral-600: #dc2626;
+    --zenthea-coral-700: #b91c1c;
+    --zenthea-coral-800: #991b1b;
+    --zenthea-coral-900: #7f1d1d;
+    --zenthea-coral-950: #450a0a;
+    
+    --zenthea-cream-50: #fefcfb;
+    --zenthea-cream-100: #fef7ed;
+    --zenthea-cream-200: #fdedd3;
+    --zenthea-cream-300: #fce1b4;
+    --zenthea-cream-400: #f9d08b;
+    --zenthea-cream-500: #F2DDC9;  /* Base cream */
+    --zenthea-cream-600: #e6c7a3;
+    --zenthea-cream-700: #d9b17d;
+    --zenthea-cream-800: #cc9b57;
+    --zenthea-cream-900: #bf8531;
+    --zenthea-cream-950: #b26f0b;
+
+    /* ========================================
+     * SEMANTIC COLORS - Light Theme
+     * ======================================== */
+    
+    /* Background Colors */
+    --color-background-primary: #F2DDC9;      /* Cream */
+    --color-background-secondary: #f0fdfa;    /* Light teal */
+    --color-background-tertiary: #faf5ff;     /* Light purple */
+    --color-background-elevated: #ffffff;     /* White */
+    --color-background-overlay: rgba(95, 40, 74, 0.5);
+    
+    /* Surface Colors */
+    --color-surface-primary: #F2DDC9;         /* Cream */
+    --color-surface-secondary: #f0fdfa;       /* Light teal */
+    --color-surface-tertiary: #faf5ff;        /* Light purple */
+    --color-surface-elevated: #ffffff;        /* White */
+    --color-surface-interactive: #f0fdfa;     /* Light teal */
+    
+    /* Text Colors */
+    --color-text-primary: #5F284A;            /* Dark purple */
+    --color-text-secondary: #0f766e;          /* Teal */
+    --color-text-tertiary: #78716c;           /* Gray */
+    --color-text-disabled: #a8a29e;           /* Light gray */
+    --color-text-inverse: #F2DDC9;            /* Cream */
+    --color-text-link: #008080;               /* New teal */
+    --color-text-link-hover: #0d9488;         /* Darker teal */
+    
+    /* Border Colors */
+    --color-border-primary: #d6d3d1;          /* Light gray */
+    --color-border-secondary: #5eead4;        /* Light teal */
+    --color-border-tertiary: #a8a29e;         /* Gray */
+    --color-border-focus: #008080;            /* New teal */
+    --color-border-error: #B91C1C;            /* Red */
+    --color-border-success: #22c55e;          /* Green */
+    --color-border-warning: #B91C1C;          /* Red */
+    
+    /* Interactive Colors */
+    --color-interactive-primary: #008080;     /* New teal */
+    --color-interactive-primary-hover: #0d9488; /* Darker teal */
+    --color-interactive-primary-active: #0f766e; /* Darkest teal */
+    --color-interactive-secondary: #5F284A;   /* Dark purple */
+    --color-interactive-secondary-hover: #4c1d95; /* Darker purple */
+    --color-interactive-secondary-active: #2e1065; /* Darkest purple */
+    --color-interactive-disabled: #a8a29e;    /* Gray */
+    
+    /* Status Colors */
+    --color-status-success: #22c55e;          /* Green */
+    --color-status-warning: #B91C1C;         /* Red */
+    --color-status-error: #B91C1C;            /* Red */
+    --color-status-info: #008080;             /* New teal */
+    --color-status-critical: #991B1B;         /* Dark red */
+
+    /* ========================================
+     * HEALTHCARE COLORS - Medical System
+     * ======================================== */
+    
+    /* Patient Status Colors */
+    --healthcare-patient: 142 71% 45%;        /* #22c55e - Green */
+    --healthcare-patient-active: 142 71% 55%; /* #4ade80 - Light Green */
+    --healthcare-patient-inactive: 142 71% 35%; /* #16a34a - Dark Green */
+    --healthcare-patient-discharged: 215 20% 65%; /* #94a3b8 - Gray */
+    
+    /* Appointment Status Colors */
+    --healthcare-appointment: 180 100% 25%;   /* #008080 - New Teal */
+    --healthcare-appointment-scheduled: 172 60% 70%; /* #7dd3fc - Light Teal */
+    --healthcare-appointment-confirmed: 142 71% 45%; /* #22c55e - Green */
+    --healthcare-appointment-cancelled: 0 70% 45%; /* #B91C1C - Red */
+    --healthcare-appointment-rescheduled: 45 93% 47%; /* #eab308 - Yellow */
+    
+    /* Vital Signs Colors */
+    --healthcare-vital: 0 70% 45%;           /* #B91C1C - Deep Red */
+    --healthcare-vital-normal: 142 71% 45%;   /* #22c55e - Green */
+    --healthcare-vital-elevated: 45 93% 47%; /* #eab308 - Yellow */
+    --healthcare-vital-critical: 0 70% 35%;  /* #991B1B - Darker Red */
+    --healthcare-vital-low: 262 83% 58%;     /* #8b5cf6 - Purple */
+    
+    /* Lab Results Colors */
+    --healthcare-lab-normal: 142 71% 45%;     /* #22c55e - Green */
+    --healthcare-lab-abnormal: 0 70% 45%;    /* #B91C1C - Red */
+    --healthcare-lab-critical: 0 70% 35%;     /* #991B1B - Darker Red */
+    --healthcare-lab-pending: 45 93% 47%;    /* #eab308 - Yellow */
+    --healthcare-lab-unavailable: 215 20% 65%; /* #94a3b8 - Gray */
+    
+    /* Alert Severity Colors */
+    --healthcare-alert-info: 180 100% 25%;    /* #008080 - New Teal */
+    --healthcare-alert-warning: 45 93% 47%;  /* #eab308 - Yellow */
+    --healthcare-alert-error: 0 70% 45%;     /* #B91C1C - Red */
+    --healthcare-alert-critical: 0 70% 35%;   /* #991B1B - Darker Red */
+    --healthcare-alert-success: 142 71% 45%; /* #22c55e - Green */
+    
+    /* Medical Status Colors */
+    --healthcare-normal: 142 71% 45%;         /* #22c55e - Green */
+    --healthcare-abnormal: 0 70% 45%;         /* #B91C1C - Deep Red */
+    --healthcare-critical: 0 70% 35%;         /* #991B1B - Darker Red */
+    --healthcare-pending: 45 93% 47%;         /* #eab308 - Yellow */
+    --healthcare-unavailable: 215 20% 65%;    /* #94a3b8 - Gray */
+
+    /* ========================================
+     * CARD TYPE COLORS - Universal Card System
+     * ======================================== */
+    
+    /* Card Type Colors - Based on medical workflow and visual hierarchy */
+    --card-appointment: 180 100% 25%;         /* #008080 - Teal (scheduling/calendar) */
+    --card-appointment-light: 180 100% 85%;   /* #ccfbf1 - Light teal background */
+    --card-appointment-border: 180 100% 45%;  /* #0d9488 - Darker teal border */
+    
+    --card-message: 142 71% 45%;             /* #22c55e - Green (communication) */
+    --card-message-light: 142 71% 85%;       /* #dcfce7 - Light green background */
+    --card-message-border: 142 71% 35%;      /* #16a34a - Darker green border */
+    
+    --card-lab-result: 262 83% 58%;          /* #8b5cf6 - Purple (lab/testing) */
+    --card-lab-result-light: 262 83% 85%;    /* #ede9fe - Light purple background */
+    --card-lab-result-border: 262 83% 45%;   /* #7c3aed - Darker purple border */
+    
+    --card-vital-signs: 25 95% 53%;          /* #f97316 - Orange (vitals/monitoring) */
+    --card-vital-signs-light: 25 95% 85%;    /* #fed7aa - Light orange background */
+    --card-vital-signs-border: 25 95% 40%;   /* #ea580c - Darker orange border */
+    
+    --card-soap-note: 172 66% 50%;           /* #0d9488 - Teal (documentation) */
+    --card-soap-note-light: 172 66% 85%;    /* #ccfbf1 - Light teal background */
+    --card-soap-note-border: 172 66% 35%;    /* #0f766e - Darker teal border */
+    
+    --card-prescription: 45 93% 47%;         /* #eab308 - Yellow (medication) */
+    --card-prescription-light: 45 93% 85%;   /* #fef3c7 - Light yellow background */
+    --card-prescription-border: 45 93% 35%;  /* #d97706 - Darker yellow border */
+    
+    --card-procedure: 262 83% 58%;           /* #8b5cf6 - Purple (procedures) */
+    --card-procedure-light: 262 83% 85%;     /* #ede9fe - Light purple background */
+    --card-procedure-border: 262 83% 45%;    /* #7c3aed - Darker purple border */
+    
+    --card-diagnosis: 0 70% 45%;             /* #B91C1C - Red (diagnosis/alerts) */
+    --card-diagnosis-light: 0 70% 85%;       /* #fecaca - Light red background */
+    --card-diagnosis-border: 0 70% 35%;      /* #991B1B - Darker red border */
+
+    /* ========================================
+     * SHADCN/UI COMPATIBILITY
+     * ======================================== */
+    
+    /* Core shadcn/ui variables - Updated for V0.app design system */
+    --background: 0 0% 100%;                /* #ffffff - Pure white */
+    --foreground: 0 0% 14.5%;              /* #252525 - Very dark gray */
+    --card: 0 0% 100%;                      /* #ffffff - Pure white */
+    --card-foreground: 0 0% 14.5%;          /* #252525 - Very dark gray */
+    --popover: 0 0% 100%;                   /* #ffffff - Pure white */
+    --popover-foreground: 0 0% 14.5%;       /* #252525 - Very dark gray */
+    --primary: 180 100% 25%;                 /* #008080 - Teal */
+    --primary-foreground: 0 0% 100%;        /* #ffffff - White */
+    --secondary: 270 50% 25%;              /* #5F284A - Dark purple */
+    --secondary-foreground: 0 0% 95%;       /* #F2DDC9 - Light beige */
+    --muted: 0 0% 97%;                      /* #f7f7f7 - Very light gray */
+    --muted-foreground: 0 0% 55.6%;        /* #8e8e8e - Medium gray */
+    --accent: 180 100% 25%;                 /* #008080 - Teal */
+    --accent-foreground: 0 0% 77%;          /* #c4c4c4 - Light gray */
+    --destructive: 0 70% 45%;               /* #B91C1C - Red */
+    --destructive-foreground: 0 0% 100%;    /* #ffffff - White */
+    --border: 0 0% 92.2%;                   /* #ebebeb - Light gray */
+    --input: 0 0% 92.2%;                    /* #ebebeb - Light gray */
+    --ring: 0 0% 70.8%;                     /* #b5b5b5 - Medium gray */
+    --radius: 0.5rem;
+    
+    /* Chart colors from V0.app */
+    --chart-1: 180 100% 80%;               /* #5eead4 - Light teal */
+    --chart-2: 180 100% 25%;               /* #008080 - Teal */
+    --chart-3: 270 100% 75%;               /* #c084fc - Light purple */
+    --chart-4: 270 100% 60%;               /* #7c3aed - Purple */
+    --chart-5: 30 50% 95%;                 /* #F2DDC9 - Light beige */
+
+    /* Sidebar colors */
+    --sidebar-background: var(--color-surface-primary);
+    --sidebar-foreground: var(--color-text-primary);
+    --sidebar-primary: var(--color-interactive-primary);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: var(--color-surface-interactive);
+    --sidebar-accent-foreground: var(--color-text-primary);
+    --sidebar-border: var(--color-border-primary);
+    --sidebar-ring: var(--color-border-focus);
+    
+    /* Button hover colors - Use tenant colors when available, fallback to Zenthea colors */
+    --button-outline-hover-bg: var(--tenant-primary, var(--color-interactive-primary-hover));
+  }
+}
+
+/* ========================================
+ * LIGHT THEME
+ * ======================================== */
+
+[data-theme="light"] {
+    /* Background Colors - Light Theme */
+    --color-background-primary: #ffffff;        /* Pure white */
+    --color-background-secondary: #f0fdfa;     /* Light teal */
+    --color-background-tertiary: #faf5ff;      /* Light purple */
+    --color-background-elevated: #f8fafc;      /* Light gray */
+    --color-background-overlay: rgba(255, 255, 255, 0.9);
+    
+    /* Surface Colors - Light Theme */
+    --color-surface-primary: #f8fafc;          /* Light gray */
+    --color-surface-secondary: #f0fdfa;        /* Light teal */
+    --color-surface-tertiary: #faf5ff;         /* Light purple */
+    --color-surface-elevated: #ffffff;         /* Pure white */
+    --color-surface-interactive: #e2e8f0;       /* Light gray */
+    
+    /* Text Colors - Light Theme */
+    --color-text-primary: #1c1917;             /* Dark neutral */
+    --color-text-secondary: #0f766e;           /* Dark teal */
+    --color-text-tertiary: #7c3aed;            /* Purple */
+    --color-text-disabled: #94a3b8;            /* Light gray */
+    --color-text-inverse: #ffffff;             /* Pure white */
+    --color-text-link: #008080;                /* Teal */
+    --color-text-link-hover: #0d9488;          /* Darker teal */
+    
+    /* Border Colors - Light Theme */
+    --color-border-primary: #e2e8f0;            /* Light gray */
+    --color-border-secondary: #cbd5e1;         /* Medium gray */
+    --color-border-tertiary: #94a3b8;          /* Light gray */
+    --color-border-focus: #008080;              /* Teal */
+    --color-border-error: #dc2626;             /* Red */
+    --color-border-success: #16a34a;           /* Green */
+    --color-border-warning: #d97706;            /* Orange */
+    
+    /* Interactive Colors - Light Theme */
+    --color-interactive-primary: #008080;       /* Teal */
+    --color-interactive-primary-hover: #0d9488; /* Darker teal */
+    --color-interactive-primary-active: #0f766e; /* Dark teal */
+    --color-interactive-secondary: #5F284A;     /* Purple */
+    --color-interactive-secondary-hover: #7c3aed; /* Light purple */
+    --color-interactive-secondary-active: #4c1d95; /* Dark purple */
+    --color-interactive-disabled: #94a3b8;     /* Light gray */
+    
+    /* Status Colors - Light Theme */
+    --color-status-success: #16a34a;           /* Green */
+    --color-status-warning: #d97706;            /* Orange */
+    --color-status-error: #dc2626;             /* Red */
+    --color-status-info: #0ea5e9;              /* Blue */
+    --color-status-critical: #b91c1c;         /* Dark red */
+    
+    /* Healthcare Colors - Light Theme */
+    --healthcare-patient: 120 100% 25%;       /* #00a86b - Green */
+    --healthcare-patient-active: 120 100% 35%; /* #00cc7a - Lighter Green */
+    --healthcare-patient-inactive: 120 100% 15%; /* #008a5b - Darker Green */
+    --healthcare-patient-discharged: 0 0% 50%; /* #808080 - Gray */
+    
+    --healthcare-appointment: 180 100% 25%;   /* #00a8a8 - Cyan */
+    --healthcare-appointment-scheduled: 180 100% 35%; /* #00cccc - Lighter Cyan */
+    --healthcare-appointment-confirmed: 120 100% 25%; /* #00a86b - Green */
+    --healthcare-appointment-cancelled: 0 100% 25%; /* #ff4040 - Red */
+    --healthcare-appointment-rescheduled: 60 100% 25%; /* #ffaa00 - Orange */
+    
+    --healthcare-vital: 0 100% 25%;            /* #ff4040 - Red */
+    --healthcare-vital-normal: 120 100% 25%;  /* #00a86b - Green */
+    --healthcare-vital-elevated: 60 100% 25%; /* #ffaa00 - Orange */
+    --healthcare-vital-critical: 0 100% 20%;  /* #cc3333 - Darker Red */
+    --healthcare-vital-low: 300 100% 25%;     /* #ff40ff - Magenta */
+    
+    --healthcare-lab-normal: 120 100% 25%;     /* #00a86b - Green */
+    --healthcare-lab-abnormal: 0 100% 25%;     /* #ff4040 - Red */
+    --healthcare-lab-critical: 0 100% 20%;     /* #cc3333 - Darker Red */
+    --healthcare-lab-pending: 60 100% 25%;     /* #ffaa00 - Orange */
+    --healthcare-lab-unavailable: 0 0% 50%;    /* #808080 - Gray */
+    
+    --healthcare-alert-info: 180 100% 25%;     /* #00a8a8 - Cyan */
+    --healthcare-alert-warning: 60 100% 25%;    /* #ffaa00 - Orange */
+    --healthcare-alert-error: 0 100% 25%;      /* #ff4040 - Red */
+    --healthcare-alert-critical: 0 100% 20%;   /* #cc3333 - Darker Red */
+    --healthcare-alert-success: 120 100% 25%;  /* #00a86b - Green */
+    
+    --healthcare-normal: 120 100% 25%;         /* #00a86b - Green */
+    --healthcare-abnormal: 0 100% 25%;         /* #ff4040 - Red */
+    --healthcare-critical: 0 100% 20%;         /* #cc3333 - Darker Red */
+    --healthcare-pending: 60 100% 25%;         /* #ffaa00 - Orange */
+    --healthcare-unavailable: 0 0% 50%;        /* #808080 - Gray */
+    
+    /* Card Type Colors - Light Theme */
+    --card-appointment: 180 100% 25%;         /* #00a8a8 - Teal */
+    --card-appointment-light: 180 100% 85%;   /* #ccfbf1 - Light teal background */
+    --card-appointment-border: 180 100% 45%;  /* #0d9488 - Darker teal border */
+    
+    --card-message: 120 100% 25%;             /* #00a86b - Green */
+    --card-message-light: 120 100% 85%;       /* #dcfce7 - Light green background */
+    --card-message-border: 120 100% 35%;      /* #16a34a - Darker green border */
+    
+    --card-lab-result: 270 100% 60%;          /* #7c3aed - Purple */
+    --card-lab-result-light: 270 100% 85%;    /* #ede9fe - Light purple background */
+    --card-lab-result-border: 270 100% 45%;   /* #6d28d9 - Darker purple border */
+    
+    --card-vital-signs: 25 95% 53%;          /* #f97316 - Orange */
+    --card-vital-signs-light: 25 95% 85%;    /* #fed7aa - Light orange background */
+    --card-vital-signs-border: 25 95% 40%;   /* #ea580c - Darker orange border */
+    
+    --card-soap-note: 172 66% 50%;           /* #0d9488 - Teal */
+    --card-soap-note-light: 172 66% 85%;    /* #ccfbf1 - Light teal background */
+    --card-soap-note-border: 172 66% 35%;    /* #0f766e - Darker teal border */
+    
+    --card-prescription: 45 93% 47%;         /* #eab308 - Yellow */
+    --card-prescription-light: 45 93% 85%;   /* #fef3c7 - Light yellow background */
+    --card-prescription-border: 45 93% 35%;  /* #d97706 - Darker yellow border */
+    
+    --card-procedure: 270 100% 60%;          /* #7c3aed - Purple */
+    --card-procedure-light: 270 100% 85%;    /* #ede9fe - Light purple background */
+    --card-procedure-border: 270 100% 45%;   /* #6d28d9 - Darker purple border */
+    
+    --card-diagnosis: 0 100% 25%;            /* #ff4040 - Red */
+    --card-diagnosis-light: 0 100% 85%;      /* #fecaca - Light red background */
+    --card-diagnosis-border: 0 100% 35%;     /* #cc3333 - Darker red border */
+    
+    /* Update shadcn/ui variables for light theme - V0.app design system */
+    --background: 0 0% 100%;                /* #ffffff - Pure white */
+    --foreground: 0 0% 14.5%;              /* #252525 - Very dark gray */
+    --card: 0 0% 100%;                      /* #ffffff - Pure white */
+    --card-foreground: 0 0% 14.5%;          /* #252525 - Very dark gray */
+    --popover: 0 0% 100%;                   /* #ffffff - Pure white */
+    --popover-foreground: 0 0% 14.5%;       /* #252525 - Very dark gray */
+    --primary: 180 100% 25%;                /* #008080 - Teal */
+    --primary-foreground: 0 0% 100%;        /* #ffffff - White */
+    --secondary: 270 50% 25%;              /* #5F284A - Dark purple */
+    --secondary-foreground: 0 0% 95%;       /* #F2DDC9 - Light beige */
+    --muted: 0 0% 97%;                      /* #f7f7f7 - Very light gray */
+    --muted-foreground: 0 0% 55.6%;        /* #8e8e8e - Medium gray */
+    --accent: 180 100% 25%;                 /* #008080 - Teal */
+    --accent-foreground: 0 0% 77%;          /* #c4c4c4 - Light gray */
+    --destructive: 0 70% 45%;               /* #B91C1C - Red */
+    --destructive-foreground: 0 0% 100%;    /* #ffffff - White */
+    --border: 0 0% 92.2%;                   /* #ebebeb - Light gray */
+    --input: 0 0% 92.2%;                    /* #ebebeb - Light gray */
+    --ring: 0 0% 70.8%;                     /* #b5b5b5 - Medium gray */
+    
+    /* Chart colors from V0.app - Light Theme */
+    --chart-1: 180 100% 80%;               /* #5eead4 - Light teal */
+    --chart-2: 180 100% 25%;               /* #008080 - Teal */
+    --chart-3: 270 100% 75%;               /* #c084fc - Light purple */
+    --chart-4: 270 100% 60%;               /* #7c3aed - Purple */
+    --chart-5: 30 50% 95%;                 /* #F2DDC9 - Light beige */
+    
+    /* Sidebar colors for light theme */
+    --sidebar-background: var(--color-surface-primary);
+    --sidebar-foreground: var(--color-text-primary);
+    --sidebar-primary: var(--color-interactive-primary);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: var(--color-surface-interactive);
+    --sidebar-accent-foreground: var(--color-text-primary);
+    --sidebar-border: var(--color-border-primary);
+    --sidebar-ring: var(--color-border-focus);
+    
+    /* Button hover colors - Use tenant colors when available, fallback to Zenthea colors */
+    --button-outline-hover-bg: var(--tenant-primary, var(--color-interactive-primary-hover));
+}
+
+/* ========================================
+ * DARK THEME
+ * ======================================== */
+
+[data-theme="dark"] {
+    /* Background Colors - Modern Dark Theme */
+    --color-background-primary: #0f0f0f;     /* Very dark gray (main background) */
+    --color-background-secondary: #1a1a1a;   /* Slightly lighter dark gray */
+    --color-background-tertiary: #262626;    /* Medium dark gray */
+    --color-background-elevated: #1a1a1a;    /* Elevated surfaces */
+    --color-background-overlay: rgba(0, 0, 0, 0.8);
+    
+    /* Surface Colors - Modern Dark Theme */
+    --color-surface-primary: #1a1a1a;         /* Slightly lighter dark gray */
+    --color-surface-secondary: #262626;      /* Medium dark gray */
+    --color-surface-tertiary: #333333;        /* Lighter dark gray */
+    --color-surface-elevated: #0f0f0f;        /* Very dark gray */
+    --color-surface-interactive: #333333;     /* Interactive elements */
+    
+    /* Text Colors - Modern Dark Theme */
+    --color-text-primary: #ffffff;            /* Pure white */
+    --color-text-secondary: #d1d5db;         /* Light gray */
+    --color-text-tertiary: #9ca3af;           /* Medium gray */
+    --color-text-disabled: #6b7280;           /* Dark gray */
+    --color-text-inverse: #0f0f0f;            /* Very dark gray */
+    --color-text-link: #008080;               /* Brand teal */
+    --color-text-link-hover: #2dd4bf;         /* Light teal */
+    
+    /* Border Colors - Modern Dark Theme */
+    --color-border-primary: #374151;          /* Dark gray */
+    --color-border-secondary: #4b5563;        /* Medium gray */
+    --color-border-tertiary: #6b7280;         /* Light gray */
+    --color-border-focus: #008080;             /* Brand teal */
+    --color-border-error: #ef4444;            /* Red */
+    --color-border-success: #10b981;          /* Green */
+    --color-border-warning: #f59e0b;          /* Orange */
+    
+    /* Interactive Colors - Dark Theme */
+    --color-interactive-primary: #008080;     /* New teal */
+    --color-interactive-primary-hover: #2dd4bf; /* Light teal */
+    --color-interactive-primary-active: #0d9488; /* Darker teal */
+    --color-interactive-secondary: #5F284A;  /* Dark purple */
+    --color-interactive-secondary-hover: #7c3aed; /* Light purple */
+    --color-interactive-secondary-active: #4c1d95; /* Purple */
+    --color-interactive-disabled: #44403c;    /* Dark gray */
+    
+    /* Status Colors - Dark Theme */
+    --color-status-success: #4ade80;          /* Light green */
+    --color-status-warning: #E07B7E;         /* Coral */
+    --color-status-error: #f87171;            /* Light red */
+    --color-status-info: #008080;             /* New teal */
+    --color-status-critical: #fca5a5;         /* Light red */
+    
+    /* Healthcare Colors - Dark Theme */
+    --healthcare-patient: 142 71% 60%;       /* #4ade80 - Light Green */
+    --healthcare-patient-active: 142 71% 70%; /* #86efac - Lighter Green */
+    --healthcare-patient-inactive: 142 71% 50%; /* #22c55e - Green */
+    --healthcare-patient-discharged: 215 20% 75%; /* #cbd5e1 - Light Gray */
+    
+    --healthcare-appointment: 180 100% 25%;  /* #008080 - New Teal */
+    --healthcare-appointment-scheduled: 172 60% 70%; /* #7dd3fc - Light Teal */
+    --healthcare-appointment-confirmed: 142 71% 60%; /* #4ade80 - Light Green */
+    --healthcare-appointment-cancelled: 0 70% 60%; /* #f87171 - Light Red */
+    --healthcare-appointment-rescheduled: 45 93% 57%; /* #facc15 - Light Yellow */
+    
+    --healthcare-vital: 0 70% 60%;           /* #f87171 - Light Red */
+    --healthcare-vital-normal: 142 71% 60%;  /* #4ade80 - Light Green */
+    --healthcare-vital-elevated: 45 93% 57%; /* #facc15 - Light Yellow */
+    --healthcare-vital-critical: 0 70% 50%;   /* #f87171 - Light Red */
+    --healthcare-vital-low: 262 83% 70%;     /* #a78bfa - Light Purple */
+    
+    --healthcare-lab-normal: 142 71% 60%;    /* #4ade80 - Light Green */
+    --healthcare-lab-abnormal: 0 70% 60%;    /* #f87171 - Light Red */
+    --healthcare-lab-critical: 0 70% 50%;    /* #f87171 - Light Red */
+    --healthcare-lab-pending: 45 93% 57%;    /* #facc15 - Light Yellow */
+    --healthcare-lab-unavailable: 215 20% 75%; /* #cbd5e1 - Light Gray */
+    
+    --healthcare-alert-info: 180 100% 25%;   /* #008080 - New Teal */
+    --healthcare-alert-warning: 45 93% 57%;  /* #facc15 - Light Yellow */
+    --healthcare-alert-error: 0 70% 60%;     /* #f87171 - Light Red */
+    --healthcare-alert-critical: 0 70% 50%;  /* #f87171 - Light Red */
+    --healthcare-alert-success: 142 71% 60%; /* #4ade80 - Light Green */
+    
+    --healthcare-normal: 142 71% 60%;        /* #4ade80 - Light Green */
+    --healthcare-abnormal: 0 70% 60%;        /* #f87171 - Light Red */
+    --healthcare-critical: 0 70% 50%;        /* #f87171 - Light Red */
+    --healthcare-pending: 45 93% 57%;        /* #facc15 - Light Yellow */
+    --healthcare-unavailable: 215 20% 75%;   /* #cbd5e1 - Light Gray */
+    
+    /* Card Type Colors - Dark Theme */
+    --card-appointment: 180 100% 25%;         /* #008080 - Teal */
+    --card-appointment-light: 180 100% 15%;   /* #0f766e - Dark teal background */
+    --card-appointment-border: 180 100% 35%;  /* #0d9488 - Lighter teal border */
+    
+    --card-message: 142 71% 60%;             /* #4ade80 - Light Green */
+    --card-message-light: 142 71% 15%;       /* #16a34a - Dark green background */
+    --card-message-border: 142 71% 40%;      /* #22c55e - Medium green border */
+    
+    --card-lab-result: 262 83% 70%;          /* #a78bfa - Light Purple */
+    --card-lab-result-light: 262 83% 15%;    /* #4c1d95 - Dark purple background */
+    --card-lab-result-border: 262 83% 45%;   /* #7c3aed - Medium purple border */
+    
+    --card-vital-signs: 25 95% 60%;          /* #fb923c - Light Orange */
+    --card-vital-signs-light: 25 95% 15%;    /* #9a3412 - Dark orange background */
+    --card-vital-signs-border: 25 95% 40%;   /* #ea580c - Medium orange border */
+    
+    --card-soap-note: 172 66% 60%;           /* #2dd4bf - Light Teal */
+    --card-soap-note-light: 172 66% 15%;    /* #0f766e - Dark teal background */
+    --card-soap-note-border: 172 66% 35%;    /* #0d9488 - Medium teal border */
+    
+    --card-prescription: 45 93% 60%;         /* #facc15 - Light Yellow */
+    --card-prescription-light: 45 93% 15%;   /* #92400e - Dark yellow background */
+    --card-prescription-border: 45 93% 35%;  /* #d97706 - Medium yellow border */
+    
+    --card-procedure: 262 83% 70%;           /* #a78bfa - Light Purple */
+    --card-procedure-light: 262 83% 15%;    /* #4c1d95 - Dark purple background */
+    --card-procedure-border: 262 83% 45%;   /* #7c3aed - Medium purple border */
+    
+    --card-diagnosis: 0 70% 60%;            /* #f87171 - Light Red */
+    --card-diagnosis-light: 0 70% 15%;      /* #7f1d1d - Dark red background */
+    --card-diagnosis-border: 0 70% 35%;     /* #dc2626 - Medium red border */
+
+    /* Update shadcn/ui variables for modern dark theme */
+    --background: 0 0% 6%;                 /* #0f0f0f - Very dark gray */
+    --foreground: 0 0% 100%;                /* #ffffff - Pure white */
+    --card: 0 0% 10%;                       /* #1a1a1a - Dark gray */
+    --card-foreground: 0 0% 100%;           /* #ffffff - Pure white */
+    --popover: 0 0% 15%;                    /* #262626 - Medium dark gray */
+    --popover-foreground: 0 0% 100%;        /* #ffffff - Pure white */
+    --primary: 180 100% 25%;                 /* #008080 - Brand teal */
+    --primary-foreground: 0 0% 100%;        /* #ffffff - Pure white */
+    --secondary: 270 50% 25%;              /* #5F284A - Brand purple */
+    --secondary-foreground: 0 0% 100%;     /* #ffffff - Pure white */
+    --muted: 0 0% 15%;                      /* #262626 - Medium dark gray */
+    --muted-foreground: 0 0% 65%;          /* #a6a6a6 - Medium gray */
+    --accent: 180 100% 25%;                 /* #008080 - Brand teal */
+    --accent-foreground: 0 0% 100%;         /* #ffffff - Pure white */
+    --destructive: 0 84% 60%;               /* #ef4444 - Red */
+    --destructive-foreground: 0 0% 100%;    /* #ffffff - Pure white */
+    --border: 0 0% 22%;                     /* #374151 - Dark gray */
+    --input: 0 0% 22%;                      /* #374151 - Dark gray */
+    --ring: 180 100% 25%;                    /* #008080 - Brand teal */
+    
+    /* Chart colors from V0.app - Dark Theme */
+    --chart-1: 180 100% 80%;               /* #5eead4 - Light teal */
+    --chart-2: 180 100% 25%;               /* #008080 - Teal */
+    --chart-3: 270 100% 75%;               /* #c084fc - Light purple */
+    --chart-4: 270 100% 60%;               /* #7c3aed - Purple */
+    --chart-5: 30 50% 95%;                 /* #F2DDC9 - Light beige */
+
+    /* Sidebar colors for modern dark theme */
+    --sidebar-background: #1a1a1a;           /* Dark gray */
+    --sidebar-foreground: #ffffff;           /* Pure white */
+    --sidebar-primary: #008080;               /* Brand teal */
+    --sidebar-primary-foreground: #ffffff;    /* Pure white */
+    --sidebar-accent: #333333;                /* Interactive gray */
+    --sidebar-accent-foreground: #ffffff;     /* Pure white */
+    --sidebar-border: #374151;                /* Dark gray border */
+    --sidebar-ring: #008080;                  /* Brand teal */
+    
+    /* Button hover colors - Use tenant colors when available, fallback to Zenthea colors */
+    --button-outline-hover-bg: var(--tenant-primary, var(--color-interactive-primary-hover));
+}
+
+/* ========================================
+ * HIGH CONTRAST THEME
+ * ======================================== */
+
+[data-theme="high-contrast"] {
+    /* Background Colors - High Contrast Theme */
+    --color-background-primary: #000000;     /* Pure black */
+    --color-background-secondary: #1a1a1a;   /* Very dark gray */
+    --color-background-tertiary: #2a2a2a;    /* Dark gray */
+    --color-background-elevated: #000000;    /* Pure black */
+    --color-background-overlay: rgba(0, 0, 0, 0.9);
+    
+    /* Surface Colors - High Contrast Theme */
+    --color-surface-primary: #1a1a1a;         /* Very dark gray */
+    --color-surface-secondary: #2a2a2a;      /* Dark gray */
+    --color-surface-tertiary: #3a3a3a;       /* Medium dark gray */
+    --color-surface-elevated: #000000;       /* Pure black */
+    --color-surface-interactive: #333333;    /* Dark gray */
+    
+    /* Text Colors - High Contrast Theme */
+    --color-text-primary: #ffffff;            /* Pure white */
+    --color-text-secondary: #ffff00;         /* Bright yellow */
+    --color-text-tertiary: #00ffff;          /* Bright cyan */
+    --color-text-disabled: #666666;          /* Medium gray */
+    --color-text-inverse: #000000;            /* Pure black */
+    --color-text-link: #00ff00;               /* Bright green */
+    --color-text-link-hover: #ffff00;         /* Bright yellow */
+    
+    /* Border Colors - High Contrast Theme */
+    --color-border-primary: #ffffff;          /* Pure white */
+    --color-border-secondary: #ffff00;       /* Bright yellow */
+    --color-border-tertiary: #00ffff;         /* Bright cyan */
+    --color-border-focus: #00ff00;            /* Bright green */
+    --color-border-error: #ff0000;            /* Pure red */
+    --color-border-success: #00ff00;           /* Bright green */
+    --color-border-warning: #ffff00;           /* Bright yellow */
+    
+    /* Interactive Colors - High Contrast Theme */
+    --color-interactive-primary: #00ff00;     /* Bright green */
+    --color-interactive-primary-hover: #ffff00; /* Bright yellow */
+    --color-interactive-primary-active: #00ffff; /* Bright cyan */
+    --color-interactive-secondary: #ffffff;   /* Pure white */
+    --color-interactive-secondary-hover: #ffff00; /* Bright yellow */
+    --color-interactive-secondary-active: #00ffff; /* Bright cyan */
+    --color-interactive-disabled: #666666;    /* Medium gray */
+    
+    /* Status Colors - High Contrast Theme */
+    --color-status-success: #00ff00;         /* Bright green */
+    --color-status-warning: #ffff00;          /* Bright yellow */
+    --color-status-error: #ff0000;            /* Pure red */
+    --color-status-info: #00ffff;             /* Bright cyan */
+    --color-status-critical: #ff0000;         /* Pure red */
+    
+    /* Healthcare Colors - High Contrast Theme */
+    --healthcare-patient: 120 100% 50%;      /* #00ff00 - Bright Green */
+    --healthcare-patient-active: 120 100% 60%; /* #33ff33 - Lighter Green */
+    --healthcare-patient-inactive: 120 100% 40%; /* #00cc00 - Darker Green */
+    --healthcare-patient-discharged: 0 0% 50%; /* #808080 - Gray */
+    
+    --healthcare-appointment: 180 100% 50%;  /* #00ffff - Bright Cyan */
+    --healthcare-appointment-scheduled: 180 100% 60%; /* #33ffff - Lighter Cyan */
+    --healthcare-appointment-confirmed: 120 100% 50%; /* #00ff00 - Bright Green */
+    --healthcare-appointment-cancelled: 0 100% 50%; /* #ff0000 - Pure Red */
+    --healthcare-appointment-rescheduled: 60 100% 50%; /* #ffff00 - Bright Yellow */
+    
+    --healthcare-vital: 0 100% 50%;          /* #ff0000 - Pure Red */
+    --healthcare-vital-normal: 120 100% 50%; /* #00ff00 - Bright Green */
+    --healthcare-vital-elevated: 60 100% 50%; /* #ffff00 - Bright Yellow */
+    --healthcare-vital-critical: 0 100% 40%;  /* #cc0000 - Darker Red */
+    --healthcare-vital-low: 300 100% 50%;   /* #ff00ff - Bright Magenta */
+    
+    --healthcare-lab-normal: 120 100% 50%;  /* #00ff00 - Bright Green */
+    --healthcare-lab-abnormal: 0 100% 50%;   /* #ff0000 - Pure Red */
+    --healthcare-lab-critical: 0 100% 40%;   /* #cc0000 - Darker Red */
+    --healthcare-lab-pending: 60 100% 50%;   /* #ffff00 - Bright Yellow */
+    --healthcare-lab-unavailable: 0 0% 50%;  /* #808080 - Gray */
+    
+    --healthcare-alert-info: 180 100% 50%;  /* #00ffff - Bright Cyan */
+    --healthcare-alert-warning: 60 100% 50%; /* #ffff00 - Bright Yellow */
+    --healthcare-alert-error: 0 100% 50%;    /* #ff0000 - Pure Red */
+    --healthcare-alert-critical: 0 100% 40%; /* #cc0000 - Darker Red */
+    --healthcare-alert-success: 120 100% 50%; /* #00ff00 - Bright Green */
+    
+    --healthcare-normal: 120 100% 50%;      /* #00ff00 - Bright Green */
+    --healthcare-abnormal: 0 100% 50%;       /* #ff0000 - Pure Red */
+    --healthcare-critical: 0 100% 40%;       /* #cc0000 - Darker Red */
+    --healthcare-pending: 60 100% 50%;       /* #ffff00 - Bright Yellow */
+    --healthcare-unavailable: 0 0% 50%;      /* #808080 - Gray */
+
+    /* Update shadcn/ui variables for high contrast theme */
+    --background: var(--color-background-primary);
+    --foreground: var(--color-text-primary);
+    --card: var(--color-surface-elevated);
+    --card-foreground: var(--color-text-primary);
+    --popover: var(--color-surface-elevated);
+    --popover-foreground: var(--color-text-primary);
+    --primary: var(--color-interactive-primary);
+    --primary-foreground: #000000;
+    --secondary: var(--color-surface-secondary);
+    --secondary-foreground: var(--color-text-primary);
+    --muted: var(--color-surface-tertiary);
+    --muted-foreground: var(--color-text-tertiary);
+    --accent: var(--color-surface-interactive);
+    --accent-foreground: var(--color-text-primary);
+    --destructive: var(--color-status-error);
+    --destructive-foreground: #000000;
+    --border: var(--color-border-primary);
+    --input: var(--color-border-primary);
+    --ring: var(--color-border-focus);
+
+    /* Sidebar colors for high contrast theme */
+    --sidebar-background: var(--color-surface-primary);
+    --sidebar-foreground: var(--color-text-primary);
+    --sidebar-primary: var(--color-interactive-primary);
+    --sidebar-primary-foreground: #000000;
+    --sidebar-accent: var(--color-surface-interactive);
+    --sidebar-accent-foreground: var(--color-text-primary);
+    --sidebar-border: var(--color-border-primary);
+    --sidebar-ring: var(--color-border-focus);
+    
+    /* Button hover colors - Use tenant colors when available, fallback to Zenthea colors */
+    --button-outline-hover-bg: var(--tenant-primary, var(--color-interactive-primary-hover));
+}
+
+/* ========================================
+ * UTILITY CLASSES
+ * ======================================== */
+
+@layer utilities {
+  /* Healthcare-specific utility classes */
+  .healthcare-patient {
+    color: hsl(var(--healthcare-patient));
+  }
+  
+  .healthcare-appointment {
+    color: hsl(var(--healthcare-appointment));
+  }
+  
+  .healthcare-medical {
+    color: hsl(var(--healthcare-vital));
+  }
+  
+  .healthcare-vital {
+    color: hsl(var(--healthcare-vital));
+  }
+  
+  .healthcare-alert {
+    color: hsl(var(--healthcare-alert-info));
+  }
+  
+  .healthcare-normal {
+    color: hsl(var(--healthcare-normal));
+  }
+  
+  .healthcare-abnormal {
+    color: hsl(var(--healthcare-abnormal));
+  }
+  
+  .healthcare-critical {
+    color: hsl(var(--healthcare-critical));
+  }
+
+  /* Status utility classes */
+  .status-success {
+    color: var(--color-status-success);
+  }
+  
+  .status-warning {
+    color: var(--color-status-warning);
+  }
+  
+  .status-error {
+    color: var(--color-status-error);
+  }
+  
+  .status-info {
+    color: var(--color-status-info);
+  }
+  
+  .status-critical {
+    color: var(--color-status-critical);
+  }
+
+  /* Card Type Utility Classes */
+  .card-appointment {
+    color: hsl(var(--card-appointment));
+  }
+  
+  .card-appointment-bg {
+    background-color: hsl(var(--card-appointment-light));
+  }
+  
+  .card-appointment-border {
+    border-color: hsl(var(--card-appointment-border));
+  }
+  
+  .card-message {
+    color: hsl(var(--card-message));
+  }
+  
+  .card-message-bg {
+    background-color: hsl(var(--card-message-light));
+  }
+  
+  .card-message-border {
+    border-color: hsl(var(--card-message-border));
+  }
+  
+  .card-lab-result {
+    color: hsl(var(--card-lab-result));
+  }
+  
+  .card-lab-result-bg {
+    background-color: hsl(var(--card-lab-result-light));
+  }
+  
+  .card-lab-result-border {
+    border-color: hsl(var(--card-lab-result-border));
+  }
+  
+  .card-vital-signs {
+    color: hsl(var(--card-vital-signs));
+  }
+  
+  .card-vital-signs-bg {
+    background-color: hsl(var(--card-vital-signs-light));
+  }
+  
+  .card-vital-signs-border {
+    border-color: hsl(var(--card-vital-signs-border));
+  }
+  
+  .card-soap-note {
+    color: hsl(var(--card-soap-note));
+  }
+  
+  .card-soap-note-bg {
+    background-color: hsl(var(--card-soap-note-light));
+  }
+  
+  .card-soap-note-border {
+    border-color: hsl(var(--card-soap-note-border));
+  }
+  
+  .card-prescription {
+    color: hsl(var(--card-prescription));
+  }
+  
+  .card-prescription-bg {
+    background-color: hsl(var(--card-prescription-light));
+  }
+  
+  .card-prescription-border {
+    border-color: hsl(var(--card-prescription-border));
+  }
+  
+  .card-procedure {
+    color: hsl(var(--card-procedure));
+  }
+  
+  .card-procedure-bg {
+    background-color: hsl(var(--card-procedure-light));
+  }
+  
+  .card-procedure-border {
+    border-color: hsl(var(--card-procedure-border));
+  }
+  
+  .card-diagnosis {
+    color: hsl(var(--card-diagnosis));
+  }
+  
+  .card-diagnosis-bg {
+    background-color: hsl(var(--card-diagnosis-light));
+  }
+  
+  .card-diagnosis-border {
+    border-color: hsl(var(--card-diagnosis-border));
+  }
+}
+
+/* ========================================
+ * ACCESSIBILITY & MOTION
+ * ======================================== */
+
+/* ========================================
+ * MAIN BACKGROUND THEMING
+ * ======================================== */
+
+/* Apply theme colors to main background */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+
+body {
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Motion preferences */
+.motion-safe {
+  transition: all 0.3s ease;
+}
+
+.motion-reduce {
+  transition: none;
+}
+
+/* Accordion animations */
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.animate-accordion-down {
+  animation: accordion-down 0.2s ease-out;
+}
+
+.animate-accordion-up {
+  animation: accordion-up 0.2s ease-out;
+}
+
+/* ========================================
+ * ELEVENLABS AI AGENT CUSTOMIZATION
+ * ======================================== */
+
+/* Hide the phone/call icon from ElevenLabs widget */
+.elevenlabs-widget .call-button .icon,
+elevenlabs-convai .call-button .icon,
+elevenlabs-convai [data-role="call-icon"],
+elevenlabs-convai button[aria-label="Start call"] svg,
+elevenlabs-convai button svg,
+elevenlabs-convai .icon,
+elevenlabs-convai [class*="icon"],
+elevenlabs-convai [class*="phone"],
+elevenlabs-convai [class*="call"],
+elevenlabs-convai button[type="button"] svg,
+elevenlabs-convai button > svg,
+elevenlabs-convai .button svg,
+elevenlabs-convai .btn svg,
+/* Target the canvas element that renders the phone icon */
+elevenlabs-convai canvas {
+  display: none !important;   /* hides the phone icon canvas */
+}
+
+/* Target the specific phone icon that appears in the widget */
+elevenlabs-convai button:has(svg),
+elevenlabs-convai [role="button"]:has(svg),
+elevenlabs-convai .button:has(svg) {
+  background: none !important;
+  border: none !important;
+}
+
+/* Hide any phone-related icons more broadly */
+elevenlabs-convai *[class*="phone"],
+elevenlabs-convai *[class*="call"],
+elevenlabs-convai *[class*="handset"],
+elevenlabs-convai *[class*="receiver"] {
+  display: none !important;
+}
+
+/* If the button looks off after removing the icon, tidy spacing */
+.elevenlabs-widget .call-button,
+elevenlabs-convai .call-button,
+elevenlabs-convai button[aria-label="Start call"],
+elevenlabs-convai button[type="button"],
+elevenlabs-convai [role="button"] {
+  padding: 0.5rem 0.75rem !important;       /* keep comfortable hit area */
+  gap: 0.5rem !important;                   /* space for label if present */
+  background-position: center !important;   /* in case it used a bg image before */
+  min-width: 2rem !important;
+  min-height: 2rem !important;
+}
+
+/* ========================================
+ * DROPDOWN PORTAL CONTAINER
+ * ======================================== */
+
+/* Button outline variant - Use tenant colors when available */
+/* Targets buttons with outline variant that have border-input class (from Button component) */
+button.border.border-input:hover,
+button[class*="border-input"]:hover {
+  background-color: var(--tenant-primary, var(--color-interactive-primary-hover)) !important;
+  color: white !important;
+}
+
+/* Portal container for dropdowns - managed by React */
+#dropdown-portal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999999;
+  isolation: isolate;
+}
+
+/* Force dropdowns to be above everything */
+.dropdown-menu {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+  pointer-events: auto !important;
+}
+
+/* ========================================
+ * SHEET/MOBILE MENU Z-INDEX FIX
+ * ======================================== */
+
+/* Ensure Sheet overlay has correct z-index - override any conflicting rules */
+/* Use the specific class added to SheetOverlay component */
+.sheet-overlay {
+  z-index: 99999999998 !important;
+}
+
+/* Ensure Sheet content has correct z-index - must be higher than overlay */
+/* Use the specific class added to SheetContent component */
+.sheet-content {
+  z-index: 99999999999 !important;
+}
+
+/* Ensure MobileBookingCTA stays below Sheet/Dialog components */
+/* Sheet components use inline styles with UI_Z_INDEX values (99999999998/99999999999) */
+/* MobileBookingCTA uses z-40, which is intentionally lower */
+
+/* ========================================
+ * TENANT BRANDING - SelectItem Highlighted State
+ * ======================================== */
+
+/* Override SelectItem highlighted state with tenant colors */
+/* Used in booking wizard and other tenant-branded components */
+[data-highlighted] {
+  background-color: color-mix(in srgb, var(--tenant-primary, var(--zenthea-teal)) 10%, transparent) !important;
+  color: var(--tenant-primary, var(--zenthea-teal)) !important;
+}
+
+/* ========================================
+ * PROVIDER GALLERY ANIMATIONS
+ * ======================================== */
+
+/* Staggered fade-in slide-up animation for gallery items */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-gallery-item {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* Subtle scale animation for gallery card hover */
+@keyframes subtleScale {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+/* Image zoom on gallery card hover */
+.group:hover .animate-gallery-zoom {
+  animation: subtleScale 0.4s ease-out forwards;
+}

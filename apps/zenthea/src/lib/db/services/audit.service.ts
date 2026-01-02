@@ -1,5 +1,6 @@
 import { db } from '@startkit/database'
 import { auditLogs } from '@startkit/database/schema'
+import { eq, and, desc, gte, lte } from 'drizzle-orm'
 import type { AuditAction, AuditResource } from '@/lib/security/auditLogger.edge'
 
 /**
@@ -8,6 +9,33 @@ import type { AuditAction, AuditResource } from '@/lib/security/auditLogger.edge
  * Handles HIPAA-compliant audit logging for PHI interactions.
  */
 export class AuditService {
+  /**
+   * Get audit logs from the database
+   */
+  static async getLogs(params: {
+    organizationId: string
+    userId?: string
+    resourceType?: string
+    resourceId?: string
+    startDate?: Date
+    endDate?: Date
+    limit?: number
+  }) {
+    const conditions = [eq(auditLogs.organizationId, params.organizationId)]
+    
+    if (params.userId) conditions.push(eq(auditLogs.userId, params.userId))
+    if (params.resourceType) conditions.push(eq(auditLogs.resourceType, params.resourceType))
+    if (params.resourceId) conditions.push(eq(auditLogs.resourceId, params.resourceId))
+    if (params.startDate) conditions.push(gte(auditLogs.createdAt, params.startDate))
+    if (params.endDate) conditions.push(lte(auditLogs.createdAt, params.endDate))
+
+    return await db.select()
+      .from(auditLogs)
+      .where(and(...conditions))
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(params.limit || 50)
+  }
+
   /**
    * Log an action to the database
    */
