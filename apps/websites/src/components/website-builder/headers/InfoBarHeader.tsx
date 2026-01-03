@@ -189,7 +189,7 @@ export function InfoBarHeader({
       {/* Main Navigation */}
       <div
         className={cn(
-          !useThemeColors ? '' : 'bg-background-primary',
+          !useThemeColors ? '' : 'bg-background-elevated',
           'transition-all duration-300',
           isScrolled && config.sticky && 'shadow-md'
         )}
@@ -312,7 +312,7 @@ export function InfoBarHeader({
       <div
         className={cn(
           'md:hidden absolute top-full left-0 right-0 shadow-lg overflow-hidden transition-all duration-300',
-          !useThemeColors ? '' : 'bg-background-primary',
+          !useThemeColors ? '' : 'bg-background-elevated',
           isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         )}
         style={!useThemeColors ? { backgroundColor: mobileBgColor } : undefined}

@@ -142,7 +142,7 @@ export default function StickySimpleHeader({
       className={cn(
         'w-full z-50 transition-all duration-300',
         sticky && 'sticky top-0',
-        transparent ? 'bg-transparent' : !useThemeColors ? '' : 'bg-background-primary',
+        transparent ? 'bg-transparent' : !useThemeColors ? '' : 'bg-background-elevated',
         !transparent && 'border-b border-border-primary',
       )}
       style={!transparent && !useThemeColors ? { backgroundColor: headerBgColor } : undefined}
