@@ -61,9 +61,10 @@ function cssVarToHex(cssVar: string): string {
   }
   
   // If it's a CSS variable, try to resolve it
-  if (cssVar.startsWith('var(--')) {
+  const normalized = cssVar.toLowerCase();
+  if (normalized.startsWith('var(--')) {
     // Extract variable name
-    const varName = cssVar.match(/var\(--([^)]+)\)/)?.[1];
+    const varName = normalized.match(/var\(--([^)]+)\)/)?.[1];
     if (!varName) {
       return '#000000'; // Fallback
     }
@@ -126,7 +127,7 @@ function ColorPicker({ label, value, onChange, disabled }: ColorPickerProps) {
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 font-mono text-sm uppercase"
+          className="flex-1 font-mono text-sm"
           placeholder="#000000"
           disabled={disabled}
         />
@@ -297,7 +298,7 @@ function AppearanceConfigForm({
             <Input
               value={appearance?.backgroundCustom || ''}
               onChange={(e) => handleCustomBgChange(e.target.value)}
-              className="flex-1 font-mono text-xs uppercase h-8"
+              className="flex-1 font-mono text-xs h-8"
               placeholder="#ffffff"
               disabled={disabled}
             />
@@ -362,7 +363,7 @@ function AppearanceConfigForm({
             <Input
               value={appearance?.textCustom || ''}
               onChange={(e) => handleCustomTextChange(e.target.value)}
-              className="flex-1 font-mono text-xs uppercase h-8"
+              className="flex-1 font-mono text-xs h-8"
               placeholder="#1a1a1a"
               disabled={disabled}
             />
@@ -810,7 +811,7 @@ function HeroBackgroundConfigForm({
                 <Input
                   value={headingAppearance.textCustom || ''}
                   onChange={(e) => updateHeadingText({ textCustom: e.target.value || undefined })}
-                  className="flex-1 font-mono text-xs uppercase h-7"
+                  className="flex-1 font-mono text-xs h-7"
                   placeholder="#ffffff"
                   disabled={disabled}
                 />
@@ -875,7 +876,7 @@ function HeroBackgroundConfigForm({
                 <Input
                   value={taglineAppearance.textCustom || ''}
                   onChange={(e) => updateTaglineText({ textCustom: e.target.value || undefined })}
-                  className="flex-1 font-mono text-xs uppercase h-7"
+                  className="flex-1 font-mono text-xs h-7"
                   placeholder="#ffffff"
                   disabled={disabled}
                 />
@@ -1026,7 +1027,7 @@ function ButtonAppearanceForm({
               <Input
                 value={primaryBtnAppearance.backgroundCustom || ''}
                 onChange={(e) => updatePrimaryButton({ backgroundCustom: e.target.value || undefined })}
-                className="flex-1 font-mono text-xs uppercase h-7"
+                className="flex-1 font-mono text-xs h-7"
                 placeholder="#ffffff"
                 disabled={disabled}
               />
@@ -1087,7 +1088,7 @@ function ButtonAppearanceForm({
               <Input
                 value={primaryBtnAppearance.textCustom || ''}
                 onChange={(e) => updatePrimaryButton({ textCustom: e.target.value || undefined })}
-                className="flex-1 font-mono text-xs uppercase h-7"
+                className="flex-1 font-mono text-xs h-7"
                 placeholder="#008080"
                 disabled={disabled}
               />
@@ -1153,7 +1154,7 @@ function ButtonAppearanceForm({
               <Input
                 value={secondaryBtnAppearance.backgroundCustom || ''}
                 onChange={(e) => updateSecondaryButton({ backgroundCustom: e.target.value || undefined })}
-                className="flex-1 font-mono text-xs uppercase h-7"
+                className="flex-1 font-mono text-xs h-7"
                 placeholder="transparent"
                 disabled={disabled}
               />
@@ -1214,7 +1215,7 @@ function ButtonAppearanceForm({
               <Input
                 value={secondaryBtnAppearance.textCustom || ''}
                 onChange={(e) => updateSecondaryButton({ textCustom: e.target.value || undefined })}
-                className="flex-1 font-mono text-xs uppercase h-7"
+                className="flex-1 font-mono text-xs h-7"
                 placeholder="#ffffff"
                 disabled={disabled}
               />

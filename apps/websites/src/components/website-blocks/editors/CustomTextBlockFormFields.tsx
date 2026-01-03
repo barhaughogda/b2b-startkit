@@ -70,7 +70,7 @@ function ColorPicker({ label, value, onChange, disabled }: ColorPickerProps) {
           value={displayValue || ''}
           onChange={(e) => handleInputChange(e.target.value)}
           className={cn(
-            "flex-1 font-mono text-sm uppercase",
+            "flex-1 font-mono text-sm",
             !isValidHex(value) && value && "border-border-error"
           )}
           placeholder="#000000"

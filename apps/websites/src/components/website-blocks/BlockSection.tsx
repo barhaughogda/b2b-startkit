@@ -43,11 +43,25 @@ export interface BlockSectionProps {
   as?: 'section' | 'div' | 'article';
   /** Default section padding (can be overridden by blocks) */
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Additional styles */
+  style?: React.CSSProperties;
 }
 
 // =============================================================================
 // TOKEN TO STYLE MAPPINGS
 // =============================================================================
+
+/**
+ * Normalize color values (handle uppercase VAR -> var)
+ */
+function normalizeColor(color: string | undefined): string | undefined {
+  if (!color) return color;
+  const trimmed = color.trim();
+  if (trimmed.toLowerCase().startsWith('var(--')) {
+    return trimmed.toLowerCase();
+  }
+  return trimmed;
+}
 
 /**
  * Map background tokens to CSS classes/styles
@@ -59,8 +73,9 @@ function getBackgroundStyle(
   theme?: Partial<ThemeConfig>
 ): React.CSSProperties {
   // Custom color takes precedence
-  if (customColor) {
-    return { backgroundColor: customColor };
+  const normalizedCustom = normalizeColor(customColor);
+  if (normalizedCustom) {
+    return { backgroundColor: normalizedCustom };
   }
 
   // Token-based styling using design system variables
@@ -98,8 +113,9 @@ function getTextStyle(
   backgroundCustom?: string
 ): React.CSSProperties {
   // Custom color takes precedence
-  if (customColor) {
-    return { color: customColor };
+  const normalizedCustom = normalizeColor(customColor);
+  if (normalizedCustom) {
+    return { color: normalizedCustom };
   }
 
   // Token-based styling using design system variables
@@ -115,7 +131,7 @@ function getTextStyle(
     case 'on-accent':
       // Auto-detect contrast for accent backgrounds
       if (backgroundToken === 'accent' || backgroundCustom) {
-        const bgColor = backgroundCustom || (theme ? getPrimaryColor(theme) : '#008080');
+        const bgColor = normalizeColor(backgroundCustom) || (theme ? getPrimaryColor(theme) : '#008080');
         return { color: isColorDark(bgColor) ? '#ffffff' : 'var(--color-text-primary)' };
       }
       return { color: '#ffffff' }; // Default to white for accent backgrounds
@@ -179,6 +195,7 @@ export function BlockSection({
   isPreview = false,
   as: Element = 'section',
   padding,
+  style,
 }: BlockSectionProps) {
   // Merge with defaults
   const mergedAppearance = {
@@ -205,6 +222,7 @@ export function BlockSection({
   const combinedStyle: React.CSSProperties = {
     ...backgroundStyle,
     ...textStyle,
+    ...style, // Block-specific styles override appearance styles
   };
 
   // Has custom styles applied?

@@ -48,8 +48,8 @@ export default function HeroBlock({
     // Background configuration
     backgroundType = 'gradient',
     backgroundColor = '#5FBFAF',
-    gradientFrom = '#5FBFAF',
-    gradientTo = '#5F284A',
+    gradientFrom: rawGradientFrom = '#5FBFAF',
+    gradientTo: rawGradientTo = '#5F284A',
     gradientDirection = 'to-br',
     backgroundImage,
     backgroundOverlay = 0.4,
@@ -58,6 +58,20 @@ export default function HeroBlock({
     headingTextAppearance,
     taglineTextAppearance,
   } = props;
+
+  // Normalize color values (handle uppercase VAR -> var)
+  const normalizeColor = (color: any): string => {
+    if (typeof color !== 'string') return String(color || '');
+    const trimmed = color.trim();
+    if (trimmed.toLowerCase().startsWith('var(--')) {
+      return trimmed.toLowerCase();
+    }
+    return trimmed;
+  };
+
+  const gradientFrom = normalizeColor(rawGradientFrom);
+  const gradientTo = normalizeColor(rawGradientTo);
+  const resolvedBgColorValue = normalizeColor(backgroundColor);
 
   const alignmentClasses = {
     left: 'text-left items-start',
@@ -103,13 +117,14 @@ export default function HeroBlock({
 
   // Helper to determine if a color is dark
   function isColorDark(color: string): boolean {
+    const normalized = color.toLowerCase();
     // Simple heuristic: check if it's a common dark color or has low brightness
-    const darkColors = ['primary', 'secondary', 'accent'];
-    if (darkColors.includes(color)) return true;
+    const darkColors = ['primary', 'secondary', 'accent', 'var(--zenthea-teal)', 'var(--zenthea-purple)'];
+    if (darkColors.includes(normalized)) return true;
 
     // For hex colors, calculate brightness
-    if (color.startsWith('#')) {
-      const hex = color.replace('#', '');
+    if (normalized.startsWith('#')) {
+      const hex = normalized.replace('#', '');
       const r = parseInt(hex.substr(0, 2), 16);
       const g = parseInt(hex.substr(2, 2), 16);
       const b = parseInt(hex.substr(4, 2), 16);
@@ -124,7 +139,7 @@ export default function HeroBlock({
   const getBackgroundStyle = (): React.CSSProperties => {
     switch (backgroundType) {
       case 'solid':
-        return { backgroundColor };
+        return { backgroundColor: resolvedBgColorValue };
       case 'gradient':
         return {
           background: `linear-gradient(${gradientDirections[gradientDirection] || 'to bottom right'}, ${gradientFrom}, ${gradientTo})`,
@@ -173,7 +188,7 @@ export default function HeroBlock({
 
       {/* Content */}
       <div className={cn(
-        'relative z-10 w-full flex flex-col gap-6',
+        'relative z-10 w-full max-w-4xl flex flex-col gap-6',
         alignmentClasses[alignment]
       )}>
         {/* Headline */}

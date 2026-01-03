@@ -167,7 +167,7 @@ export function ColorPicker({ label, value, onChange, disabled }: ColorPickerPro
               onChange('')
             }
           }}
-          className="flex-1 font-mono text-sm uppercase"
+          className="flex-1 font-mono text-sm"
           placeholder="#000000"
           disabled={disabled}
         />
