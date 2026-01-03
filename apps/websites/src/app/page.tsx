@@ -94,8 +94,8 @@ export default function WebsiteBuilderPage({
   const rawSearchParams = useSearchParams();
   
   // Unwrap params and searchParams to satisfy Next.js 15 requirements
-  const resolvedParams = params ? React.use(params) : {};
-  const resolvedSearchParams = searchParams ? React.use(searchParams) : {};
+  const resolvedParams = params ? (typeof (params as any).then === 'function' ? React.use(params) : params) : {};
+  const resolvedSearchParams = searchParams ? (typeof (searchParams as any).then === 'function' ? React.use(searchParams) : searchParams) : {};
 
   // Resolve tenantId: 1. Prop, 2. URL search param (Promise), 3. URL search param (hook), 4. User metadata
   const tenantId = 

@@ -18,9 +18,8 @@ export default function WebsitePreviewPage({
 }: {
   searchParams?: Promise<any>;
 }) {
-  // Unwrap searchParams to satisfy Next.js 15 requirements
-  if (searchParams) React.use(searchParams);
-
+  const resolvedSearchParams = searchParams ? (typeof (searchParams as any).then === 'function' ? React.use(searchParams) : searchParams) : {};
+  
   // Track if component has mounted to prevent hydration mismatches
   const [mounted, setMounted] = useState(false);
   

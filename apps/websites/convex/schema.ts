@@ -25,10 +25,38 @@ const textTokenValidator = v.union(
 
 // Block appearance configuration
 const blockAppearanceValidator = v.object({
+  backgroundColor: v.optional(v.string()),
   backgroundToken: backgroundTokenValidator,
   backgroundCustom: v.optional(v.string()),
+  textColor: v.optional(v.string()),
   textToken: textTokenValidator,
   textCustom: v.optional(v.string()),
+  paddingTop: v.optional(
+    v.union(
+      v.literal('none'),
+      v.literal('small'),
+      v.literal('medium'),
+      v.literal('large')
+    )
+  ),
+  paddingBottom: v.optional(
+    v.union(
+      v.literal('none'),
+      v.literal('small'),
+      v.literal('medium'),
+      v.literal('large')
+    )
+  ),
+  maxWidth: v.optional(
+    v.union(
+      v.literal('narrow'),
+      v.literal('normal'),
+      v.literal('wide'),
+      v.literal('full')
+    )
+  ),
+  borderTop: v.optional(v.boolean()),
+  borderBottom: v.optional(v.boolean()),
 })
 
 export default defineSchema({
