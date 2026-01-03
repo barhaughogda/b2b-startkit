@@ -402,21 +402,12 @@ export default function WebsiteBuilderPage({
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50 text-slate-900 overflow-hidden">
-      {/* HIPAA Compliance Warning & Debug Info */}
-      <div className="flex-shrink-0 flex items-center justify-between px-4 py-1.5 bg-teal-50 border-b border-teal-100 text-[10px] sm:text-xs text-teal-800">
-        <div className="flex items-center gap-2">
-          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-          <p>
-            <span className="font-bold uppercase tracking-wider">HIPAA Notice:</span> This builder is for public marketing only. 
-            <span className="font-medium ml-1 text-teal-700">DO NOT enter Patient Health Information (PHI) in text fields.</span> 
-          </p>
-        </div>
-        {tenantId && (
-          <div className="flex items-center gap-1.5 opacity-60">
-            <span className="font-bold uppercase">Org ID:</span>
-            <code className="bg-teal-100 px-1 rounded">{tenantId}</code>
-          </div>
-        )}
+      <div className="flex-shrink-0 flex items-center gap-2 px-4 py-1.5 bg-teal-50 border-b border-teal-100 text-[10px] sm:text-xs text-teal-800">
+        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+        <p>
+          <span className="font-bold uppercase tracking-wider">HIPAA Notice:</span> This builder is for public marketing only. 
+          <span className="font-medium ml-1 text-teal-700">DO NOT enter Patient Health Information (PHI) in text fields.</span> 
+        </p>
       </div>
 
       {/* Header */}
