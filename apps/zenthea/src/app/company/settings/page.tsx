@@ -42,10 +42,11 @@ interface SettingsSection {
 interface SettingsCard {
   id: string;
   title: string;
-  url: string;
+  url?: string;
   icon: LucideIcon;
   description: string;
   buttonText: string;
+  onClick?: () => void;
 }
 
 export default function ClinicSettingsPage() {
@@ -113,10 +114,13 @@ export default function ClinicSettingsPage() {
         {
           id: 'website',
           title: 'Website',
-          url: '/company/settings/website',
           icon: Globe,
           description: 'Manage your clinic\'s website settings and configuration',
           buttonText: 'Manage Website',
+          onClick: () => {
+            const builderUrl = process.env.NEXT_PUBLIC_WEBSITES_BUILDER_URL || 'http://localhost:3002';
+            window.open(`${builderUrl}?tenantId=${session?.user?.tenantId}`, '_blank');
+          }
         },
       ],
     },
@@ -241,11 +245,19 @@ export default function ClinicSettingsPage() {
   // Render a card for navigation
   const renderCard = (item: SettingsCard) => {
     const Icon = item.icon;
+    const handleAction = () => {
+      if (item.onClick) {
+        item.onClick();
+      } else if (item.url) {
+        router.push(item.url);
+      }
+    };
+
     return (
       <Card
         key={item.id}
         className="cursor-pointer hover:shadow-lg transition-shadow flex flex-col h-full"
-        onClick={() => router.push(item.url)}
+        onClick={handleAction}
       >
         <CardHeader className="flex-1">
           <div className="flex items-center gap-3">
@@ -260,7 +272,7 @@ export default function ClinicSettingsPage() {
             className="w-full"
             onClick={(e) => {
               e.stopPropagation();
-              router.push(item.url);
+              handleAction();
             }}
           >
             {item.buttonText}

@@ -16,7 +16,6 @@ export { BlockConfigPanel } from './BlockConfigPanel';
 export { ThemeSettings } from './ThemeSettings';
 export { LivePreview } from './LivePreview';
 export { SiteRenderer } from './SiteRenderer';
-export { SEOHead } from './SEOHead';
 export { MobileBookingCTA } from './MobileBookingCTA';
 export { SkipLinks } from './SkipLinks';
 export { VersionHistory } from './VersionHistory';

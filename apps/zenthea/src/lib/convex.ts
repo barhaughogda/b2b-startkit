@@ -1,4 +1,5 @@
 import { ConvexReactClient } from "convex/react";
+import { ConvexHttpClient } from "convex/browser";
 
 /**
  * Convex Client - Legacy
@@ -25,7 +26,23 @@ function isValidConvexUrl(url: string | undefined): url is string {
 // Always return a client to satisfy hooks during build/SSG
 // Using a placeholder domain if no URL is provided.
 const fallbackUrl = "https://migrated-to-postgres-placeholder.convex.cloud";
-export const convex = new ConvexReactClient(isValidConvexUrl(convexUrl) ? convexUrl : fallbackUrl);
+const effectiveUrl = isValidConvexUrl(convexUrl) ? convexUrl : fallbackUrl;
+
+// ConvexReactClient should only be initialized on the client or in a file marked with 'use client'
+// to prevent 'createContext' errors in Server Components.
+export const convexHttp = new ConvexHttpClient(effectiveUrl);
+
+// Getter for the React client
+let client: ConvexReactClient | undefined;
+export const getConvexClient = () => {
+  if (!client) {
+    client = new ConvexReactClient(effectiveUrl);
+  }
+  return client;
+};
+
+// For backward compatibility
+export const convex = typeof window !== 'undefined' ? new ConvexReactClient(effectiveUrl) : (null as any);
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   if (isValidConvexUrl(convexUrl)) {

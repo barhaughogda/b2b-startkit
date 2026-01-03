@@ -136,7 +136,6 @@ export default function WebsiteBuilderPage({
   // Modal state
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showStructureModal, setShowStructureModal] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
 
   // Local state
   const [localSiteStructure, setLocalSiteStructure] = useState<SiteStructure | null>(null);
@@ -474,7 +473,19 @@ export default function WebsiteBuilderPage({
 
           <div className="w-px h-6 bg-slate-200 mx-1" />
           
-          <Button variant="outline" size="sm" className="h-9 border-slate-200 text-slate-700 hover:bg-slate-50" onClick={() => setShowPreview(true)} disabled={!hasWebsite}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-9 border-slate-200 text-slate-700 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 transition-all" 
+            onClick={() => {
+              if (websiteData?.slug) {
+                window.open(`/${websiteData.slug}`, '_blank');
+              } else {
+                toast.error('Preview not available: site slug missing');
+              }
+            }} 
+            disabled={!hasWebsite}
+          >
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>
