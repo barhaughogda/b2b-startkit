@@ -417,16 +417,19 @@ export function LivePreview({
       )}
 
       {/* Preview Container */}
-      <div className="flex-1 overflow-auto p-4 flex items-start justify-center">
+      <div className={cn(
+        "flex-1 overflow-auto flex items-start justify-center",
+        viewport === 'desktop' ? "p-0" : "p-8"
+      )}>
         <div
           className={cn(
-            'relative bg-background-primary shadow-xl rounded-lg overflow-hidden transition-all duration-300',
-            viewport !== 'desktop' && 'border border-border-primary'
+            'relative bg-background-primary overflow-hidden transition-all duration-300',
+            viewport === 'desktop' ? "shadow-none" : "shadow-2xl rounded-xl border border-border-primary"
           )}
           style={{
             width: viewport === 'desktop' ? '100%' : `${currentViewport.width}px`,
             maxWidth: '100%',
-            height: viewport === 'desktop' ? 'calc(100% - 2rem)' : `${currentViewport.height}px`,
+            height: viewport === 'desktop' ? '100%' : `${currentViewport.height}px`,
           }}
         >
           {/* Loading Overlay */}

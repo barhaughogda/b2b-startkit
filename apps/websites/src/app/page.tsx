@@ -548,23 +548,23 @@ export default function WebsiteBuilderPage({
         </aside>
 
         {/* Right Preview Area */}
-        <section className="flex-1 bg-slate-100 dark:bg-slate-950 overflow-hidden relative flex flex-col items-center p-4 sm:p-8">
+        <section className="flex-1 bg-white dark:bg-slate-950 overflow-hidden relative flex flex-col">
           {/* Preview Toolbar (Restored) */}
-          <div className="w-full max-w-5xl flex items-center justify-between px-4 py-2 bg-white border border-b-0 border-slate-200 rounded-t-2xl shadow-sm">
+          <div className="w-full flex items-center justify-between px-6 py-3 bg-white border-b border-slate-200 shadow-sm z-10">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-slate-500">Preview</span>
+              <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Preview</span>
               {currentSiteStructure === 'multi-page' && currentPages.length > 0 && (
                 <>
                   <div className="w-px h-4 bg-slate-200" />
                   <Select value={currentPageId} onValueChange={handleNavigate}>
-                    <SelectTrigger className="w-[160px] h-8 text-xs font-medium bg-slate-50 border-slate-200">
+                    <SelectTrigger className="w-[180px] h-9 text-sm font-medium bg-slate-50 border-slate-200 focus:ring-teal-500/20">
                       <SelectValue placeholder="Select page" />
                     </SelectTrigger>
                     <SelectContent>
                       {currentPages.filter(p => p.enabled).map((page) => (
-                        <SelectItem key={page.id} value={page.id} className="text-xs">
+                        <SelectItem key={page.id} value={page.id} className="text-sm">
                           <div className="flex items-center gap-2">
-                            {page.type === 'home' ? <Home className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+                            {page.type === 'home' ? <Home className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
                             {page.title}
                           </div>
                         </SelectItem>
@@ -576,35 +576,38 @@ export default function WebsiteBuilderPage({
             </div>
 
             {/* Device Toggles */}
-            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 scale-90 origin-right">
+            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
               <Button 
                 variant="ghost" 
-                size="icon" 
-                className={cn("h-7 w-7 transition-colors", viewport === 'desktop' ? "bg-white shadow-sm text-teal-600" : "text-slate-400")}
+                size="sm" 
+                className={cn("h-8 px-3 transition-all duration-200", viewport === 'desktop' ? "bg-white shadow-sm text-teal-600 font-bold" : "text-slate-500 hover:text-slate-700")}
                 onClick={() => setViewport('desktop')}
               >
-                <Monitor className="w-4 h-4" />
+                <Monitor className="w-4 h-4 mr-2" />
+                <span className="text-xs">Desktop</span>
               </Button>
               <Button 
                 variant="ghost" 
-                size="icon" 
-                className={cn("h-7 w-7 transition-colors", viewport === 'tablet' ? "bg-white shadow-sm text-teal-600" : "text-slate-400")}
+                size="sm" 
+                className={cn("h-8 px-3 transition-all duration-200", viewport === 'tablet' ? "bg-white shadow-sm text-teal-600 font-bold" : "text-slate-500 hover:text-slate-700")}
                 onClick={() => setViewport('tablet')}
               >
-                <Tablet className="w-4 h-4" />
+                <Tablet className="w-4 h-4 mr-2" />
+                <span className="text-xs">Tablet</span>
               </Button>
               <Button 
                 variant="ghost" 
-                size="icon" 
-                className={cn("h-7 w-7 transition-colors", viewport === 'mobile' ? "bg-white shadow-sm text-teal-600" : "text-slate-400")}
+                size="sm" 
+                className={cn("h-8 px-3 transition-all duration-200", viewport === 'mobile' ? "bg-white shadow-sm text-teal-600 font-bold" : "text-slate-500 hover:text-slate-700")}
                 onClick={() => setViewport('mobile')}
               >
-                <Smartphone className="w-4 h-4" />
+                <Smartphone className="w-4 h-4 mr-2" />
+                <span className="text-xs">Mobile</span>
               </Button>
             </div>
           </div>
 
-          <div className="w-full max-w-5xl flex-1 flex flex-col shadow-2xl rounded-b-2xl overflow-hidden border border-slate-200 bg-white">
+          <div className="w-full flex-1 flex flex-col overflow-hidden bg-slate-50">
             {hasWebsite && currentHeader && currentFooter ? (
               <LivePreview
                 templateId="classic-stacked"
