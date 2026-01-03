@@ -79,6 +79,7 @@ const config: Config = {
         },
         // Semantic Colors - All reference CSS variables
         background: {
+          DEFAULT: 'hsl(var(--background))',
           primary: 'var(--color-background-primary)',
           secondary: 'var(--color-background-secondary)',
           tertiary: 'var(--color-background-tertiary)',

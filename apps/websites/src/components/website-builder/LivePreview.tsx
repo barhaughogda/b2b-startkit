@@ -60,6 +60,9 @@ interface LivePreviewProps {
   // Site structure for footer link resolution
   siteStructure?: 'one-pager' | 'multi-page';
   basePath?: string;
+  hideToolbar?: boolean;
+  viewport?: ViewportSize;
+  onViewportChange?: (viewport: ViewportSize) => void;
 }
 
 // =============================================================================
@@ -144,8 +147,14 @@ export function LivePreview({
   onNavigateToPage,
   siteStructure,
   basePath = '',
+  hideToolbar,
+  viewport: propViewport,
+  onViewportChange,
 }: LivePreviewProps) {
-  const [viewport, setViewport] = useState<ViewportSize>('desktop');
+  const [internalViewport, setInternalViewport] = useState<ViewportSize>('desktop');
+  const viewport = propViewport || internalViewport;
+  const setViewport = onViewportChange || setInternalViewport;
+
   const [isLoading, setIsLoading] = useState(true);
   const [iframeKey, setIframeKey] = useState(0);
   const [isReady, setIsReady] = useState(false);
@@ -331,79 +340,81 @@ export function LivePreview({
       )}
     >
       {/* Preview Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-surface-elevated border-b border-border-primary">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-text-secondary">Preview</span>
-          
-          {/* Page Selector */}
-          {pages.length > 0 && onNavigateToPage && (
-            <>
-              <div className="w-px h-4 bg-border-primary" />
-              <PageSelector
-                pages={pages}
-                activePageId={activePageId}
-                onSelectPage={handleNavigate}
-              />
-            </>
-          )}
-        </div>
+      {!hideToolbar && (
+        <div className="flex items-center justify-between px-4 py-2 bg-surface-elevated border-b border-border-primary">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-text-secondary">Preview</span>
+            
+            {/* Page Selector */}
+            {pages.length > 0 && onNavigateToPage && (
+              <>
+                <div className="w-px h-4 bg-border-primary" />
+                <PageSelector
+                  pages={pages}
+                  activePageId={activePageId}
+                  onSelectPage={handleNavigate}
+                />
+              </>
+            )}
+          </div>
 
-        {/* Viewport Switcher */}
-        <div className="flex items-center gap-1 bg-surface-secondary rounded-lg p-1">
-          {(['desktop', 'tablet', 'mobile'] as const).map((size) => {
-            const Icon = viewportIcons[size];
-            return (
-              <button
-                key={size}
-                onClick={() => setViewport(size)}
-                className={cn(
-                  'p-2 rounded-md transition-colors',
-                  viewport === size
-                    ? 'bg-interactive-primary text-white'
-                    : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-interactive'
-                )}
-                aria-label={`${size} view`}
-                aria-pressed={viewport === size}
+          {/* Viewport Switcher */}
+          <div className="flex items-center gap-1 bg-surface-secondary rounded-lg p-1">
+            {(['desktop', 'tablet', 'mobile'] as const).map((size) => {
+              const Icon = viewportIcons[size];
+              return (
+                <button
+                  key={size}
+                  onClick={() => setViewport(size)}
+                  className={cn(
+                    'p-2 rounded-md transition-colors',
+                    viewport === size
+                      ? 'bg-interactive-primary text-white'
+                      : 'text-text-tertiary hover:text-text-secondary hover:bg-surface-interactive'
+                  )}
+                  aria-label={`${size} view`}
+                  aria-pressed={viewport === size}
+                >
+                  <Icon className="w-4 h-4" />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRefresh}
+              aria-label="Refresh preview"
+              disabled={isLoading}
+            >
+              <RotateCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
+            </Button>
+            {onToggleFullscreen && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onToggleFullscreen}
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
               >
-                <Icon className="w-4 h-4" />
-              </button>
-            );
-          })}
+                <Maximize2 className="w-4 h-4" />
+              </Button>
+            )}
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                aria-label="Close preview"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleRefresh}
-            aria-label="Refresh preview"
-            disabled={isLoading}
-          >
-            <RotateCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
-          </Button>
-          {onToggleFullscreen && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleFullscreen}
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-            >
-              <Maximize2 className="w-4 h-4" />
-            </Button>
-          )}
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              aria-label="Close preview"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
-      </div>
+      )}
 
       {/* Preview Container */}
       <div className="flex-1 overflow-auto p-4 flex items-start justify-center">

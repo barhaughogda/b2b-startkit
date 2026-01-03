@@ -3,8 +3,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useQuery, useMutation } from 'convex/react';
+import { useSearchParams } from 'next/navigation';
 import { api } from '@/convex/_generated/api';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import {
   BlockCanvas,
@@ -45,6 +54,11 @@ import {
   Save,
   Sparkles,
   RefreshCw,
+  Monitor,
+  Tablet,
+  Smartphone,
+  FileText,
+  Home,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
@@ -69,19 +83,25 @@ interface PendingChanges {
 export default function WebsiteBuilderPage({
   params,
   searchParams,
+  tenantId: propTenantId,
 }: {
   params?: Promise<any>;
   searchParams?: Promise<any>;
+  tenantId?: string;
 }) {
   const { user, isLoaded } = useUser();
+  const rawSearchParams = useSearchParams();
   
   // Unwrap params and searchParams to satisfy Next.js 15 requirements
-  // even if we don't use them directly, to prevent proxy enumeration warnings
-  if (params) React.use(params);
-  if (searchParams) React.use(searchParams);
+  const resolvedParams = params ? React.use(params) : {};
+  const resolvedSearchParams = searchParams ? React.use(searchParams) : {};
 
-  // In a real scenario, we'd get the tenantId from the URL or user metadata
-  const tenantId = user?.publicMetadata?.tenantId as string;
+  // Resolve tenantId: 1. Prop, 2. URL search param (Promise), 3. URL search param (hook), 4. User metadata
+  const tenantId = 
+    propTenantId || 
+    (resolvedSearchParams.tenantId as string) || 
+    rawSearchParams.get('tenantId') || 
+    (user?.publicMetadata?.tenantId as string);
 
   // Check if Convex is effectively enabled
   const isConvexEnabled = process.env.NEXT_PUBLIC_CONVEX_URL && 
@@ -132,6 +152,7 @@ export default function WebsiteBuilderPage({
   
   // Current page state (for multi-page editing)
   const [currentPageId, setCurrentPageId] = useState<string>('home');
+  const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   
   // Dirty state tracking for manual save
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -378,13 +399,21 @@ export default function WebsiteBuilderPage({
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50 text-slate-900 overflow-hidden">
-      {/* HIPAA Compliance Warning */}
-      <div className="flex-shrink-0 flex items-center gap-2 px-4 py-1.5 bg-teal-50 border-b border-teal-100 text-[10px] sm:text-xs text-teal-800">
-        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-        <p>
-          <span className="font-bold uppercase tracking-wider">HIPAA Notice:</span> This builder is for public marketing only. 
-          <span className="font-medium ml-1 text-teal-700">DO NOT enter Patient Health Information (PHI) in text fields.</span> 
-        </p>
+      {/* HIPAA Compliance Warning & Debug Info */}
+      <div className="flex-shrink-0 flex items-center justify-between px-4 py-1.5 bg-teal-50 border-b border-teal-100 text-[10px] sm:text-xs text-teal-800">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+          <p>
+            <span className="font-bold uppercase tracking-wider">HIPAA Notice:</span> This builder is for public marketing only. 
+            <span className="font-medium ml-1 text-teal-700">DO NOT enter Patient Health Information (PHI) in text fields.</span> 
+          </p>
+        </div>
+        {tenantId && (
+          <div className="flex items-center gap-1.5 opacity-60">
+            <span className="font-bold uppercase">Org ID:</span>
+            <code className="bg-teal-100 px-1 rounded">{tenantId}</code>
+          </div>
+        )}
       </div>
 
       {/* Header */}
@@ -469,9 +498,6 @@ export default function WebsiteBuilderPage({
             </div>
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="p-4 border-b bg-slate-50/50">
-                <h3 className="font-bold text-[11px] uppercase tracking-widest text-slate-500">Page Structure</h3>
-              </div>
               <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {hasWebsite ? (
                   <div className="p-4">
@@ -480,6 +506,9 @@ export default function WebsiteBuilderPage({
                       onBlocksChange={handleBlocksChange}
                       selectedBlockId={selectedBlockId}
                       onSelectBlock={setSelectedBlockId}
+                      pageType={currentPage?.type || 'home'}
+                      headerVariant={currentHeader?.variant}
+                      footerVariant={currentFooter?.variant}
                     />
                   </div>
                 ) : migrationStatus?.needsMigration ? (
@@ -512,24 +541,82 @@ export default function WebsiteBuilderPage({
         </aside>
 
         {/* Right Preview Area */}
-        <section className="flex-1 bg-slate-100 dark:bg-slate-950 overflow-auto relative flex flex-col items-center p-4 sm:p-8">
-          <div className="w-full max-w-5xl h-full flex flex-col shadow-2xl rounded-t-2xl overflow-hidden border border-slate-200 bg-white">
+        <section className="flex-1 bg-slate-100 dark:bg-slate-950 overflow-hidden relative flex flex-col items-center p-4 sm:p-8">
+          {/* Preview Toolbar (Restored) */}
+          <div className="w-full max-w-5xl flex items-center justify-between px-4 py-2 bg-white border border-b-0 border-slate-200 rounded-t-2xl shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-500">Preview</span>
+              {currentSiteStructure === 'multi-page' && currentPages.length > 0 && (
+                <>
+                  <div className="w-px h-4 bg-slate-200" />
+                  <Select value={currentPageId} onValueChange={handleNavigate}>
+                    <SelectTrigger className="w-[160px] h-8 text-xs font-medium bg-slate-50 border-slate-200">
+                      <SelectValue placeholder="Select page" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currentPages.filter(p => p.enabled).map((page) => (
+                        <SelectItem key={page.id} value={page.id} className="text-xs">
+                          <div className="flex items-center gap-2">
+                            {page.type === 'home' ? <Home className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+                            {page.title}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+            </div>
+
+            {/* Device Toggles */}
+            <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 scale-90 origin-right">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className={cn("h-7 w-7 transition-colors", viewport === 'desktop' ? "bg-white shadow-sm text-teal-600" : "text-slate-400")}
+                onClick={() => setViewport('desktop')}
+              >
+                <Monitor className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className={cn("h-7 w-7 transition-colors", viewport === 'tablet' ? "bg-white shadow-sm text-teal-600" : "text-slate-400")}
+                onClick={() => setViewport('tablet')}
+              >
+                <Tablet className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className={cn("h-7 w-7 transition-colors", viewport === 'mobile' ? "bg-white shadow-sm text-teal-600" : "text-slate-400")}
+                onClick={() => setViewport('mobile')}
+              >
+                <Smartphone className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="w-full max-w-5xl flex-1 flex flex-col shadow-2xl rounded-b-2xl overflow-hidden border border-slate-200 bg-white">
             {hasWebsite && currentHeader && currentFooter ? (
-              <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <LivePreview
-                  templateId="classic-stacked"
-                  header={currentHeader}
-                  footer={currentFooter}
-                  theme={currentTheme}
-                  blocks={activePageBlocks}
-                  tenantName={websiteData?.name}
-                  selectedBlockId={selectedBlockId}
-                  onSelectBlock={setSelectedBlockId}
-                  pages={currentPages}
-                  activePageId={currentPageId}
-                  siteStructure={currentSiteStructure}
-                />
-              </div>
+              <LivePreview
+                templateId="classic-stacked"
+                header={currentHeader}
+                footer={currentFooter}
+                theme={currentTheme}
+                blocks={activePageBlocks}
+                tenantName={websiteData?.name}
+                tenantId={tenantId}
+                selectedBlockId={selectedBlockId}
+                onSelectBlock={setSelectedBlockId}
+                pages={currentPages}
+                activePageId={currentPageId}
+                onNavigateToPage={handleNavigate}
+                siteStructure={currentSiteStructure}
+                hideToolbar={true} // New prop to hide internal toolbar
+                viewport={viewport}
+                onViewportChange={setViewport}
+              />
             ) : migrationStatus?.needsMigration ? (
               <div className="flex flex-col items-center justify-center h-full p-12 text-center bg-slate-50/30">
                 <div className="max-w-md">

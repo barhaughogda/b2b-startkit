@@ -14,5 +14,5 @@ export default function TenantEditorPage({
   // In the real app, we would ensure the user has permission to edit this tenant
   // and pass the tenantId down to the main builder component.
   
-  return <WebsiteBuilderPage />;
+  return <WebsiteBuilderPage tenantId={tenantId} />;
 }
