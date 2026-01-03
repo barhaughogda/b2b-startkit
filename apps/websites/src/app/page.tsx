@@ -301,6 +301,12 @@ export default function WebsiteBuilderPage({
     markDirty('footer', newFooter);
   };
 
+  const handleMenuColumnsChange = (menuColumns: import('@/lib/website-builder/schema').FooterMenuColumn[]) => {
+    const newFooter = { ...(currentFooter || {}), menuColumns } as FooterConfig;
+    setLocalFooter(newFooter);
+    markDirty('footer', newFooter);
+  };
+
   const handleThemeChange = (theme: ThemeConfig) => {
     setLocalTheme(theme);
     markDirty('theme', theme);
@@ -483,7 +489,7 @@ export default function WebsiteBuilderPage({
       <main className="flex-1 flex flex-row overflow-hidden min-h-0 relative bg-slate-100/50">
         {/* Left Sidebar */}
         <aside className="w-80 border-r bg-white flex flex-col overflow-hidden flex-shrink-0 shadow-sm z-10">
-          {selectedBlockId && selectedBlock ? (
+          {selectedBlockId ? (
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="px-4 py-3 border-b flex items-center bg-slate-50/80">
                 <Button variant="ghost" size="sm" onClick={() => setSelectedBlockId(null)} className="h-8 gap-1.5 px-2 text-slate-600 hover:text-slate-900">
@@ -492,15 +498,42 @@ export default function WebsiteBuilderPage({
                 </Button>
               </div>
               <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <BlockConfigPanel 
-                  block={selectedBlock} 
-                  onUpdate={(props) => {
-                    const activeBlocks = getActiveBlocks();
-                    const newBlocks = activeBlocks.map(b => b.id === selectedBlockId ? { ...b, props } : b);
-                    handleBlocksChange(newBlocks);
-                  }}
-                  onClose={() => setSelectedBlockId(null)} 
-                />
+                {selectedBlockId === 'header' ? (
+                  <HeaderBlockPanel 
+                    headerConfig={currentHeader}
+                    onHeaderChange={handleHeaderChange}
+                    onHeaderConfigChange={handleHeaderConfigChange}
+                    pages={currentPages}
+                    siteStructure={currentSiteStructure}
+                    onPagesChange={handlePagesChange}
+                  />
+                ) : selectedBlockId === 'footer' ? (
+                  <FooterBlockPanel 
+                    footerConfig={currentFooter}
+                    theme={currentTheme}
+                    onFooterChange={handleFooterChange}
+                    onFooterConfigChange={handleFooterConfigChange}
+                    onSocialLinksChange={handleSocialLinksChange}
+                    onExternalLinksChange={handleExternalLinksChange}
+                    onMenuColumnsChange={handleMenuColumnsChange}
+                    pages={currentPages}
+                    onPagesChange={handlePagesChange}
+                  />
+                ) : selectedBlock ? (
+                  <BlockConfigPanel 
+                    block={selectedBlock} 
+                    onUpdate={(props) => {
+                      const activeBlocks = getActiveBlocks();
+                      const newBlocks = activeBlocks.map(b => b.id === selectedBlockId ? { ...b, props } : b);
+                      handleBlocksChange(newBlocks);
+                    }}
+                    onClose={() => setSelectedBlockId(null)} 
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+                    Block not found
+                  </div>
+                )}
               </div>
             </div>
           ) : (
