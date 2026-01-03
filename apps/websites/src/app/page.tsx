@@ -277,6 +277,12 @@ export default function WebsiteBuilderPage({
     }
   };
 
+  const handleAppearanceUpdate = (appearance: import('@/lib/website-builder/schema').BlockAppearance | undefined) => {
+    const activeBlocks = getActiveBlocks();
+    const newBlocks = activeBlocks.map(b => b.id === selectedBlockId ? { ...b, appearance } : b);
+    handleBlocksChange(newBlocks);
+  };
+
   const handleHeaderConfigChange = (config: Partial<HeaderConfig>) => {
     const newHeader = { ...(currentHeader || {}), ...config } as HeaderConfig;
     setLocalHeader(newHeader);
@@ -527,6 +533,7 @@ export default function WebsiteBuilderPage({
                       const newBlocks = activeBlocks.map(b => b.id === selectedBlockId ? { ...b, props } : b);
                       handleBlocksChange(newBlocks);
                     }}
+                    onAppearanceUpdate={handleAppearanceUpdate}
                     onClose={() => setSelectedBlockId(null)} 
                   />
                 ) : (

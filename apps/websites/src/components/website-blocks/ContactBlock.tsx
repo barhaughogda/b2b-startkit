@@ -194,14 +194,12 @@ export default function ContactBlock({
       appearance={appearance}
       theme={theme}
       blockType="contact"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
       id="contact"
+      blockId={blockId}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
+      {/* Header */}
+      <div className="text-center mb-12">
           <h2
             className="font-bold mb-4"
             style={{
@@ -354,7 +352,6 @@ export default function ContactBlock({
             </Card>
           </div>
         )}
-      </div>
     </BlockSection>
   );
 }

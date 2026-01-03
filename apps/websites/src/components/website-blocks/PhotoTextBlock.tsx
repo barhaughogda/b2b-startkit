@@ -71,14 +71,12 @@ export default function PhotoTextBlock({
       appearance={appearance}
       theme={theme}
       blockType="photo-text"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
+      blockId={blockId}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          className={cn(
-            'grid gap-8 lg:gap-12 items-center',
+      <div
+        className={cn(
+          'grid gap-8 lg:gap-12 items-center',
             // Mobile: single column (image on top)
             'grid-cols-1',
             // Desktop: two columns
@@ -193,7 +191,6 @@ export default function PhotoTextBlock({
             )}
           </div>
         </div>
-      </div>
     </BlockSection>
   );
 }

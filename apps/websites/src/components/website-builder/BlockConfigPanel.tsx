@@ -187,38 +187,36 @@ function AppearanceConfigForm({
   const [showCustomBg, setShowCustomBg] = useState(Boolean(appearance?.backgroundCustom));
   const [showCustomText, setShowCustomText] = useState(Boolean(appearance?.textCustom));
 
-  const handleBackgroundTokenChange = (value: BackgroundToken) => {
+  const handleUpdate = (updates: Partial<BlockAppearance>) => {
     onUpdate({
+      ...DEFAULT_BLOCK_APPEARANCE,
+      ...appearance,
+      ...updates,
+    });
+  };
+
+  const handleBackgroundTokenChange = (value: BackgroundToken) => {
+    handleUpdate({
       backgroundToken: value,
-      textToken: appearance?.textToken ?? DEFAULT_BLOCK_APPEARANCE.textToken,
       backgroundCustom: showCustomBg ? appearance?.backgroundCustom : undefined,
-      textCustom: appearance?.textCustom,
     });
   };
 
   const handleTextTokenChange = (value: TextToken) => {
-    onUpdate({
-      backgroundToken: appearance?.backgroundToken ?? DEFAULT_BLOCK_APPEARANCE.backgroundToken,
+    handleUpdate({
       textToken: value,
-      backgroundCustom: appearance?.backgroundCustom,
       textCustom: showCustomText ? appearance?.textCustom : undefined,
     });
   };
 
   const handleCustomBgChange = (value: string) => {
-    onUpdate({
-      backgroundToken: appearance?.backgroundToken ?? DEFAULT_BLOCK_APPEARANCE.backgroundToken,
-      textToken: appearance?.textToken ?? DEFAULT_BLOCK_APPEARANCE.textToken,
+    handleUpdate({
       backgroundCustom: value || undefined,
-      textCustom: appearance?.textCustom,
     });
   };
 
   const handleCustomTextChange = (value: string) => {
-    onUpdate({
-      backgroundToken: appearance?.backgroundToken ?? DEFAULT_BLOCK_APPEARANCE.backgroundToken,
-      textToken: appearance?.textToken ?? DEFAULT_BLOCK_APPEARANCE.textToken,
-      backgroundCustom: appearance?.backgroundCustom,
+    handleUpdate({
       textCustom: value || undefined,
     });
   };
@@ -233,10 +231,15 @@ function AppearanceConfigForm({
     (appearance?.backgroundToken && appearance.backgroundToken !== 'default') ||
     (appearance?.textToken && appearance.textToken !== 'default') ||
     appearance?.backgroundCustom ||
-    appearance?.textCustom;
+    appearance?.textCustom ||
+    (appearance?.paddingTop && appearance.paddingTop !== DEFAULT_BLOCK_APPEARANCE.paddingTop) ||
+    (appearance?.paddingBottom && appearance.paddingBottom !== DEFAULT_BLOCK_APPEARANCE.paddingBottom) ||
+    (appearance?.maxWidth && appearance.maxWidth !== DEFAULT_BLOCK_APPEARANCE.maxWidth) ||
+    appearance?.borderTop ||
+    appearance?.borderBottom;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Background Section */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">Background</Label>
@@ -367,6 +370,99 @@ function AppearanceConfigForm({
         )}
       </div>
 
+      {/* Layout Section */}
+      <div className="space-y-4 pt-4 border-t border-border-primary">
+        <Label className="text-sm font-medium">Layout & Spacing</Label>
+
+        {/* Max Width */}
+        <div className="space-y-2">
+          <Label className="text-xs text-text-secondary">Maximum Content Width</Label>
+          <Select
+            value={appearance?.maxWidth || 'normal'}
+            onValueChange={(value) => handleUpdate({ maxWidth: value as any })}
+            disabled={disabled}
+          >
+            <SelectTrigger className="w-full h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="narrow">Narrow</SelectItem>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="wide">Wide</SelectItem>
+              <SelectItem value="full">Full Width</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Padding */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-xs text-text-secondary">Top Padding</Label>
+            <Select
+              value={appearance?.paddingTop || 'medium'}
+              onValueChange={(value) => handleUpdate({ paddingTop: value as any })}
+              disabled={disabled}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs text-text-secondary">Bottom Padding</Label>
+            <Select
+              value={appearance?.paddingBottom || 'medium'}
+              onValueChange={(value) => handleUpdate({ paddingBottom: value as any })}
+              disabled={disabled}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Borders */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Switch
+              id="border-top"
+              checked={appearance?.borderTop || false}
+              onCheckedChange={(checked) => handleUpdate({ borderTop: checked })}
+              disabled={disabled}
+              className="scale-75"
+            />
+            <Label htmlFor="border-top" className="text-xs text-text-secondary">
+              Top Border
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="border-bottom"
+              checked={appearance?.borderBottom || false}
+              onCheckedChange={(checked) => handleUpdate({ borderBottom: checked })}
+              disabled={disabled}
+              className="scale-75"
+            />
+            <Label htmlFor="border-bottom" className="text-xs text-text-secondary">
+              Bottom Border
+            </Label>
+          </div>
+        </div>
+      </div>
+
       {/* Reset Button */}
       {hasCustomizations && (
         <Button
@@ -374,7 +470,7 @@ function AppearanceConfigForm({
           size="sm"
           onClick={handleResetAppearance}
           disabled={disabled}
-          className="w-full text-xs text-text-secondary hover:text-text-primary"
+          className="w-full text-xs text-text-secondary hover:text-text-primary mt-2"
         >
           Reset to Block Defaults
         </Button>
@@ -414,7 +510,12 @@ function HeroBackgroundConfigForm({
   props,
   onUpdate,
   disabled,
-}: HeroBackgroundConfigFormProps) {
+  appearance,
+  onAppearanceUpdate,
+}: HeroBackgroundConfigFormProps & { 
+  appearance?: BlockAppearance; 
+  onAppearanceUpdate?: (appearance: BlockAppearance | undefined) => void 
+}) {
   const backgroundType = (props.backgroundType as string) || 'gradient';
   
   // Text appearance state
@@ -448,122 +549,207 @@ function HeroBackgroundConfigForm({
     });
   };
 
+  const handleLayoutUpdate = (updates: Partial<BlockAppearance>) => {
+    if (onAppearanceUpdate) {
+      onAppearanceUpdate({
+        ...DEFAULT_BLOCK_APPEARANCE,
+        ...appearance,
+        ...updates,
+      });
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">Background</Label>
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">Background</Label>
+        </div>
+        
+        {/* Background Type Selector */}
+        <div className="space-y-2">
+          <Label className="text-xs text-text-secondary">Type</Label>
+          <Select
+            value={backgroundType}
+            onValueChange={(value) => onUpdate({ ...props, backgroundType: value })}
+            disabled={disabled}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="gradient">Gradient</SelectItem>
+              <SelectItem value="solid">Solid Color</SelectItem>
+              <SelectItem value="image">Background Image</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Gradient Controls */}
+        {backgroundType === 'gradient' && (
+          <div className="space-y-4 p-3 bg-surface-secondary rounded-lg">
+            <ColorPicker
+              label="Start Color"
+              value={(props.gradientFrom as string) || 'var(--zenthea-teal)'}
+              onChange={(value) => onUpdate({ ...props, gradientFrom: value })}
+              disabled={disabled}
+            />
+            <ColorPicker
+              label="End Color"
+              value={(props.gradientTo as string) || 'var(--zenthea-purple)'}
+              onChange={(value) => onUpdate({ ...props, gradientTo: value })}
+              disabled={disabled}
+            />
+            <div className="space-y-2">
+              <Label className="text-xs text-text-secondary">Direction</Label>
+              <Select
+                value={(props.gradientDirection as string) || 'to-br'}
+                onValueChange={(value) => onUpdate({ ...props, gradientDirection: value })}
+                disabled={disabled}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="to-r">→ Right</SelectItem>
+                  <SelectItem value="to-l">← Left</SelectItem>
+                  <SelectItem value="to-t">↑ Up</SelectItem>
+                  <SelectItem value="to-b">↓ Down</SelectItem>
+                  <SelectItem value="to-tr">↗ Top Right</SelectItem>
+                  <SelectItem value="to-tl">↖ Top Left</SelectItem>
+                  <SelectItem value="to-br">↘ Bottom Right</SelectItem>
+                  <SelectItem value="to-bl">↙ Bottom Left</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {/* Solid Color Controls */}
+        {backgroundType === 'solid' && (
+          <div className="p-3 bg-surface-secondary rounded-lg">
+            <ColorPicker
+              label="Background Color"
+              value={(props.backgroundColor as string) || 'var(--zenthea-teal)'}
+              onChange={(value) => onUpdate({ ...props, backgroundColor: value })}
+              disabled={disabled}
+            />
+          </div>
+        )}
+
+        {/* Image Controls */}
+        {backgroundType === 'image' && (
+          <div className="space-y-4 p-3 bg-surface-secondary rounded-lg">
+            <div className="space-y-2">
+              <Label className="text-xs text-text-secondary">Background Image</Label>
+              <ImageUpload
+                value={(props.backgroundImage as string) || ''}
+                onChange={(url) => onUpdate({ ...props, backgroundImage: url })}
+                disabled={disabled}
+                aspectRatio="landscape"
+                maxSize={10}
+                imageType="hero"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-text-secondary">
+                Overlay Darkness: {Math.round(((props.backgroundOverlay as number) || 0.4) * 100)}%
+              </Label>
+              <Slider
+                value={[((props.backgroundOverlay as number) || 0.4) * 100]}
+                onValueChange={(values) => {
+                  const val = values[0];
+                  if (val !== undefined) {
+                    onUpdate({ ...props, backgroundOverlay: val / 100 });
+                  }
+                }}
+                min={0}
+                max={80}
+                step={5}
+                disabled={disabled}
+                className="w-full"
+              />
+              <p className="text-xs text-text-tertiary">
+                Darkens the image to improve text readability
+              </p>
+            </div>
+          </div>
+        )}
       </div>
       
-      {/* Background Type Selector */}
-      <div className="space-y-2">
-        <Label className="text-xs text-text-secondary">Type</Label>
-        <Select
-          value={backgroundType}
-          onValueChange={(value) => onUpdate({ ...props, backgroundType: value })}
-          disabled={disabled}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="gradient">Gradient</SelectItem>
-            <SelectItem value="solid">Solid Color</SelectItem>
-            <SelectItem value="image">Background Image</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Layout & Spacing Section */}
+      <div className="space-y-4 pt-4 border-t border-border-primary">
+        <Label className="text-sm font-medium">Layout & Spacing</Label>
 
-      {/* Gradient Controls */}
-      {backgroundType === 'gradient' && (
-        <div className="space-y-4 p-3 bg-surface-secondary rounded-lg">
-          <ColorPicker
-            label="Start Color"
-            value={(props.gradientFrom as string) || 'var(--zenthea-teal)'}
-            onChange={(value) => onUpdate({ ...props, gradientFrom: value })}
-            disabled={disabled}
-          />
-          <ColorPicker
-            label="End Color"
-            value={(props.gradientTo as string) || 'var(--zenthea-purple)'}
-            onChange={(value) => onUpdate({ ...props, gradientTo: value })}
-            disabled={disabled}
-          />
+        {/* Padding */}
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-xs text-text-secondary">Direction</Label>
+            <Label className="text-xs text-text-secondary">Top Padding</Label>
             <Select
-              value={(props.gradientDirection as string) || 'to-br'}
-              onValueChange={(value) => onUpdate({ ...props, gradientDirection: value })}
+              value={appearance?.paddingTop || 'medium'}
+              onValueChange={(value) => handleLayoutUpdate({ paddingTop: value as any })}
               disabled={disabled}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="to-r">→ Right</SelectItem>
-                <SelectItem value="to-l">← Left</SelectItem>
-                <SelectItem value="to-t">↑ Up</SelectItem>
-                <SelectItem value="to-b">↓ Down</SelectItem>
-                <SelectItem value="to-tr">↗ Top Right</SelectItem>
-                <SelectItem value="to-tl">↖ Top Left</SelectItem>
-                <SelectItem value="to-br">↘ Bottom Right</SelectItem>
-                <SelectItem value="to-bl">↙ Bottom Left</SelectItem>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs text-text-secondary">Bottom Padding</Label>
+            <Select
+              value={appearance?.paddingBottom || 'medium'}
+              onValueChange={(value) => handleLayoutUpdate({ paddingBottom: value as any })}
+              disabled={disabled}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="small">Small</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="large">Large</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
-      )}
 
-      {/* Solid Color Controls */}
-      {backgroundType === 'solid' && (
-        <div className="p-3 bg-surface-secondary rounded-lg">
-          <ColorPicker
-            label="Background Color"
-            value={(props.backgroundColor as string) || 'var(--zenthea-teal)'}
-            onChange={(value) => onUpdate({ ...props, backgroundColor: value })}
-            disabled={disabled}
-          />
-        </div>
-      )}
-
-      {/* Image Controls */}
-      {backgroundType === 'image' && (
-        <div className="space-y-4 p-3 bg-surface-secondary rounded-lg">
-          <div className="space-y-2">
-            <Label className="text-xs text-text-secondary">Background Image</Label>
-            <ImageUpload
-              value={(props.backgroundImage as string) || ''}
-              onChange={(url) => onUpdate({ ...props, backgroundImage: url })}
+        {/* Borders */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Switch
+              id="hero-border-top"
+              checked={appearance?.borderTop || false}
+              onCheckedChange={(checked) => handleLayoutUpdate({ borderTop: checked })}
               disabled={disabled}
-              aspectRatio="landscape"
-              maxSize={10}
-              imageType="hero"
+              className="scale-75"
             />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-text-secondary">
-              Overlay Darkness: {Math.round(((props.backgroundOverlay as number) || 0.4) * 100)}%
+            <Label htmlFor="hero-border-top" className="text-xs text-text-secondary">
+              Top Border
             </Label>
-            <Slider
-              value={[((props.backgroundOverlay as number) || 0.4) * 100]}
-              onValueChange={(values) => {
-                const val = values[0];
-                if (val !== undefined) {
-                  onUpdate({ ...props, backgroundOverlay: val / 100 });
-                }
-              }}
-              min={0}
-              max={80}
-              step={5}
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="hero-border-bottom"
+              checked={appearance?.borderBottom || false}
+              onCheckedChange={(checked) => handleLayoutUpdate({ borderBottom: checked })}
               disabled={disabled}
-              className="w-full"
+              className="scale-75"
             />
-            <p className="text-xs text-text-tertiary">
-              Darkens the image to improve text readability
-            </p>
+            <Label htmlFor="hero-border-bottom" className="text-xs text-text-secondary">
+              Bottom Border
+            </Label>
           </div>
         </div>
-      )}
-      
+      </div>
+
       {/* Text Colors Section */}
       <div className="space-y-4 pt-4 border-t border-border-primary">
         <Label className="text-sm font-medium">Text Colors</Label>
@@ -1658,6 +1844,8 @@ export function BlockConfigPanel({
                       props={block.props as Record<string, unknown>}
                       onUpdate={onUpdate}
                       disabled={disabled}
+                      appearance={block.appearance}
+                      onAppearanceUpdate={onAppearanceUpdate}
                     />
                   ) : (
                     <AppearanceConfigForm

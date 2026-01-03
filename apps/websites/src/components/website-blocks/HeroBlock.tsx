@@ -8,9 +8,9 @@
  */
 
 import React from 'react';
-import { HeroBlockProps } from '@/lib/website-builder/schema';
+import { HeroBlockProps, type BlockAppearance, type TextToken } from '@/lib/website-builder/schema';
 import { BlockComponentProps } from './block-registry';
-import { useAppearanceStyles, resolveTextToken } from './BlockSection';
+import { BlockSection, useAppearanceStyles, resolveTextToken } from './BlockSection';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -136,10 +136,13 @@ export default function HeroBlock({
   };
 
   return (
-    <section
-      className={cn(
-        'relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px] flex items-center justify-center overflow-hidden'
-      )}
+    <BlockSection
+      appearance={appearance}
+      theme={theme}
+      blockType="hero"
+      as="section"
+      blockId={blockId}
+      className="min-h-[400px] sm:min-h-[450px] md:min-h-[500px] flex items-center justify-center"
       style={{
         ...getBackgroundStyle(),
         ...(theme ? {
@@ -169,7 +172,7 @@ export default function HeroBlock({
 
       {/* Content */}
       <div className={cn(
-        'relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex flex-col gap-6',
+        'relative z-10 w-full flex flex-col gap-6',
         alignmentClasses[alignment]
       )}>
         {/* Headline */}
@@ -392,6 +395,6 @@ export default function HeroBlock({
           <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-black/5 rounded-tr-full" />
         </>
       )}
-    </section>
+    </BlockSection>
   );
 }

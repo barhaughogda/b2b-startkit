@@ -214,14 +214,41 @@ export function BlockSection({
     Boolean(mergedAppearance.backgroundCustom) ||
     Boolean(mergedAppearance.textCustom);
 
+  // Combining with layout settings
+  const maxWidthClasses = {
+    narrow: 'max-w-4xl mx-auto',
+    normal: 'max-w-6xl mx-auto',
+    wide: 'max-w-7xl mx-auto',
+    full: 'max-w-none',
+  };
+
+  const paddingTopClasses = {
+    none: 'pt-0',
+    small: 'pt-8 md:pt-12',
+    medium: 'pt-12 md:pt-20',
+    large: 'pt-20 md:pt-32',
+  };
+
+  const paddingBottomClasses = {
+    none: 'pb-0',
+    small: 'pb-8 md:pb-12',
+    medium: 'pb-12 md:pb-20',
+    large: 'pb-20 md:pb-32',
+  };
+
   return (
     <Element
       id={id}
       className={cn(
         // Base classes
-        'relative w-full',
-        // Padding based on prop
-        getPaddingClasses(padding),
+        'relative w-full overflow-hidden',
+        // Top Border
+        mergedAppearance.borderTop && 'border-t border-border-primary/50',
+        // Bottom Border
+        mergedAppearance.borderBottom && 'border-b border-border-primary/50',
+        // Padding based on appearance settings
+        paddingTopClasses[mergedAppearance.paddingTop || 'medium'],
+        paddingBottomClasses[mergedAppearance.paddingBottom || 'medium'],
         // Preview mode indicator
         isPreview && hasCustomAppearance && 'ring-1 ring-interactive-primary/20',
         // Custom className
@@ -232,7 +259,12 @@ export function BlockSection({
       data-block-id={blockId}
       data-has-custom-appearance={hasCustomAppearance ? 'true' : undefined}
     >
-      {children}
+      <div className={cn(
+        'w-full px-4 sm:px-6 lg:px-8',
+        maxWidthClasses[mergedAppearance.maxWidth || 'normal']
+      )}>
+        {children}
+      </div>
     </Element>
   );
 }

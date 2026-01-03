@@ -344,19 +344,16 @@ export default function MediaBlock({
       appearance={appearance}
       theme={theme}
       blockType="media"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
+      blockId={blockId}
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          className={cn(
-            'relative w-full overflow-hidden rounded-lg',
-            aspectClasses[aspect]
-          )}
-        >
-          {mediaKind === 'video' ? renderVideo() : renderImage()}
-        </div>
+      <div
+        className={cn(
+          'relative w-full overflow-hidden rounded-lg',
+          aspectClasses[aspect]
+        )}
+      >
+        {mediaKind === 'video' ? renderVideo() : renderImage()}
       </div>
     </BlockSection>
   );

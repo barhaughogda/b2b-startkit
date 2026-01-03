@@ -246,31 +246,28 @@ export default function TrustBarBlock({
       appearance={appearance}
       theme={theme}
       blockType="trust-bar"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16 border-y border-border-primary"
+      blockId={blockId}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          className={cn(
-            layout === 'horizontal'
-              ? 'flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-12'
-              : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6'
-          )}
-        >
-          {displayItems.map((item) => (
-            <div key={item.id} className="relative">
-              <TrustItemDisplay
-                item={item}
-                primaryColor={primaryColor}
-                showLabels={showLabels}
-                grayscaleLogos={grayscaleLogos}
-                compactMode={compactMode}
-                isPreview={isPreview}
-              />
-            </div>
-          ))}
-        </div>
+      <div
+        className={cn(
+          layout === 'horizontal'
+            ? 'flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-12'
+            : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6'
+        )}
+      >
+        {displayItems.map((item) => (
+          <div key={item.id} className="relative">
+            <TrustItemDisplay
+              item={item}
+              primaryColor={primaryColor}
+              showLabels={showLabels}
+              grayscaleLogos={grayscaleLogos}
+              compactMode={compactMode}
+              isPreview={isPreview}
+            />
+          </div>
+        ))}
       </div>
     </BlockSection>
   );

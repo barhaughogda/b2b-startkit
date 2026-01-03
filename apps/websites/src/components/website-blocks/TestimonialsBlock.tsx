@@ -154,13 +154,11 @@ export default function TestimonialsBlock({
       appearance={appearance}
       theme={theme}
       blockType="testimonials"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
+      blockId={blockId}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
+      {/* Header */}
+      <div className="text-center mb-12">
           <h2
             className="font-bold mb-4"
             style={{
@@ -186,7 +184,6 @@ export default function TestimonialsBlock({
 
         {/* Content: Layout or Empty State */}
         {displayTestimonials.length > 0 ? renderLayout() : renderEmptyState()}
-      </div>
     </BlockSection>
   );
 }

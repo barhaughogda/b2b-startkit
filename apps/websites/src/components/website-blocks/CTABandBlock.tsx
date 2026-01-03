@@ -112,12 +112,10 @@ export default function CTABandBlock({
   const resolvedSecondaryLink = secondaryCtaLink || '#contact';
 
   // Build appearance for BlockSection with CTA Band defaults
-  const blockSectionAppearance = {
-    ...DEFAULT_BLOCK_APPEARANCE,
-    backgroundToken: effectiveAppearance.backgroundToken,
-    backgroundCustom: effectiveAppearance.backgroundCustom,
-    textToken: effectiveAppearance.textToken,
-    textCustom: effectiveAppearance.textCustom,
+  const blockSectionAppearance: import('@/lib/website-builder/schema').BlockAppearance = {
+    ...appearance,
+    backgroundToken: (appearance?.backgroundToken || 'accent') as import('@/lib/website-builder/schema').BackgroundToken,
+    textToken: (appearance?.textToken || 'on-accent') as import('@/lib/website-builder/schema').TextToken,
   };
 
   return (
@@ -125,11 +123,10 @@ export default function CTABandBlock({
       appearance={blockSectionAppearance}
       theme={theme}
       blockType="cta-band"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
+      blockId={blockId}
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="text-center">
         {/* Headline */}
         <h2
           className="font-bold mb-3 sm:mb-4 text-2xl sm:text-3xl lg:text-4xl break-words"
@@ -174,7 +171,7 @@ export default function CTABandBlock({
                 <span>{primaryCtaText}</span>
               </Button>
             ) : (
-              <Link href={resolvedPrimaryLink}>
+              <Link href={resolvedPrimaryLink} className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   className={cn(
@@ -217,7 +214,7 @@ export default function CTABandBlock({
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 flex-shrink-0" />
               </Button>
             ) : (
-              <Link href={resolvedSecondaryLink}>
+              <Link href={resolvedSecondaryLink} className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   variant="outline"
@@ -240,3 +237,4 @@ export default function CTABandBlock({
     </BlockSection>
   );
 }
+

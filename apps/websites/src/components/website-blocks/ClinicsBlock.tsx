@@ -126,14 +126,12 @@ export default function ClinicsBlock({
       appearance={appearance}
       theme={theme}
       blockType="clinics"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
       id="locations"
+      blockId={blockId}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
+      {/* Header */}
+      <div className="text-center mb-12">
           <h2
             className="font-bold mb-4"
             style={{
@@ -307,7 +305,6 @@ export default function ClinicsBlock({
             </p>
           </div>
         )}
-      </div>
     </BlockSection>
   );
 }

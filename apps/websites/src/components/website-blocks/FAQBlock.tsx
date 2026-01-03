@@ -319,18 +319,13 @@ export default function FAQBlock({
       appearance={appearance}
       theme={theme}
       blockType="faq"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
       id="faq"
       aria-labelledby="faq-title"
+      blockId={blockId}
     >
-      <div className={cn(
-        "mx-auto px-4 sm:px-6 lg:px-8",
-        layout === 'card-grid' ? 'max-w-6xl' : 'max-w-4xl'
-      )}>
-        {/* Header */}
-        <div className="text-center mb-12">
+      {/* Header */}
+      <div className="text-center mb-12">
           <h2
             id="faq-title"
             className="font-bold mb-4"
@@ -367,7 +362,6 @@ export default function FAQBlock({
             </p>
           </div>
         )}
-      </div>
     </BlockSection>
   );
 }

@@ -75,15 +75,10 @@ export default function CustomTextBlock({
       appearance={appearance}
       theme={theme}
       blockType="custom-text"
-      padding="lg"
       as="section"
-      className="py-12 md:py-16"
+      blockId={blockId}
     >
-      <div className={cn(
-        'mx-auto px-4 sm:px-6 lg:px-8',
-        maxWidthClasses[maxWidth]
-      )}>
-        {showTitle && title && (
+      {showTitle && title && (
           <h2
             className="font-bold mb-4 sm:mb-6 text-2xl sm:text-3xl lg:text-4xl break-words"
             style={{
@@ -142,7 +137,6 @@ export default function CustomTextBlock({
             Add your custom content here...
           </p>
         ) : null}
-      </div>
     </BlockSection>
   );
 }

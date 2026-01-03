@@ -73,22 +73,22 @@ export function FAQAppearanceControls({
 
   return (
     <div className="space-y-4">
+      <Label className="text-sm font-medium">Layout Style</Label>
       <div className="space-y-2">
-        <Label htmlFor="faq-layout">Layout Style</Label>
         <Select
           value={layout}
           onValueChange={handleLayoutChange}
           disabled={disabled}
         >
-          <SelectTrigger id="faq-layout">
+          <SelectTrigger id="faq-layout" className="w-full h-8 text-xs">
             <SelectValue placeholder="Select layout" />
           </SelectTrigger>
           <SelectContent>
             {FAQ_LAYOUT_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.value} value={option.value} className="text-xs">
                 <div className="flex flex-col">
-                  <span>{option.label}</span>
-                  <span className="text-xs text-text-tertiary">
+                  <span className="font-medium">{option.label}</span>
+                  <span className="text-[10px] text-text-tertiary">
                     {option.description}
                   </span>
                 </div>
