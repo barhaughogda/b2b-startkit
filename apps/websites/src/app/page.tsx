@@ -59,6 +59,7 @@ import {
   Smartphone,
   FileText,
   Home,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
@@ -154,6 +155,7 @@ export default function WebsiteBuilderPage({
   // Current page state (for multi-page editing)
   const [currentPageId, setCurrentPageId] = useState<string>('home');
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [showHipaNotice, setShowHipaNotice] = useState(true);
   
   // Dirty state tracking for manual save
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -402,13 +404,24 @@ export default function WebsiteBuilderPage({
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50 text-slate-900 overflow-hidden">
-      <div className="flex-shrink-0 flex items-center gap-2 px-4 py-1.5 bg-teal-50 border-b border-teal-100 text-[10px] sm:text-xs text-teal-800">
-        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-        <p>
-          <span className="font-bold uppercase tracking-wider">HIPAA Notice:</span> This builder is for public marketing only. 
-          <span className="font-medium ml-1 text-teal-700">DO NOT enter Patient Health Information (PHI) in text fields.</span> 
-        </p>
-      </div>
+      {showHipaNotice && (
+        <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-1.5 bg-teal-50 border-b border-teal-100 text-[10px] sm:text-xs text-teal-800">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <p>
+              <span className="font-bold uppercase tracking-wider">HIPAA Notice:</span> This builder is for public marketing only. 
+              <span className="font-medium ml-1 text-teal-700">DO NOT enter Patient Health Information (PHI) in text fields.</span> 
+            </p>
+          </div>
+          <button 
+            onClick={() => setShowHipaNotice(false)}
+            className="p-0.5 hover:bg-teal-100 rounded-full transition-colors"
+            aria-label="Dismiss HIPAA Notice"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Header */}
       <header className="flex-shrink-0 px-4 py-3 border-b flex items-center justify-between bg-white z-10 shadow-sm">
