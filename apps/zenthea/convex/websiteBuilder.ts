@@ -229,10 +229,38 @@ const textTokenValidator = v.union(
 
 // Block appearance configuration
 const blockAppearanceValidator = v.object({
+  backgroundColor: v.optional(v.string()),
   backgroundToken: backgroundTokenValidator,
   backgroundCustom: v.optional(v.string()),
+  textColor: v.optional(v.string()),
   textToken: textTokenValidator,
   textCustom: v.optional(v.string()),
+  paddingTop: v.optional(
+    v.union(
+      v.literal('none'),
+      v.literal('small'),
+      v.literal('medium'),
+      v.literal('large')
+    )
+  ),
+  paddingBottom: v.optional(
+    v.union(
+      v.literal('none'),
+      v.literal('small'),
+      v.literal('medium'),
+      v.literal('large')
+    )
+  ),
+  maxWidth: v.optional(
+    v.union(
+      v.literal('narrow'),
+      v.literal('normal'),
+      v.literal('wide'),
+      v.literal('full')
+    )
+  ),
+  borderTop: v.optional(v.boolean()),
+  borderBottom: v.optional(v.boolean()),
 })
 
 // Page configuration validator
@@ -273,6 +301,16 @@ const headerConfigValidator = v.object({
   infoBarText: v.optional(v.string()),
   sticky: v.boolean(),
   transparent: v.boolean(),
+  // Navigation color customization
+  backgroundColor: v.optional(v.string()), // Primary name for frontend
+  textColor: v.optional(v.string()),
+  mobileBackgroundColor: v.optional(v.string()),
+  mobileTextColor: v.optional(v.string()),
+  headerBackgroundColor: v.optional(v.string()), // Legacy/Secondary names
+  headerTextColor: v.optional(v.string()),
+  headerMobileBackgroundColor: v.optional(v.string()),
+  headerMobileTextColor: v.optional(v.string()),
+  useThemeColors: v.optional(v.boolean()), // Toggle to use global theme colors instead of custom
 })
 
 const footerConfigValidator = v.object({
@@ -289,6 +327,12 @@ const footerConfigValidator = v.object({
   legalLinks: v.array(legalLinkValidator),
   copyrightText: v.optional(v.string()),
   poweredByZenthea: v.boolean(),
+  // Navigation color customization
+  backgroundColor: v.optional(v.string()), // Primary name for frontend
+  textColor: v.optional(v.string()),
+  footerBackgroundColor: v.optional(v.string()), // Legacy/Secondary names
+  footerTextColor: v.optional(v.string()),
+  useThemeColors: v.optional(v.boolean()), // Toggle to use global theme colors instead of custom
 })
 
 const themeConfigValidator = v.object({

@@ -200,6 +200,11 @@ export default defineSchema({
           headerMobileBackgroundColor: v.optional(v.string()), // Hex color for mobile menu background
           headerMobileTextColor: v.optional(v.string()), // Hex color for mobile menu text
           useThemeColors: v.optional(v.boolean()), // Toggle to use global theme colors instead of custom
+          // Navigation color customization
+          backgroundColor: v.optional(v.string()),
+          textColor: v.optional(v.string()),
+          mobileBackgroundColor: v.optional(v.string()),
+          mobileTextColor: v.optional(v.string()),
         }),
         // Footer configuration
         footer: v.object({
@@ -290,7 +295,9 @@ export default defineSchema({
           copyrightText: v.optional(v.string()),
           poweredByZenthea: v.boolean(),
           // Navigation color customization
-          footerBackgroundColor: v.optional(v.string()), // Hex color for footer background
+          backgroundColor: v.optional(v.string()),
+          textColor: v.optional(v.string()),
+          footerBackgroundColor: v.optional(v.string()), // Legacy/Secondary names
           footerTextColor: v.optional(v.string()), // Hex color for footer text/links
           useThemeColors: v.optional(v.boolean()), // Toggle to use global theme colors instead of custom
         }),
