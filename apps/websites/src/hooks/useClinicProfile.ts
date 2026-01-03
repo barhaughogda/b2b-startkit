@@ -1,48 +1,40 @@
 import useSWR from 'swr'
 import { useMemo } from 'react'
 import { useZentheaSession } from './useZentheaSession'
-
-const fetcher = (url: string) => fetch(url).then(async (res) => {
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || 'Failed to fetch clinics');
-  }
-  return res.json();
-})
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
 
 /**
- * Custom hook for fetching and managing clinic data from Postgres
+ * Custom hook for fetching and managing clinic data
  */
 export function useClinics() {
   const { data: session } = useZentheaSession()
+  const tenantId = session?.user?.tenantId
   
-  const { data, error, isLoading, mutate } = useSWR<any[]>(
-    session ? '/api/clinics' : null,
-    fetcher
+  const clinicsData = useQuery(
+    (api as any).clinics?.getClinicsByTenant,
+    tenantId ? { tenantId } : 'skip'
   )
 
-  const createClinic = async (clinicData: any) => {
-    const response = await fetch('/api/clinics', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(clinicData),
-    })
-    
-    if (!response.ok) {
-      throw new Error('Failed to create clinic')
-    }
-    
-    const newClinic = await response.json()
-    await mutate()
-    return newClinic
-  }
+  const isLoading = clinicsData === undefined
+  const error = clinicsData === null ? new Error('Failed to fetch clinics') : null
+
+  // Map Convex data to expected format if needed
+  const clinics = useMemo(() => {
+    if (!clinicsData) return []
+    return clinicsData.map((c: any) => ({
+      ...c,
+      id: c._id // Map _id to id for compatibility
+    }))
+  }, [clinicsData])
 
   return {
-    clinics: Array.isArray(data) ? data : [],
+    clinics,
     isLoading,
     error,
-    createClinic,
-    refreshClinics: mutate,
+    createClinic: async () => { throw new Error('Not implemented via Convex hook yet') },
+    refreshClinics: () => {},
   }
 }
 
@@ -50,29 +42,33 @@ export function useClinics() {
  * Custom hook for a single clinic
  */
 export function useClinicProfile(id?: string) {
-  const { data: session, status } = useZentheaSession()
+  const { data: session } = useZentheaSession()
   const tenantId = session?.user?.tenantId
   
   // Use either the provided ID or the first clinic found for the tenant
   const { clinics, isLoading: isLoadingClinics } = useClinics()
   const effectiveId = id || clinics[0]?.id
 
-  const { data, error, isLoading, mutate } = useSWR<any>(
-    session && effectiveId ? `/api/clinics/${effectiveId}` : null,
-    fetcher
+  const clinicData = useQuery(
+    (api as any).clinics?.getClinic,
+    effectiveId ? { clinicId: effectiveId as Id<'clinics'> } : 'skip'
   )
+
+  const isLoading = clinicData === undefined
+  const error = clinicData === null ? new Error('Clinic not found') : null
 
   // Transform data for compatibility with legacy components
   const transformedData = useMemo(() => {
-    if (!data) return null;
+    if (!clinicData) return null;
     
     return {
-      ...data,
+      ...clinicData,
+      id: clinicData._id,
       contactInfo: {
-        phone: data.phone,
-        email: data.email || '',
-        website: data.website || '',
-        address: data.address || {
+        phone: clinicData.phone,
+        email: clinicData.email || '',
+        website: clinicData.website || '',
+        address: clinicData.address || {
           street: '',
           city: '',
           state: '',
@@ -81,44 +77,20 @@ export function useClinicProfile(id?: string) {
         }
       }
     };
-  }, [data]);
+  }, [clinicData]);
 
   const updateClinic = async (updateData: any) => {
-    const targetId = effectiveId || id
-    if (!targetId) throw new Error('Clinic ID is required for update')
-    
-    const response = await fetch(`/api/clinics/${targetId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updateData),
-    })
-    
-    if (!response.ok) {
-      throw new Error('Failed to update clinic')
-    }
-    
-    const updated = await response.json()
-    await mutate()
-    return updated
+    // This would need a mutation
+    throw new Error('Update not implemented via Convex hook yet')
   }
 
   // Compatibility mapping for legacy ClinicProfileEditor
   const updateContactInfo = async ({ contactInfo }: { contactInfo: any }) => {
-    // Map contactInfo back to our clinic structure
-    const mappedData = {
-      type: contactInfo.type,
-      phone: contactInfo.phone,
-      email: contactInfo.email,
-      website: contactInfo.website,
-      address: contactInfo.address,
-    }
-    return updateClinic(mappedData)
+    return updateClinic(contactInfo)
   }
 
   // Compatibility mapping for branding updates
   const updateBranding = async (brandingData: any) => {
-    // For now, map to a field that doesn't exist to avoid error but satisfy interface
-    // In a real implementation, we'd add branding to the schema or use organization settings
     return updateClinic({ branding: brandingData })
   }
 
@@ -129,32 +101,12 @@ export function useClinicProfile(id?: string) {
 
   // Compatibility mapping for domain updates
   const updateDomains = async (domainData: any) => {
-    // If domainData contains tenantId, it's coming from a component that passes it
     const { tenantId: _tenantId, ...data } = domainData;
     return updateClinic({ domains: data })
   }
 
   const updateOrganization = async ({ name }: { name: string }) => {
-    const response = await fetch('/api/company/settings/organization', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to update organization')
-    }
-
-    const result = await response.json()
-    
-    // Optimistically update the clinic profile data with the new organization name
-    // This ensures the sidebar and other UI elements update immediately
-    if (data) {
-      await mutate({ ...data, name }, { revalidate: true })
-    }
-
-    return result
+    throw new Error('Update organization not implemented via Convex hook yet')
   }
 
   const canQuery = !!(session && tenantId)

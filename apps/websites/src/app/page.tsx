@@ -14,6 +14,7 @@ import {
   StructureModal,
   HeaderBlockPanel,
   FooterBlockPanel,
+  MigrationPrompt,
 } from '@/components/website-builder';
 import {
   type SiteStructure,
@@ -43,6 +44,7 @@ import {
   Check,
   Save,
   Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
@@ -64,8 +66,20 @@ interface PendingChanges {
 // COMPONENT
 // =============================================================================
 
-export default function WebsiteBuilderPage() {
+export default function WebsiteBuilderPage({
+  params,
+  searchParams,
+}: {
+  params?: Promise<any>;
+  searchParams?: Promise<any>;
+}) {
   const { user, isLoaded } = useUser();
+  
+  // Unwrap params and searchParams to satisfy Next.js 15 requirements
+  // even if we don't use them directly, to prevent proxy enumeration warnings
+  if (params) React.use(params);
+  if (searchParams) React.use(searchParams);
+
   // In a real scenario, we'd get the tenantId from the URL or user metadata
   const tenantId = user?.publicMetadata?.tenantId as string;
 
@@ -78,6 +92,11 @@ export default function WebsiteBuilderPage() {
   // Queries
   const websiteData = useQuery(
     (api as any).websiteBuilder?.getWebsiteBuilder,
+    tenantId && isConvexEnabled ? { tenantId } : 'skip'
+  );
+
+  const migrationStatus = useQuery(
+    (api as any).websiteBuilder?.checkMigrationStatus,
     tenantId && isConvexEnabled ? { tenantId } : 'skip'
   );
 
@@ -151,6 +170,37 @@ export default function WebsiteBuilderPage() {
       setPendingChanges({});
     }
   }, [websiteData]);
+
+  // Auto-initialize if no website exists and no migration needed
+  useEffect(() => {
+    const shouldAutoInit = 
+      isLoaded && 
+      tenantId && 
+      websiteData !== undefined && 
+      websiteData?.websiteBuilder === null && 
+      migrationStatus !== undefined && 
+      !migrationStatus?.needsMigration &&
+      !isSaving;
+
+    if (shouldAutoInit) {
+      const init = async () => {
+        try {
+          setIsSaving(true); // Reuse isSaving to prevent multiple calls
+          await initializeBuilder({
+            tenantId,
+            userEmail: user?.primaryEmailAddress?.emailAddress || '',
+            siteStructure: 'multi-page'
+          });
+          toast.success('Website initialized with defaults');
+        } catch (error) {
+          logger.error('Failed to auto-initialize website:', error);
+        } finally {
+          setIsSaving(false);
+        }
+      };
+      init();
+    }
+  }, [isLoaded, tenantId, websiteData, migrationStatus, initializeBuilder, user, isSaving]);
 
   // Get current values
   const currentHeader = localHeader || websiteData?.websiteBuilder?.header as HeaderConfig;
@@ -432,6 +482,17 @@ export default function WebsiteBuilderPage() {
                       onSelectBlock={setSelectedBlockId}
                     />
                   </div>
+                ) : migrationStatus?.needsMigration ? (
+                  <div className="p-4">
+                    <MigrationPrompt 
+                      tenantId={tenantId}
+                      userEmail={user?.primaryEmailAddress?.emailAddress || ''}
+                      onMigrationComplete={() => {
+                        // The useQuery will automatically refetch
+                        toast.success('Website migrated successfully');
+                      }}
+                    />
+                  </div>
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-8 mt-12">
                     <div className="bg-slate-100 p-5 rounded-full mb-4">
@@ -468,6 +529,35 @@ export default function WebsiteBuilderPage() {
                   activePageId={currentPageId}
                   siteStructure={currentSiteStructure}
                 />
+              </div>
+            ) : migrationStatus?.needsMigration ? (
+              <div className="flex flex-col items-center justify-center h-full p-12 text-center bg-slate-50/30">
+                <div className="max-w-md">
+                  <div className="bg-amber-100 p-6 rounded-3xl shadow-sm inline-block mb-8 border border-amber-200">
+                    <RefreshCw className="w-12 h-12 text-amber-600 animate-spin-slow" />
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Upgrade Available</h2>
+                  <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                    We've detected an existing landing page. You can migrate it to the new Website Builder 
+                    to unlock advanced customization, multiple pages, and a drag-and-drop editor.
+                  </p>
+                  <div className="bg-white/50 backdrop-blur-sm border border-slate-200 rounded-2xl p-6 text-left mb-8">
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">What's included in the upgrade:</h4>
+                    <ul className="space-y-3">
+                      {[
+                        'Professional Multi-page Support',
+                        'Drag-and-Drop Block Management',
+                        'Real-time Visual Preview',
+                        'Version History & Rollback'
+                      ].map((item, i) => (
+                        <li key={i} className="flex items-center gap-3 text-sm text-slate-600 font-medium">
+                          <Check className="w-4 h-4 text-teal-500" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full p-12 text-center bg-slate-50/30">

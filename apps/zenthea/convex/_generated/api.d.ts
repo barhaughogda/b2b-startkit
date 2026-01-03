@@ -8,11 +8,6 @@
  * @module
  */
 
-import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
 import type * as admin_analytics from "../admin/analytics.js";
 import type * as admin_compliance from "../admin/compliance.js";
 import type * as admin_complianceMetrics from "../admin/complianceMetrics.js";
@@ -47,6 +42,7 @@ import type * as clinic_roles from "../clinic/roles.js";
 import type * as clinic_sessionTimeout from "../clinic/sessionTimeout.js";
 import type * as clinic_users from "../clinic/users.js";
 import type * as clinics from "../clinics.js";
+import type * as crons from "../crons.js";
 import type * as customRoles from "../customRoles.js";
 import type * as dashboard from "../dashboard.js";
 import type * as dataAccess from "../dataAccess.js";
@@ -54,6 +50,8 @@ import type * as domains from "../domains.js";
 import type * as encryption from "../encryption.js";
 import type * as invitations from "../invitations.js";
 import type * as landingPage from "../landingPage.js";
+import type * as lib_clinicTime from "../lib/clinicTime.js";
+import type * as lib_timezoneFromAddress from "../lib/timezoneFromAddress.js";
 import type * as locations from "../locations.js";
 import type * as logo from "../logo.js";
 import type * as medicalRecordMembers from "../medicalRecordMembers.js";
@@ -61,8 +59,10 @@ import type * as medicalRecords from "../medicalRecords.js";
 import type * as messageAssignments from "../messageAssignments.js";
 import type * as messages from "../messages.js";
 import type * as mfa from "../mfa.js";
+import type * as migrations_migrateLocationsToClinics from "../migrations/migrateLocationsToClinics.js";
 import type * as migrations_migrateViewScopeToSharing from "../migrations/migrateViewScopeToSharing.js";
 import type * as notifications from "../notifications.js";
+import type * as openingHours from "../openingHours.js";
 import type * as patientProfile from "../patientProfile.js";
 import type * as patientShares from "../patientShares.js";
 import type * as patients from "../patients.js";
@@ -73,8 +73,9 @@ import type * as publicProfiles from "../publicProfiles.js";
 import type * as scheduled_auditRetention from "../scheduled/auditRetention.js";
 import type * as scheduled_calendarSync from "../scheduled/calendarSync.js";
 import type * as sessions from "../sessions.js";
-import type * as superadmin_supportAccess from "../superadmin/supportAccess.js";
+import type * as slotLocks from "../slotLocks.js";
 import type * as superadmin from "../superadmin.js";
+import type * as superadmin_supportAccess from "../superadmin/supportAccess.js";
 import type * as tenantBranding from "../tenantBranding.js";
 import type * as tenants from "../tenants.js";
 import type * as userSharingSettings from "../userSharingSettings.js";
@@ -82,15 +83,14 @@ import type * as users from "../users.js";
 import type * as utils_authorization from "../utils/authorization.js";
 import type * as utils_shareValidation from "../utils/shareValidation.js";
 import type * as validators from "../validators.js";
+import type * as websiteBuilder from "../websiteBuilder.js";
 
-/**
- * A utility for referencing Convex functions in your app's API.
- *
- * Usage:
- * ```js
- * const myFunctionReference = api.myModule.myFunction;
- * ```
- */
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
+
 declare const fullApi: ApiFromModules<{
   "admin/analytics": typeof admin_analytics;
   "admin/compliance": typeof admin_compliance;
@@ -126,6 +126,7 @@ declare const fullApi: ApiFromModules<{
   "clinic/sessionTimeout": typeof clinic_sessionTimeout;
   "clinic/users": typeof clinic_users;
   clinics: typeof clinics;
+  crons: typeof crons;
   customRoles: typeof customRoles;
   dashboard: typeof dashboard;
   dataAccess: typeof dataAccess;
@@ -133,6 +134,8 @@ declare const fullApi: ApiFromModules<{
   encryption: typeof encryption;
   invitations: typeof invitations;
   landingPage: typeof landingPage;
+  "lib/clinicTime": typeof lib_clinicTime;
+  "lib/timezoneFromAddress": typeof lib_timezoneFromAddress;
   locations: typeof locations;
   logo: typeof logo;
   medicalRecordMembers: typeof medicalRecordMembers;
@@ -140,8 +143,10 @@ declare const fullApi: ApiFromModules<{
   messageAssignments: typeof messageAssignments;
   messages: typeof messages;
   mfa: typeof mfa;
+  "migrations/migrateLocationsToClinics": typeof migrations_migrateLocationsToClinics;
   "migrations/migrateViewScopeToSharing": typeof migrations_migrateViewScopeToSharing;
   notifications: typeof notifications;
+  openingHours: typeof openingHours;
   patientProfile: typeof patientProfile;
   patientShares: typeof patientShares;
   patients: typeof patients;
@@ -152,8 +157,9 @@ declare const fullApi: ApiFromModules<{
   "scheduled/auditRetention": typeof scheduled_auditRetention;
   "scheduled/calendarSync": typeof scheduled_calendarSync;
   sessions: typeof sessions;
-  "superadmin/supportAccess": typeof superadmin_supportAccess;
+  slotLocks: typeof slotLocks;
   superadmin: typeof superadmin;
+  "superadmin/supportAccess": typeof superadmin_supportAccess;
   tenantBranding: typeof tenantBranding;
   tenants: typeof tenants;
   userSharingSettings: typeof userSharingSettings;
@@ -161,12 +167,33 @@ declare const fullApi: ApiFromModules<{
   "utils/authorization": typeof utils_authorization;
   "utils/shareValidation": typeof utils_shareValidation;
   validators: typeof validators;
+  websiteBuilder: typeof websiteBuilder;
 }>;
+
+/**
+ * A utility for referencing Convex functions in your app's public API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = api.myModule.myFunction;
+ * ```
+ */
 export declare const api: FilterApi<
   typeof fullApi,
   FunctionReference<any, "public">
 >;
+
+/**
+ * A utility for referencing Convex functions in your app's internal API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = internal.myModule.myFunction;
+ * ```
+ */
 export declare const internal: FilterApi<
   typeof fullApi,
   FunctionReference<any, "internal">
 >;
+
+export declare const components: {};

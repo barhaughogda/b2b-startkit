@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -98,6 +99,9 @@ export function SettingsModal({
           <DialogTitle className="text-xl font-bold text-text-primary">
             Site Settings
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Configure your website structure, pages, theme, and domain.
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs
