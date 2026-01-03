@@ -142,6 +142,7 @@ export default function WebsiteBuilderPage({
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [initFailed, setInitFailed] = useState(false);
 
   // Local builder state (for real-time editing)
   const [localHeader, setLocalHeader] = useState<HeaderConfig | null>(null);
@@ -201,7 +202,8 @@ export default function WebsiteBuilderPage({
       websiteData?.websiteBuilder === null && 
       migrationStatus !== undefined && 
       !migrationStatus?.needsMigration &&
-      !isSaving;
+      !isSaving &&
+      !initFailed;
 
     if (shouldAutoInit) {
       const init = async () => {
@@ -215,13 +217,14 @@ export default function WebsiteBuilderPage({
           toast.success('Website initialized with defaults');
         } catch (error) {
           logger.error('Failed to auto-initialize website:', error);
+          setInitFailed(true);
         } finally {
           setIsSaving(false);
         }
       };
       init();
     }
-  }, [isLoaded, tenantId, websiteData, migrationStatus, initializeBuilder, user, isSaving]);
+  }, [isLoaded, tenantId, websiteData, migrationStatus, initializeBuilder, user, isSaving, initFailed]);
 
   // Get current values
   const currentHeader = localHeader || websiteData?.websiteBuilder?.header as HeaderConfig;
