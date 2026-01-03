@@ -260,6 +260,11 @@ export function LivePreview({
       }
 
       // Validate message structure
+      if (!event.data || typeof event.data !== 'object' || !('type' in event.data)) {
+        // Ignore noise from browser extensions/tools
+        return;
+      }
+
       if (!isValidPreviewMessage(event.data)) {
         logger.warn('[LivePreview] Invalid preview message received:', event.data);
         return;

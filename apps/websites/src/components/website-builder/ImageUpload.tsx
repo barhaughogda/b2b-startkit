@@ -89,6 +89,12 @@ export function ImageUpload({
         body: formData,
       });
 
+      // Handle non-JSON responses
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned an invalid response. Please check if the upload service is available.');
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || errorData.message || 'Upload failed');
