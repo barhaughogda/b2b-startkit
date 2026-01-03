@@ -22,6 +22,7 @@ export default function CustomTextBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: CustomTextBlockComponentProps) {
   const {
     title,

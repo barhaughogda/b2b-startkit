@@ -122,6 +122,7 @@ export default function ServicesBlock({
   theme,
   bookUrl,
   appearance,
+  blockId,
 }: ServicesBlockComponentProps) {
   const {
     title,

@@ -443,6 +443,7 @@ export default function HowItWorksBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: HowItWorksBlockComponentProps) {
   const {
     title,

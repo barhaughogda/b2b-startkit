@@ -27,6 +27,7 @@ export default function ClinicsBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: ClinicsBlockComponentProps) {
   const {
     title,

@@ -38,6 +38,7 @@ export default function TestimonialsBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: TestimonialsBlockComponentProps) {
   const {
     title,

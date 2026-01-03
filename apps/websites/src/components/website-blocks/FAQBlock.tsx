@@ -45,6 +45,7 @@ export default function FAQBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: FAQBlockComponentProps) {
   const {
     title,

@@ -223,6 +223,7 @@ export default function TrustBarBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: TrustBarBlockComponentProps) {
   const {
     items,

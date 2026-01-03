@@ -112,6 +112,7 @@ export default function MediaBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: MediaBlockComponentProps) {
   const {
     mediaKind = 'image',

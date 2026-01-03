@@ -28,6 +28,7 @@ export default function CTABandBlock({
   theme,
   bookUrl,
   appearance,
+  blockId,
 }: CTABandBlockComponentProps) {
   const {
     headline,

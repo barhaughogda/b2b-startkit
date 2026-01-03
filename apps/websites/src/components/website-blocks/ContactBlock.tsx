@@ -26,6 +26,7 @@ export default function ContactBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: ContactBlockComponentProps) {
   const {
     title,

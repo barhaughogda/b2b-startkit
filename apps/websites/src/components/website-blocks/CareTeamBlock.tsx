@@ -40,6 +40,7 @@ export default function CareTeamBlock({
   theme,
   bookUrl,
   appearance,
+  blockId,
 }: CareTeamBlockComponentProps) {
   const {
     title,
