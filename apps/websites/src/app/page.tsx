@@ -199,7 +199,7 @@ export default function WebsiteBuilderPage({
       isLoaded && 
       tenantId && 
       websiteData !== undefined && 
-      websiteData?.websiteBuilder === null && 
+      (websiteData === null || websiteData?.websiteBuilder === null) && 
       migrationStatus !== undefined && 
       !migrationStatus?.needsMigration &&
       !isSaving &&

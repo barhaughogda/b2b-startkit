@@ -347,6 +347,91 @@ const seoConfigValidator = v.object({
 })
 
 // =============================================================================
+// HELPERS
+// =============================================================================
+
+/**
+ * Get or create a tenant record in development
+ */
+async function getOrCreateTenant(ctx: MutationCtx, tenantId: string) {
+  let tenant = await ctx.db
+    .query('tenants')
+    .withIndex('by_tenant_id', (q) => q.eq('id', tenantId))
+    .first()
+
+  if (!tenant) {
+    // Auto-provision tenant record in development if it's missing
+    const now = Date.now();
+    await ctx.db.insert("tenants", {
+      id: tenantId,
+      name: "New Clinic",
+      slug: tenantId.split('_')[1] || "new-clinic",
+      type: "clinic",
+      status: "active",
+      subscription: {
+        plan: "basic",
+        status: "active",
+        startDate: new Date(now).toISOString(),
+        maxUsers: 10,
+        maxPatients: 1000,
+      },
+      branding: {
+        primaryColor: "#008080",
+        secondaryColor: "#5F284A",
+      },
+      contactInfo: {
+        phone: "555-0100",
+        email: "contact@example.com",
+        address: {
+          street: "123 Medical Way",
+          city: "Health City",
+          state: "CA",
+          zipCode: "90210",
+          country: "USA",
+        },
+      },
+      features: {
+        onlineScheduling: true,
+        telehealth: true,
+        prescriptionRefills: true,
+        labResults: true,
+        messaging: true,
+        billing: true,
+        patientPortal: true,
+        mobileApp: true,
+      },
+      settings: {
+        timezone: "UTC",
+        dateFormat: "MM/DD/YYYY",
+        timeFormat: "12h",
+        currency: "USD",
+        language: "en",
+        appointmentDuration: 30,
+        reminderSettings: {
+          email: true,
+          sms: true,
+          phone: false,
+          advanceNoticeHours: 24,
+        },
+      },
+      createdAt: now,
+      updatedAt: now,
+    });
+    
+    // Re-fetch the newly created tenant
+    tenant = await ctx.db
+      .query('tenants')
+      .withIndex('by_tenant_id', (q) => q.eq('id', tenantId))
+      .first();
+    
+    if (!tenant) {
+      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND);
+    }
+  }
+  return tenant;
+}
+
+// =============================================================================
 // QUERIES
 // =============================================================================
 
@@ -400,6 +485,34 @@ export const hasWebsiteBuilder = query({
     return {
       exists: true,
       configured: !!tenant.websiteBuilder,
+    }
+  },
+})
+
+/**
+ * Get published website configuration by tenant slug
+ */
+export const getPublishedWebsiteBySlug = query({
+  args: {
+    slug: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await ctx.db
+      .query('tenants')
+      .withIndex('by_slug', (q) => q.eq('slug', args.slug))
+      .first()
+
+    if (!tenant || !tenant.websiteBuilder?.publishedAt) {
+      return null
+    }
+
+    return {
+      websiteBuilder: tenant.websiteBuilder,
+      tenantName: tenant.name,
+      tenantId: tenant.id,
+      logoUrl: tenant.branding.logo,
+      contactInfo: tenant.contactInfo,
+      bookingSettings: tenant.bookingSettings,
     }
   },
 })
@@ -465,15 +578,15 @@ export const initializeWebsiteBuilder = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
+    return await initializeHandler(ctx, args, tenant, authResult.userId);
+  },
+})
 
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
-
+/**
+ * Shared handler for website builder initialization logic
+ */
+async function initializeHandler(ctx: MutationCtx, args: any, tenant: any, userId?: Id<'users'>) {
     // Default to multi-page if not specified
     const siteStructure = args.siteStructure || 'multi-page'
 
@@ -850,7 +963,7 @@ export const initializeWebsiteBuilder = mutation({
     await logWebsiteBuilderAudit(
       ctx,
       args.tenantId,
-      authResult.userId,
+      userId,
       'website_builder_initialized',
       {
         siteStructure: defaultWebsiteBuilder.siteStructure,
@@ -860,8 +973,7 @@ export const initializeWebsiteBuilder = mutation({
     )
 
     return { success: true, websiteBuilder: defaultWebsiteBuilder }
-  },
-})
+}
 
 /**
  * Update site structure (one-pager vs multi-page)
@@ -883,17 +995,11 @@ export const updateSiteStructure = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
-      throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
+      // If website builder not initialized yet, initialize it with the requested structure
+      return await initializeHandler(ctx, args, tenant, authResult.userId);
     }
 
     const previousStructure =
@@ -1023,14 +1129,7 @@ export const updateTemplate = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1083,14 +1182,7 @@ export const updateHeader = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1140,14 +1232,7 @@ export const updateFooter = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1197,14 +1282,7 @@ export const updateTheme = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1255,14 +1333,7 @@ export const updateBlocks = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1314,14 +1385,7 @@ export const addBlock = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1368,14 +1432,7 @@ export const updateBlock = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1429,14 +1486,7 @@ export const removeBlock = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1479,14 +1529,7 @@ export const reorderBlocks = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1537,14 +1580,7 @@ export const updateSEO = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1584,14 +1620,7 @@ export const publishWebsite = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1665,14 +1694,7 @@ export const unpublishWebsite = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1738,14 +1760,7 @@ export const saveWebsiteBuilder = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     await ctx.db.patch(tenant._id, {
       websiteBuilder: {
@@ -1783,14 +1798,7 @@ export const updatePages = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1860,14 +1868,7 @@ export const updatePage = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -1936,14 +1937,7 @@ export const addCustomPage = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -2044,14 +2038,7 @@ export const deleteCustomPage = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -2116,14 +2103,7 @@ export const reorderPages = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -2176,14 +2156,7 @@ export const setActivePage = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -2223,14 +2196,7 @@ export const updateSocialLinks = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -2273,14 +2239,7 @@ export const updateExternalLinks = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     if (!tenant.websiteBuilder) {
       throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
@@ -2297,312 +2256,6 @@ export const updateExternalLinks = mutation({
       },
       updatedAt: Date.now(),
     })
-
-    return { success: true }
-  },
-})
-
-// =============================================================================
-// VERSION HISTORY
-// =============================================================================
-// TODO: Version history functionality requires websiteBuilderVersions table in schema
-// These functions are temporarily disabled until the table is added to convex/schema.ts
-
-/**
- * Get version history for a tenant's website builder
- */
-export const getVersionHistory = query({
-  args: {
-    tenantId: v.string(),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx, args) => {
-    const limit = args.limit ?? 20
-
-    const versions = await ctx.db
-      .query('websiteBuilderVersions')
-      .withIndex('by_tenant_created', (q) => q.eq('tenantId', args.tenantId))
-      .order('desc')
-      .take(limit)
-
-    return versions
-  },
-})
-
-/**
- * Get a specific version by version number
- */
-export const getVersion = query({
-  args: {
-    tenantId: v.string(),
-    versionNumber: v.number(),
-  },
-  handler: async (ctx, args) => {
-    const version = await ctx.db
-      .query('websiteBuilderVersions')
-      .withIndex('by_tenant_version', (q) =>
-        q.eq('tenantId', args.tenantId).eq('versionNumber', args.versionNumber)
-      )
-      .first()
-
-    return version
-  },
-})
-
-/**
- * Create a new version snapshot (called before publishing or manually)
- */
-export const createVersionSnapshot = mutation({
-  args: {
-    tenantId: v.string(),
-    label: v.optional(v.string()),
-    note: v.optional(v.string()),
-    createdBy: v.optional(v.string()),
-    userEmail: v.string(),
-  },
-  handler: async (ctx, args) => {
-    // Verify user has access to this tenant
-    const authResult = await verifyClinicUserAccess(
-      ctx,
-      args.userEmail,
-      args.tenantId
-    )
-    if (!authResult.authorized) {
-      throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
-    }
-
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
-
-    if (!tenant.websiteBuilder) {
-      throw new Error(ERROR_MESSAGES.BUILDER_NOT_INITIALIZED)
-    }
-
-    // Get the current highest version number
-    const latestVersion = await ctx.db
-      .query('websiteBuilderVersions')
-      .withIndex('by_tenant_created', (q) => q.eq('tenantId', args.tenantId))
-      .order('desc')
-      .first()
-
-    const newVersionNumber = (latestVersion?.versionNumber ?? 0) + 1
-
-    // Create semantic version string
-    const version = `1.${newVersionNumber}.0`
-
-    const versionId = await ctx.db.insert('websiteBuilderVersions', {
-      tenantId: args.tenantId,
-      version,
-      versionNumber: newVersionNumber,
-      label: args.label,
-      snapshot: {
-        templateId: tenant.websiteBuilder.templateId,
-        header: tenant.websiteBuilder.header,
-        footer: tenant.websiteBuilder.footer,
-        theme: tenant.websiteBuilder.theme,
-        blocks: tenant.websiteBuilder.blocks,
-        seo: tenant.websiteBuilder.seo,
-      },
-      isPublished: !!tenant.websiteBuilder.publishedAt,
-      createdBy: args.createdBy,
-      createdAt: Date.now(),
-      note: args.note,
-    })
-
-    return {
-      success: true,
-      versionId,
-      versionNumber: newVersionNumber,
-      version,
-    }
-  },
-})
-
-/**
- * Restore a previous version
- */
-export const restoreVersion = mutation({
-  args: {
-    tenantId: v.string(),
-    versionNumber: v.number(),
-    createdBy: v.optional(v.string()),
-    userEmail: v.string(),
-  },
-  handler: async (ctx, args) => {
-    // Verify user has access to this tenant
-    const authResult = await verifyClinicUserAccess(
-      ctx,
-      args.userEmail,
-      args.tenantId
-    )
-    if (!authResult.authorized) {
-      throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
-    }
-
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
-
-    // Get the version to restore
-    const versionToRestore = await ctx.db
-      .query('websiteBuilderVersions')
-      .withIndex('by_tenant_version', (q) =>
-        q.eq('tenantId', args.tenantId).eq('versionNumber', args.versionNumber)
-      )
-      .first()
-
-    if (!versionToRestore) {
-      throw new Error(`Version ${args.versionNumber} not found`)
-    }
-
-    // First, create a snapshot of the current state before restoring
-    if (tenant.websiteBuilder) {
-      const latestVersion = await ctx.db
-        .query('websiteBuilderVersions')
-        .withIndex('by_tenant_created', (q) => q.eq('tenantId', args.tenantId))
-        .order('desc')
-        .first()
-
-      const newVersionNumber = (latestVersion?.versionNumber ?? 0) + 1
-
-      await ctx.db.insert('websiteBuilderVersions', {
-        tenantId: args.tenantId,
-        version: `1.${newVersionNumber}.0`,
-        versionNumber: newVersionNumber,
-        label: `Auto-save before restore from v${args.versionNumber}`,
-        snapshot: {
-          templateId: tenant.websiteBuilder.templateId,
-          header: tenant.websiteBuilder.header,
-          footer: tenant.websiteBuilder.footer,
-          theme: tenant.websiteBuilder.theme,
-          blocks: tenant.websiteBuilder.blocks,
-          seo: tenant.websiteBuilder.seo,
-        },
-        isPublished: !!tenant.websiteBuilder.publishedAt,
-        createdBy: args.createdBy,
-        createdAt: Date.now(),
-        restoredFrom: args.versionNumber,
-        note: `Auto-saved before restoring to version ${args.versionNumber}`,
-      })
-    }
-
-    // Restore the website builder from the snapshot
-    const { snapshot } = versionToRestore
-
-    await ctx.db.patch(tenant._id, {
-      websiteBuilder: {
-        ...(tenant.websiteBuilder || {}),
-        version: versionToRestore.version,
-        templateId: snapshot.templateId,
-        header: snapshot.header,
-        footer: snapshot.footer,
-        theme: snapshot.theme,
-        blocks: snapshot.blocks,
-        seo: snapshot.seo,
-        lastEditedAt: Date.now(),
-        lastEditedBy: args.createdBy,
-        // Keep publishedAt as is - don't auto-publish restored versions
-      },
-      updatedAt: Date.now(),
-    })
-
-    return {
-      success: true,
-      restoredVersion: args.versionNumber,
-      restoredLabel: versionToRestore.label,
-    }
-  },
-})
-
-/**
- * Update a version's label or note
- */
-export const updateVersionMetadata = mutation({
-  args: {
-    tenantId: v.string(),
-    versionNumber: v.number(),
-    label: v.optional(v.string()),
-    note: v.optional(v.string()),
-    userEmail: v.string(),
-  },
-  handler: async (ctx, args) => {
-    // Verify user has access to this tenant
-    const authResult = await verifyClinicUserAccess(
-      ctx,
-      args.userEmail,
-      args.tenantId
-    )
-    if (!authResult.authorized) {
-      throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
-    }
-
-    const version = await ctx.db
-      .query('websiteBuilderVersions')
-      .withIndex('by_tenant_version', (q) =>
-        q.eq('tenantId', args.tenantId).eq('versionNumber', args.versionNumber)
-      )
-      .first()
-
-    if (!version) {
-      throw new Error(`Version ${args.versionNumber} not found`)
-    }
-
-    await ctx.db.patch(version._id, {
-      ...(args.label !== undefined && { label: args.label }),
-      ...(args.note !== undefined && { note: args.note }),
-    })
-
-    return { success: true }
-  },
-})
-
-/**
- * Delete a version (only non-published versions can be deleted)
- */
-export const deleteVersion = mutation({
-  args: {
-    tenantId: v.string(),
-    versionNumber: v.number(),
-    userEmail: v.string(),
-  },
-  handler: async (ctx, args) => {
-    // Verify user has access to this tenant
-    const authResult = await verifyClinicUserAccess(
-      ctx,
-      args.userEmail,
-      args.tenantId
-    )
-    if (!authResult.authorized) {
-      throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
-    }
-
-    const version = await ctx.db
-      .query('websiteBuilderVersions')
-      .withIndex('by_tenant_version', (q) =>
-        q.eq('tenantId', args.tenantId).eq('versionNumber', args.versionNumber)
-      )
-      .first()
-
-    if (!version) {
-      throw new Error(`Version ${args.versionNumber} not found`)
-    }
-
-    if (version.isPublished) {
-      throw new Error('Cannot delete a published version')
-    }
-
-    await ctx.db.delete(version._id)
 
     return { success: true }
   },
@@ -2633,14 +2286,7 @@ export const migrateFromLandingPage = mutation({
       throw new Error(authResult.error || ERROR_MESSAGES.UNAUTHORIZED)
     }
 
-    const tenant = await ctx.db
-      .query('tenants')
-      .withIndex('by_tenant_id', (q) => q.eq('id', args.tenantId))
-      .first()
-
-    if (!tenant) {
-      throw new Error(ERROR_MESSAGES.TENANT_NOT_FOUND)
-    }
+    const tenant = await getOrCreateTenant(ctx, args.tenantId);
 
     // If preserveExisting is true and websiteBuilder already exists, skip
     if (args.preserveExisting && tenant.websiteBuilder) {
@@ -2941,44 +2587,6 @@ export const migrateFromLandingPage = mutation({
     await ctx.db.patch(tenant._id, {
       websiteBuilder: migratedWebsiteBuilder,
       updatedAt: Date.now(),
-    })
-
-    // TODO: Version history functionality requires websiteBuilderVersions table in schema
-    // Version snapshot creation temporarily disabled until table is added
-    // await ctx.db.insert('websiteBuilderVersions', {
-    //   tenantId: args.tenantId,
-    //   version: '1.0.0',
-    //   versionNumber: 1,
-    //   label: 'Migrated from legacy landing page',
-    //   snapshot: {
-    //     templateId: migratedWebsiteBuilder.templateId,
-    //     header: migratedWebsiteBuilder.header,
-    //     footer: migratedWebsiteBuilder.footer,
-    //     theme: migratedWebsiteBuilder.theme,
-    //     blocks: migratedWebsiteBuilder.blocks,
-    //     seo: migratedWebsiteBuilder.seo,
-    //   },
-    //   isPublished: landingPage?.enabled ?? false,
-    //   createdAt: Date.now(),
-    //   note: 'Initial migration from legacy landingPage configuration',
-    // })
-    // Create initial version in history
-    await ctx.db.insert('websiteBuilderVersions', {
-      tenantId: args.tenantId,
-      version: '1.0.0',
-      versionNumber: 1,
-      label: 'Migrated from legacy landing page',
-      snapshot: {
-        templateId: migratedWebsiteBuilder.templateId,
-        header: migratedWebsiteBuilder.header,
-        footer: migratedWebsiteBuilder.footer,
-        theme: migratedWebsiteBuilder.theme,
-        blocks: migratedWebsiteBuilder.blocks,
-        seo: migratedWebsiteBuilder.seo,
-      },
-      isPublished: landingPage?.enabled ?? false,
-      createdAt: Date.now(),
-      note: 'Initial migration from legacy landingPage configuration',
     })
 
     return {
