@@ -7,6 +7,8 @@
  * Handles lazy loading of block components for performance.
  */
 
+'use client';
+
 import React, { Suspense, lazy, useMemo, memo } from 'react';
 import { BlockType, BlockInstance } from '@/lib/website-builder/schema';
 import { blockRegistry, BlockComponentProps } from './block-registry';

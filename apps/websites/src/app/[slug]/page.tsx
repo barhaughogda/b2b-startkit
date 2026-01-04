@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { convexHttp } from '@/lib/convex';
+import { convexHttp } from '@/lib/convex-server';
 import { api } from '@/convex/_generated/api';
-import { SiteRenderer } from '@/components/website-builder/SiteRenderer';
 import { Metadata } from 'next';
+import { Loader2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const SiteRenderer = dynamic(() => import('@/components/website-builder/SiteRenderer'), {
+  ssr: true // We still want SSR, but dynamic import helps with boundary isolation
+});
 
 interface PublicClinicPageProps {
   params: Promise<{ slug: string }>;
@@ -58,14 +63,20 @@ export default async function PublicClinicPage({ params }: PublicClinicPageProps
   const { websiteBuilder, tenantName, tenantId, logoUrl, contactInfo } = siteData;
 
   return (
-    <SiteRenderer
-      websiteBuilder={websiteBuilder}
-      tenantName={tenantName}
-      tenantId={tenantId}
-      tenantSlug={slug}
-      logoUrl={logoUrl}
-      contactInfo={contactInfo}
-      basePath={`/${slug}`}
-    />
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 animate-spin text-teal-600" />
+      </div>
+    }>
+      <SiteRenderer
+        websiteBuilder={websiteBuilder}
+        tenantName={tenantName}
+        tenantId={tenantId}
+        tenantSlug={slug}
+        logoUrl={logoUrl}
+        contactInfo={contactInfo}
+        basePath={`/${slug}`}
+      />
+    </Suspense>
   );
 }

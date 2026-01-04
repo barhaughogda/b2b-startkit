@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
-import { convex } from '@/lib/convex';
+import { convex } from '@/lib/convex-client';
 
 interface ConvexErrorBoundaryProps {
   children: React.ReactNode;

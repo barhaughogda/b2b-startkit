@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
 import { Id } from '@/convex/_generated/dataModel';
 import { canUseConvexQuery } from '@/lib/convexIdValidation';
-import { convex } from '@/lib/convex';
+import { convex } from '@/lib/convex-client';
 import { ConvexErrorBoundary } from '@/components/utils/ConvexErrorBoundary';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';

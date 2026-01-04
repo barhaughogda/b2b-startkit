@@ -1,4 +1,5 @@
 import useSWR from 'swr'
+import { useMemo } from 'react'
 import { useZentheaSession } from './useZentheaSession'
 
 const fetcher = (url: string, tenantId: string) => 

@@ -4,7 +4,7 @@ import { ConvexProvider } from "convex/react";
 import { SessionProvider } from "@/hooks/useZentheaSession";
 import React from "react";
 import { CardSystemProvider } from "@/components/cards/CardSystemProvider";
-import { convex } from "@/lib/convex";
+import { convex } from "@/lib/convex-client";
 
 /**
  * Providers component to wrap the application with necessary contexts.

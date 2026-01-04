@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ConvexProvider } from "convex/react";
-import { convex } from "@/lib/convex";
+import { convex } from "@/lib/convex-client";
 
 /**
  * Layout for public tenant pages (landing page, booking, providers, etc.)

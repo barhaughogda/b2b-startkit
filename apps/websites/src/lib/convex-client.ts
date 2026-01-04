@@ -1,3 +1,5 @@
+'use client';
+
 import { ConvexReactClient } from "convex/react";
 import { ConvexHttpClient } from "convex/browser";
 import { logger } from "./logger";

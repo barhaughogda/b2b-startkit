@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { convex } from '@/lib/convex';
+import { convex } from '@/lib/convex-client';
 import { useTenantId, isValidTenantId } from '@/hooks/useTenantId';
 
 type ViewMode = 'grid' | 'list';
