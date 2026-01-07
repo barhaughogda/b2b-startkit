@@ -9,7 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getZentheaServerSession } from '@/lib/auth';
 
-import { initializeConvex } from '@/lib/convex-client';
+import { convexHttp as convex } from '@/lib/convex-server';
+import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { extractClientIP, extractUserAgent } from '@/lib/utils/request-helpers';
 
@@ -47,17 +48,6 @@ export async function POST(request: NextRequest) {
     // Uses shared utility that checks Cloudflare headers first for better reliability
     const finalIpAddress = extractClientIP(request, ipAddress);
     const finalUserAgent = extractUserAgent(request, userAgent);
-
-    // Initialize Convex
-    const { convex, api } = await initializeConvex();
-    if (!convex || !api) {
-      console.error('Convex not available for audit logging');
-      // Don't fail the request if audit logging fails - log error but continue
-      return NextResponse.json(
-        { success: false, error: 'Audit logging service unavailable' },
-        { status: 503 }
-      );
-    }
 
     // Get session if available (for successful logins)
     let sessionUserId: string | undefined = userId;

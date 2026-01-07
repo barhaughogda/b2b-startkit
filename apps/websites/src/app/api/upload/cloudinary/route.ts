@@ -124,7 +124,6 @@ export async function POST(request: NextRequest) {
       logger.info('Cloudinary upload successful:', uploadResult.publicId);
 
       return NextResponse.json({
-        success: true,
         ...uploadResult
       });
     } catch (uploadError) {

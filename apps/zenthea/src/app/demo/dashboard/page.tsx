@@ -1,6 +1,7 @@
 "use client";
 
-import { useZentheaSession } from "@/hooks/useZentheaSession"; import { useClerk } from "@clerk/nextjs";
+import { useZentheaSession, signOut } from "@/hooks/useZentheaSession";
+import { useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 

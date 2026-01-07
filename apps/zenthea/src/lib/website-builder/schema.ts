@@ -12,8 +12,27 @@ export { DEFAULT_BLOCK_APPEARANCE, BackgroundTokens, TextTokens };
 
 // Re-export validation schemas and helpers
 export * from './zod-schemas';
-import { getBlockPropsSchema, blockMetadata } from './zod-schemas';
-export { getBlockPropsSchema, blockMetadata, blockMetadata as BLOCK_METADATA };
+import { 
+  getBlockPropsSchema, 
+  blockMetadata, 
+  footerColumnSchema,
+  footerMenuPageItemSchema,
+  footerMenuExternalItemSchema,
+  footerMenuItemSchema,
+  footerMenuSectionSchema,
+  footerMenuColumnSchema,
+} from './zod-schemas';
+export { 
+  getBlockPropsSchema, 
+  blockMetadata, 
+  blockMetadata as BLOCK_METADATA,
+  footerColumnSchema,
+  footerMenuPageItemSchema,
+  footerMenuExternalItemSchema,
+  footerMenuItemSchema,
+  footerMenuSectionSchema,
+  footerMenuColumnSchema,
+};
 
 // Re-export content generators
 export * from './content-generators';

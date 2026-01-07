@@ -5,6 +5,7 @@ import { api } from '@/convex/_generated/api';
 import { Metadata } from 'next';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { WebsiteDefinition } from '@/lib/website-builder/schema';
 
 const SiteRenderer = dynamic(() => import('@/components/website-builder/SiteRenderer'), {
   ssr: true // We still want SSR, but dynamic import helps with boundary isolation
@@ -69,7 +70,7 @@ export default async function PublicClinicPage({ params }: PublicClinicPageProps
       </div>
     }>
       <SiteRenderer
-        websiteBuilder={websiteBuilder}
+        websiteBuilder={websiteBuilder as WebsiteDefinition}
         tenantName={tenantName}
         tenantId={tenantId}
         tenantSlug={slug}

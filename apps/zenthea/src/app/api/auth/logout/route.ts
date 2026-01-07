@@ -8,7 +8,8 @@
 import { NextResponse } from 'next/server';
 import { getZentheaServerSession } from '@/lib/auth';
 
-import { initializeConvex } from '@/lib/convex-client';
+import { convexHttp as convexClient } from '@/lib/convex-server';
+import { api as convexApi } from '@/convex/_generated/api';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -34,18 +35,6 @@ export async function POST() {
     
     if (!sessionId) {
       // If no session ID, still return success (session might not have been tracked)
-      return NextResponse.json({
-        success: true,
-        message: 'Logged out successfully',
-      });
-    }
-    
-    // Initialize Convex
-    const { convex: convexClient, api: convexApi } = await initializeConvex();
-    
-    if (!convexClient || !convexApi) {
-      // If Convex not available, still return success (session cleanup is best effort)
-      logger.warn('Convex not available for session cleanup');
       return NextResponse.json({
         success: true,
         message: 'Logged out successfully',

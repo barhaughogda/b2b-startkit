@@ -326,27 +326,89 @@ export const pageConfigSchema = z.object({
   useDefaultContent: z.boolean().optional(),
 });
 
+export const footerColumnSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  links: z.array(navItemSchema),
+});
+
+export const footerMenuPageItemSchema = z.object({
+  id: z.string(),
+  kind: z.literal('page'),
+  pageId: z.string(),
+});
+
+export const footerMenuExternalItemSchema = z.object({
+  id: z.string(),
+  kind: z.literal('external'),
+  label: z.string(),
+  url: z.string(),
+  openInNewTab: z.boolean().optional(),
+});
+
+export const footerMenuItemSchema = z.union([
+  footerMenuPageItemSchema,
+  footerMenuExternalItemSchema
+]);
+
+export const footerMenuSectionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  items: z.array(footerMenuItemSchema),
+});
+
+export const footerMenuColumnSchema = z.object({
+  id: z.string(),
+  layoutOrder: z.number(),
+  sections: z.array(footerMenuSectionSchema),
+});
+
 export const headerConfigSchema = z.object({
   variant: headerVariantSchema.default('sticky-simple'),
+  logoUrl: z.string().optional(),
+  logoAlt: z.string().optional(),
   navItems: z.array(navItemSchema).default([]),
-  showBookingButton: z.boolean().default(true),
-  bookingButtonText: z.string().default('Book Appointment'),
-  showLoginButton: z.boolean().default(true),
-  isSticky: z.boolean().default(true),
-  transparentOnHero: z.boolean().default(true),
+  showSignIn: z.boolean().default(true),
+  signInText: z.string().default('Sign In'),
+  signInUrl: z.string().default('/login'),
+  showBook: z.boolean().default(true),
+  bookText: z.string().default('Book Appointment'),
+  bookUrl: z.string().default('/book'),
+  infoBarPhone: z.string().optional(),
+  infoBarHours: z.string().optional(),
+  infoBarText: z.string().optional(),
+  sticky: z.boolean().default(true),
+  transparent: z.boolean().default(true),
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
+  mobileBackgroundColor: z.string().optional(),
+  mobileTextColor: z.string().optional(),
+  headerBackgroundColor: z.string().optional(),
+  headerTextColor: z.string().optional(),
+  headerMobileBackgroundColor: z.string().optional(),
+  headerMobileTextColor: z.string().optional(),
+  useThemeColors: z.boolean().optional(),
 });
 
 export const footerConfigSchema = z.object({
   variant: footerVariantSchema.default('multi-column'),
+  columns: z.array(footerColumnSchema).default([]),
+  menuColumns: z.array(footerMenuColumnSchema).optional(),
+  showLogo: z.boolean().default(true),
+  tagline: z.string().optional(),
   showSocial: z.boolean().default(true),
   socialLinks: z.array(socialLinkSchema).default([]),
   showNewsletter: z.boolean().default(true),
+  newsletterTitle: z.string().optional(),
   newsletterHeadline: z.string().optional(),
+  legalLinks: z.array(z.object({ id: z.string(), label: z.string(), href: z.string() })).default([]),
   copyrightText: z.string().optional(),
+  poweredByZenthea: z.boolean().default(true),
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
+  footerBackgroundColor: z.string().optional(),
+  footerTextColor: z.string().optional(),
+  useThemeColors: z.boolean().optional(),
   externalLinks: z.array(z.object({
     id: z.string(),
     label: z.string(),
@@ -397,6 +459,7 @@ export const blockMetadata: Record<
   {
     name: string
     description: string
+    icon: string
     category: 'required' | 'recommended'
     defaultProps: Record<string, unknown>
   }
@@ -404,78 +467,91 @@ export const blockMetadata: Record<
   hero: {
     name: 'Hero Section',
     description: 'The main introduction at the top of the page',
+    icon: 'Layout',
     category: 'required',
     defaultProps: heroBlockPropsSchema.parse({}),
   },
   'care-team': {
     name: 'Care Team',
     description: 'Display your team of healthcare providers',
+    icon: 'Users',
     category: 'required',
     defaultProps: careTeamBlockPropsSchema.parse({}),
   },
   clinics: {
     name: 'Our Locations',
     description: 'Showcase your clinic locations and contact info',
+    icon: 'MapPin',
     category: 'required',
     defaultProps: clinicsBlockPropsSchema.parse({}),
   },
   services: {
     name: 'Services',
     description: 'List the medical services you provide',
+    icon: 'Heart',
     category: 'required',
     defaultProps: servicesBlockPropsSchema.parse({}),
   },
   'trust-bar': {
     name: 'Trust Bar',
     description: 'Badges, awards, or partners to build credibility',
+    icon: 'Shield',
     category: 'recommended',
     defaultProps: trustBarBlockPropsSchema.parse({}),
   },
   'how-it-works': {
     name: 'How It Works',
     description: 'Step-by-step guide for patients',
+    icon: 'ListOrdered',
     category: 'recommended',
     defaultProps: howItWorksBlockPropsSchema.parse({}),
   },
   testimonials: {
     name: 'Testimonials',
     description: 'Patient reviews and feedback',
+    icon: 'MessageSquare',
     category: 'recommended',
     defaultProps: testimonialsBlockPropsSchema.parse({}),
   },
   faq: {
     name: 'FAQ',
     description: 'Frequently asked questions',
+    icon: 'HelpCircle',
     category: 'recommended',
     defaultProps: faqBlockPropsSchema.parse({}),
   },
   contact: {
     name: 'Contact Info',
     description: 'Main contact information and business hours',
+    icon: 'Phone',
     category: 'recommended',
     defaultProps: contactBlockPropsSchema.parse({}),
   },
   'cta-band': {
     name: 'Call to Action',
     description: 'Large band to encourage appointment booking',
+    icon: 'Sparkles',
     category: 'recommended',
     defaultProps: ctaBandBlockPropsSchema.parse({}),
   },
   'custom-text': {
     name: 'Custom Text',
     description: 'Free-form text area with rich formatting',
+    icon: 'FileText',
     category: 'recommended',
     defaultProps: customTextBlockPropsSchema.parse({}),
   },
   'photo-text': {
     name: 'Photo & Text',
     description: 'Side-by-side image and text layout',
+    icon: 'Image',
     category: 'recommended',
     defaultProps: photoTextBlockPropsSchema.parse({}),
   },
   media: {
     name: 'Media (Video)',
     description: 'Video embed or custom media content',
+    icon: 'Video',
     category: 'recommended',
     defaultProps: mediaBlockPropsSchema.parse({}),
   },

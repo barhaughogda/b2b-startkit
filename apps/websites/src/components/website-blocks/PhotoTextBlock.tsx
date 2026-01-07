@@ -28,6 +28,7 @@ export default function PhotoTextBlock({
   isPreview,
   theme,
   appearance,
+  blockId,
 }: PhotoTextBlockComponentProps) {
   const {
     imageUrl,
