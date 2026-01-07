@@ -44,7 +44,6 @@ function createMockPage(
     showInHeader: options.showInHeader ?? true,
     showInFooter: options.showInFooter ?? true,
     order: options.order ?? 0,
-    seo: {},
     blocks: [],
     ...options,
   };

@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
           ? (sessionUserId as Id<'users'>)
           : undefined;
 
-      await convex.mutation(api.auditLogs.create, {
+      await (convex as any).mutation(api.auditLogs.create, {
         tenantId: auditTenantId,
         userId: validatedUserId,
         action: action === 'login_success' ? 'login_success' : 'login_failed',

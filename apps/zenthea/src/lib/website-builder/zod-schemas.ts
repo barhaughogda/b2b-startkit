@@ -432,10 +432,15 @@ export const themeConfigSchema = z.object({
 });
 
 export const seoConfigSchema = z.object({
-  titleTemplate: z.string().default('%s | Zenthea Healthcare'),
-  defaultDescription: z.string().default('Quality healthcare services provided by Zenthea clinics.'),
-  faviconUrl: z.string().optional(),
-  ogImageUrl: z.string().optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  keywords: z.array(z.string()).optional(),
+  ogImage: z.string().optional(),
+  ogTitle: z.string().optional(),
+  ogDescription: z.string().optional(),
+  twitterCard: z.enum(['summary', 'summary_large_image']).optional(),
+  canonicalUrl: z.string().optional(),
+  noIndex: z.boolean().optional(),
 });
 
 export const websiteDefinitionSchema = z.object({

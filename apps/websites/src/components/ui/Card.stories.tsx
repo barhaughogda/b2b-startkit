@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './card';

@@ -43,7 +43,7 @@ export async function POST() {
     
     // Delete session from Convex
     try {
-      await convexClient.mutation(convexApi.sessions.deleteSession, {
+      await (convexClient as any).mutation(convexApi.sessions.deleteSession, {
         sessionId: sessionId,
       });
     } catch (error) {

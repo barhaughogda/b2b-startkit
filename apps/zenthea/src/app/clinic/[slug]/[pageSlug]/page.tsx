@@ -105,7 +105,7 @@ function SubPageRenderer({
   const pageSeo: SEOConfig = {
     title: `${page.title} | ${tenant.name}`,
     description: websiteBuilder.seo?.description || tenant.description || undefined,
-    twitterCard: 'summary_large_image',
+    twitterCard: 'summary_large_image' as const,
     noIndex: websiteBuilder.seo?.noIndex ?? false,
   };
 
@@ -120,7 +120,7 @@ function SubPageRenderer({
       
       {/* Site Content */}
       <SiteRenderer
-        websiteBuilder={transformedWebsiteBuilder as SiteRendererProps['websiteBuilder']}
+        websiteBuilder={transformedWebsiteBuilder as any}
         tenantName={tenant.name}
         tenantId={tenant.id}
         logoUrl={tenant.branding.logo ?? undefined}

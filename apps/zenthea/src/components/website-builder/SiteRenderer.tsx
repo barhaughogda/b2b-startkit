@@ -8,6 +8,7 @@ import type {
   BlockInstance,
   SiteStructure,
   PageConfig,
+  WebsiteDefinition,
 } from '@/lib/website-builder/schema';
 import { TemplateRenderer } from '@/components/website-templates';
 import { transformFooterWithTenantData, type TenantFooterData } from '@/lib/website-builder/footer-utils';
@@ -18,23 +19,7 @@ import { transformFooterWithTenantData, type TenantFooterData } from '@/lib/webs
 
 export interface SiteRendererProps {
   /** Website definition from database */
-  websiteBuilder: {
-    version: string;
-    /** Site structure type - determines navigation behavior */
-    siteStructure?: SiteStructure;
-    /** @deprecated Use siteStructure instead */
-    templateId: string;
-    header: HeaderConfig;
-    footer: FooterConfig;
-    theme: ThemeConfig;
-    blocks: BlockInstance[];
-    /** Pages for multi-page sites */
-    pages?: PageConfig[];
-    seo?: {
-      title?: string;
-      description?: string;
-    };
-  };
+  websiteBuilder: WebsiteDefinition;
   /** Tenant name */
   tenantName?: string;
   /** Tenant ID for data fetching */

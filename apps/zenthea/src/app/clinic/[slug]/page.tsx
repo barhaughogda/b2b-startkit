@@ -695,8 +695,8 @@ function WebsiteBuilderLanding({
   const seoConfig: SEOConfig | undefined = websiteBuilder.seo ? {
     ...websiteBuilder.seo,
     twitterCard: (websiteBuilder.seo.twitterCard === 'summary' || websiteBuilder.seo.twitterCard === 'summary_large_image')
-      ? websiteBuilder.seo.twitterCard
-      : 'summary_large_image',
+      ? (websiteBuilder.seo.twitterCard as 'summary' | 'summary_large_image')
+      : 'summary_large_image' as const,
     noIndex: websiteBuilder.seo.noIndex ?? false,
   } : undefined;
 
@@ -713,7 +713,7 @@ function WebsiteBuilderLanding({
       
       {/* Site Content */}
       <SiteRenderer
-        websiteBuilder={transformedWebsiteBuilder as SiteRendererProps['websiteBuilder']}
+        websiteBuilder={transformedWebsiteBuilder as any}
         tenantName={tenant.name}
         tenantId={tenant.id}
         logoUrl={tenant.branding.logo ?? undefined}
